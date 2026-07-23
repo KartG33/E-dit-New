@@ -1,0 +1,19 @@
+- `[x]` Phase 1: Pure Logic, Data Models & Unit Tests
+  - `[x]` Setup Vite + React + TypeScript + Tailwind
+  - `[x]` Implement pure text command functions (Spaces, Edges, Upper, Lower, etc.)
+  - `[x]` Implement Suno commands (Clean, Space, Upper, Lyrics, Structure, Trim)
+  - `[x]` Implement line diff logic in shared business logic
+  - `[x]` Implement Dexie.js database schema (versioning, migrations)
+  - `[x]` Write Vitest tests (pure functions, regex, unicode, large text, Dexie migrations)
+- `[ ]` Phase 2: Core Editors, History & State
+  - `[ ]` Create the independent Editor components
+  - `[ ]` Implement Symbol Analyzer logic with debounce
+  - `[ ]` Implement undo/redo history tracking (max 100)
+  - `[ ]` Implement global hotkeys
+  - `[ ]` Build the Notes and History sidebar (history max 50)
+  - `[ ]` Implement Presets and Favorites (with pinned startup tab)
+  - `[ ]` Implement the detailed Suno tags editor
+  - `[ ]` Implement the JSON Backup export/import logic
+- `[ ]` Phase 3: Desktop UI & Tauri Integration
+- `[ ]` Phase 4: Mobile UI & Capacitor Integration
+- `[ ]` Phase 5: Polish & Performance
