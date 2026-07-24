@@ -3,18 +3,20 @@ import { Undo2, Redo2 } from 'lucide-react';
 import { useSymbolAnalyzer } from '../../hooks/useSymbolAnalyzer';
 import { useGlobalHotkeys } from '../../hooks/useGlobalHotkeys';
 import type { EditorState } from '../../hooks/useEditor';
+import { removeTokenFromText } from '../../lib/analyzer';
 
 export interface EditorProps {
   id: 'left' | 'right' | 'main';
   value: string;
-  currentState: EditorState;
-  updateValue: (v: string, start?: number, end?: number, history?: boolean) => void;
+  isActive: boolean;
+  onFocus: () => void;
+  updateValue: (val: string, selectionStart?: number, selectionEnd?: number, addToHistory?: boolean) => void;
+  onSelect: (start: number, end: number) => void;
   undo: () => void;
   redo: () => void;
   canUndo: boolean;
   canRedo: boolean;
-  isActive: boolean;
-  onFocus: () => void;
+  currentState: EditorState;
 }
 
 export const Editor = ({
@@ -22,6 +24,7 @@ export const Editor = ({
   value,
   currentState,
   updateValue,
+  onSelect,
   undo,
   redo,
   canUndo,
@@ -76,8 +79,13 @@ export const Editor = ({
     'Ctrl+Y': () => { if (isActive) handleRedo(); },
   }, isActive);
 
+  const handleSelect = (e: React.SyntheticEvent<HTMLTextAreaElement>) => {
+    const target = e.target as HTMLTextAreaElement;
+    onSelect(target.selectionStart, target.selectionEnd);
+  };
+
   return (
-    <div className={`flex flex-col h-full bg-white dark:bg-zinc-900 border ${isActive ? 'border-blue-500' : 'border-zinc-300 dark:border-zinc-700'} rounded-lg shadow-sm overflow-hidden transition-colors`}>
+    <div className={`flex flex-col h-full bg-white dark:bg-zinc-900 border ${isActive ? 'border-blue-500 shadow-sm ring-1 ring-blue-500/20' : 'border-zinc-300 dark:border-zinc-700'} rounded-lg overflow-hidden transition-all duration-200`}>
       <div className="flex items-center justify-between px-3 py-2 bg-zinc-50 dark:bg-zinc-800 border-b border-zinc-200 dark:border-zinc-700 text-xs text-zinc-500">
         <div className="flex items-center gap-2">
           <span className="font-medium text-zinc-700 dark:text-zinc-300 capitalize mr-2">{id} Editor</span>
@@ -99,21 +107,39 @@ export const Editor = ({
           </button>
         </div>
         <div className="flex gap-4">
-          <span title="Characters">{stats.characters} chars</span>
-          <span title="Characters without spaces">{stats.charactersWithoutSpaces} no spaces</span>
-          <span title="Words">{stats.words} words</span>
-          <span title="Lines">{stats.lines} lines</span>
+          <span>{stats.characters} chars</span>
+          <span>{stats.charactersWithoutSpaces} chars (no space)</span>
+          <span>{stats.words} words</span>
+          <span>{stats.lines} lines</span>
         </div>
       </div>
       
+      {stats.tokens && stats.tokens.length > 0 && (
+        <div className="flex flex-wrap gap-1 px-3 pb-2 bg-zinc-50 dark:bg-zinc-800 border-t border-zinc-200 dark:border-zinc-700">
+          {stats.tokens.map(t => (
+            <button
+              key={t.token}
+              onClick={() => updateValue(removeTokenFromText(value, t.token))}
+              className="text-[10px] px-1.5 py-0.5 mt-1 bg-zinc-200 dark:bg-zinc-700 hover:bg-red-100 hover:text-red-600 dark:hover:bg-red-900/50 dark:hover:text-red-400 rounded transition-colors text-zinc-600 dark:text-zinc-300"
+              title={`Remove all ${t.token}`}
+            >
+              {t.token}: {t.count}
+            </button>
+          ))}
+        </div>
+      )}
+
       <textarea
         ref={textareaRef}
         value={value}
         onChange={handleChange}
         onFocus={onFocus}
-        className="flex-1 w-full p-4 resize-none outline-none bg-transparent text-zinc-800 dark:text-zinc-100 placeholder-zinc-400 dark:placeholder-zinc-600 font-mono text-sm leading-relaxed"
-        placeholder="Type or paste text here..."
+        className="flex-1 w-full p-4 bg-transparent outline-none resize-none text-zinc-800 dark:text-zinc-200"
+        placeholder="Type or paste your text here..."
+        data-editor-id={id}
         spellCheck={false}
+        onClick={handleSelect}
+        onKeyUp={handleSelect}
       />
     </div>
   );

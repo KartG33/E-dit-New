@@ -29,6 +29,7 @@ describe('Editor Component', () => {
         canRedo={true}
         isActive={true}
         onFocus={onFocus}
+        onSelect={vi.fn()}
       />
     );
 
@@ -56,10 +57,11 @@ describe('Editor Component', () => {
         canRedo={false}
         isActive={true}
         onFocus={vi.fn()}
+        onSelect={vi.fn()}
       />
     );
 
-    const textarea = screen.getByPlaceholderText('Type or paste text here...');
+    const textarea = screen.getByPlaceholderText('Type or paste your text here...');
     await userEvent.type(textarea, 'a');
     
     expect(updateValue).toHaveBeenCalled();
@@ -78,6 +80,7 @@ describe('Editor Component', () => {
         canRedo={false}
         isActive={true}
         onFocus={vi.fn()}
+        onSelect={vi.fn()}
       />
     );
 
@@ -96,6 +99,7 @@ describe('Editor Component', () => {
         canRedo={true}
         isActive={true}
         onFocus={vi.fn()}
+        onSelect={vi.fn()}
       />
     );
     

@@ -11,6 +11,16 @@ export const useGlobalHotkeys = (hotkeys: Hotkeys, active: boolean = true) => {
     if (!active) return;
     
     const handleKeyDown = (e: KeyboardEvent) => {
+      // Ignore if focus is in an input field (unless it has data-editor-id which is our main editor)
+      const target = e.target as HTMLElement;
+      if (
+        target &&
+        !target.hasAttribute('data-editor-id') &&
+        (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'SELECT' || target.isContentEditable)
+      ) {
+        return;
+      }
+      
       const parts = [];
       if (e.ctrlKey || e.metaKey) parts.push('Ctrl');
       if (e.shiftKey) parts.push('Shift');

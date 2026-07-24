@@ -12,7 +12,7 @@ export interface Note {
 export interface HistoryRecord {
   id?: number;
   text: string;
-  editorId: 'left' | 'right' | 'main';
+  editorId: 'left' | 'right';
   timestamp: number;
 }
 
@@ -43,13 +43,16 @@ export interface Preset {
 export interface AppSettings {
   theme: 'light' | 'dark' | 'system';
   dualMode: boolean;
-  activeEditor: 'left' | 'right' | 'main';
+  activeEditor: 'left' | 'right';
   startupTab: 'Commands' | 'Suno' | 'Presets' | 'Favorites';
+  editorLeftText: string;
+  editorRightText: string;
+  favoriteCommandIds: string[];
 }
 
 export interface Setting {
   key: string;
-  value: any;
+  value: unknown;
 }
 
 export class EditDatabase extends Dexie {

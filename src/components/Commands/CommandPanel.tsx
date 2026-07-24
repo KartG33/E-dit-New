@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Settings2, Music, Zap } from 'lucide-react';
 import { clean as sunoClean, space as sunoSpace, upper as sunoUpper, lyrics as sunoLyrics, structure as sunoStructure, trim as sunoTrim } from '../../lib/commands/suno';
-import { spaces, edges, line1, lineX, inline, inlineComma } from '../../lib/commands/text';
+import { spaces, edges, line1, lineX, inline, inlineComma, lower, sentence, removeSpaceBeforePunctuation, addSpaceAfterPunctuation, upper as textUpper } from '../../lib/commands/text';
 import { SunoTagsEditor } from '../SunoTags/SunoTagsEditor';
 import { PresetsTab } from './PresetsTab';
 
@@ -35,10 +35,15 @@ export const CommandPanel = ({ applyCommand, insertText }: CommandPanelProps & {
             <CommandBtn label="Trim" onClick={() => applyCommand(sunoTrim)} />
             <CommandBtn label="Spaces" onClick={() => applyCommand(spaces)} />
             <CommandBtn label="Edges" onClick={() => applyCommand(edges)} />
+            <CommandBtn label="Upper" onClick={() => applyCommand(textUpper)} />
+            <CommandBtn label="Lower" onClick={() => applyCommand(lower)} />
+            <CommandBtn label="Sentence" onClick={() => applyCommand(sentence)} />
             <CommandBtn label="Line 1" onClick={() => applyCommand(line1)} />
             <CommandBtn label="Line X" onClick={() => applyCommand(lineX)} />
             <CommandBtn label="Inline ," onClick={() => applyCommand(inlineComma)} />
-            <CommandBtn label="Inline" onClick={() => applyCommand(inline)} colSpan={2} />
+            <CommandBtn label="Inline" onClick={() => applyCommand(inline)} />
+            <CommandBtn label="- Space Punct" onClick={() => applyCommand(removeSpaceBeforePunctuation)} />
+            <CommandBtn label="+ Space Punct" onClick={() => applyCommand(addSpaceAfterPunctuation)} />
           </div>
         )}
         

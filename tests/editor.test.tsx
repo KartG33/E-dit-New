@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import { useEditor } from '../src/hooks/useEditor';
 import { useSymbolAnalyzer } from '../src/hooks/useSymbolAnalyzer';
@@ -8,17 +8,26 @@ import { db } from '../src/lib/db';
 describe('useEditor Hook', () => {
   beforeEach(async () => {
     await db.history.clear();
+    await db.settings.clear();
+  });
+  
+  afterEach(() => {
+    vi.clearAllTimers();
+    vi.useRealTimers();
   });
 
-  it('has initial empty state', () => {
+  it('has initial empty state', async () => {
     const { result } = renderHook(() => useEditor('left'));
+    // Wait for hydration
+    await vi.waitFor(() => expect(result.current.hydrated).toBe(true));
     expect(result.current.value).toBe('');
     expect(result.current.canUndo).toBe(false);
     expect(result.current.canRedo).toBe(false);
   });
 
-  it('undo first change returns to empty string', () => {
+  it('undo first change returns to empty string', async () => {
     const { result } = renderHook(() => useEditor('left'));
+    await vi.waitFor(() => expect(result.current.hydrated).toBe(true));
     
     act(() => {
       result.current.updateValue('hello');
@@ -35,8 +44,9 @@ describe('useEditor Hook', () => {
     expect(result.current.canRedo).toBe(true);
   });
 
-  it('undo and redo multiple changes', () => {
+  it('undo and redo multiple changes', async () => {
     const { result } = renderHook(() => useEditor('left'));
+    await vi.waitFor(() => expect(result.current.hydrated).toBe(true));
     
     act(() => { result.current.updateValue('1'); });
     act(() => { result.current.updateValue('12'); });
@@ -54,8 +64,9 @@ describe('useEditor Hook', () => {
     expect(result.current.value).toBe('12');
   });
 
-  it('new change deletes redo branch', () => {
+  it('new change deletes redo branch', async () => {
     const { result } = renderHook(() => useEditor('left'));
+    await vi.waitFor(() => expect(result.current.hydrated).toBe(true));
     
     act(() => { result.current.updateValue('A'); });
     act(() => { result.current.updateValue('B'); });
@@ -71,8 +82,9 @@ describe('useEditor Hook', () => {
     expect(result.current.value).toBe('A');
   });
 
-  it('limits max history to 100', () => {
+  it('limits max history to 100', async () => {
     const { result } = renderHook(() => useEditor('left'));
+    await vi.waitFor(() => expect(result.current.hydrated).toBe(true));
     
     for (let i = 1; i <= 105; i++) {
       act(() => { result.current.updateValue(i.toString()); });
@@ -88,18 +100,23 @@ describe('useEditor Hook', () => {
   });
   
   it('saves to persistent DB after debounce', async () => {
-    const { result } = renderHook(() => useEditor('main'));
+    const { result } = renderHook(() => useEditor('right')); // avoid 'main' since we removed it
+    
+    // Hydration happens async.
+    await vi.waitFor(() => expect(result.current.hydrated).toBe(true));
     
     act(() => {
       result.current.updateValue('persistent text');
     });
     
-    // Wait for the 2000ms debounce
     await new Promise(resolve => setTimeout(resolve, 2100));
     
-    const count = await db.history.count();
-    expect(count).toBe(1);
-    const records = await db.history.toArray();
+    await vi.waitFor(async () => {
+      const count = await db.history.where('editorId').equals('right').count();
+      expect(count).toBe(1);
+    });
+    
+    const records = await db.history.where('editorId').equals('right').toArray();
     expect(records[0].text).toBe('persistent text');
   });
 });
