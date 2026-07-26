@@ -18,6 +18,7 @@ interface ReducerState {
 
 type Action = 
   | { type: 'HYDRATE'; payload: EditorState }
+  | { type: 'HYDRATE_ERROR' }
   | { type: 'UPDATE'; payload: EditorState; addToHistory: boolean }
   | { type: 'SET_SELECTION'; payload: { selectionStart: number; selectionEnd: number } }
   | { type: 'UNDO' }
@@ -30,6 +31,12 @@ const editorReducer = (state: ReducerState, action: Action): ReducerState => {
         value: action.payload.value,
         history: [action.payload],
         historyIndex: 0,
+        hydrated: true,
+      };
+    }
+    case 'HYDRATE_ERROR': {
+      return {
+        ...state,
         hydrated: true,
       };
     }
@@ -96,34 +103,33 @@ export const useEditor = (editorId: 'left' | 'right') => {
     hydrated: false,
   });
 
-  const pendingUpdates = useRef<Parameters<typeof updateValue>[]>([]);
-
   const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const valueRef = useRef(state.value);
   valueRef.current = state.value;
-  
-  const hydratedRef = useRef(state.hydrated);
-  hydratedRef.current = state.hydrated;
 
-  const saveToDb = useCallback(async (text: string) => {
+  const saveCurrentEditorText = useCallback(async (text: string) => {
     try {
       const settingKey: 'editorLeftText' | 'editorRightText' = editorId === 'left' ? 'editorLeftText' : 'editorRightText';
       await db.setSetting(settingKey, text);
-      
-      // Only push to Dexie history if it differs from the last Dexie record for this editor
-      const lastRecord = await db.history.where('editorId').equals(editorId).reverse().sortBy('timestamp');
-      if (lastRecord.length === 0 || lastRecord[0].text !== text) {
-        await db.addHistory({ editorId, text, timestamp: Date.now() }, 50);
-      }
     } catch {
       window.dispatchEvent(new CustomEvent('app-error', { detail: 'Failed to save editor state' }));
     }
   }, [editorId]);
 
+  const appendHistorySnapshot = useCallback(async (text: string) => {
+    try {
+      const lastRecord = await db.history.where('editorId').equals(editorId).reverse().sortBy('timestamp');
+      if (lastRecord.length === 0 || lastRecord[0].text !== text) {
+        await db.addHistory({ editorId, text, timestamp: Date.now() }, 50);
+      }
+    } catch {
+      window.dispatchEvent(new CustomEvent('app-error', { detail: 'Failed to save history' }));
+    }
+  }, [editorId]);
+
   const updateValue = useCallback((newValue: string, selectionStart: number = 0, selectionEnd: number = 0, addToHistory: boolean = true) => {
-    if (!hydratedRef.current) {
-      pendingUpdates.current.push([newValue, selectionStart, selectionEnd, addToHistory]);
-      return;
+    if (!state.hydrated) {
+      return; // Ignored. The UI should disable the input until hydrated.
     }
     
     dispatch({ type: 'UPDATE', payload: { value: newValue, selectionStart, selectionEnd }, addToHistory });
@@ -131,36 +137,33 @@ export const useEditor = (editorId: 'left' | 'right') => {
     if (addToHistory) {
       if (debounceTimer.current) {
         clearTimeout(debounceTimer.current);
-        debounceTimer.current = null;
       }
       debounceTimer.current = setTimeout(() => {
-        saveToDb(newValue);
+        saveCurrentEditorText(newValue);
+        appendHistorySnapshot(newValue);
         debounceTimer.current = null;
-      }, 2000); // Wait, I should make sure tests can override this. For now 2000 is fine if we use fake timers.
+      }, 2100);
     }
-  }, [saveToDb]);
+  }, [state.hydrated, saveCurrentEditorText, appendHistorySnapshot]);
 
   // Hydration from settings
   useEffect(() => {
     let isMounted = true;
     const loadState = async () => {
-      const settingKey: 'editorLeftText' | 'editorRightText' = editorId === 'left' ? 'editorLeftText' : 'editorRightText';
-      const text = await db.getSetting(settingKey) || '';
-      if (!isMounted) return;
-      
-      dispatch({ type: 'HYDRATE', payload: { value: String(text), selectionStart: 0, selectionEnd: 0 } });
-      
-      // Flush any queued updates that happened before hydration
-      if (pendingUpdates.current.length > 0) {
-        pendingUpdates.current.forEach(args => {
-          updateValue(...args);
-        });
-        pendingUpdates.current = [];
+      try {
+        const settingKey: 'editorLeftText' | 'editorRightText' = editorId === 'left' ? 'editorLeftText' : 'editorRightText';
+        const text = await db.getSetting(settingKey) || '';
+        if (!isMounted) return;
+        dispatch({ type: 'HYDRATE', payload: { value: String(text), selectionStart: 0, selectionEnd: 0 } });
+      } catch (err) {
+        if (!isMounted) return;
+        window.dispatchEvent(new CustomEvent('app-error', { detail: 'Failed to load editor state' }));
+        dispatch({ type: 'HYDRATE_ERROR' });
       }
     };
     loadState();
     return () => { isMounted = false; };
-  }, [editorId, updateValue]);
+  }, [editorId]);
 
   const onSelect = useCallback((selectionStart: number, selectionEnd: number) => {
     dispatch({ type: 'SET_SELECTION', payload: { selectionStart, selectionEnd } });
@@ -168,21 +171,29 @@ export const useEditor = (editorId: 'left' | 'right') => {
 
   const undo = useCallback(() => {
     if (state.historyIndex > 0) {
+      if (debounceTimer.current) {
+        clearTimeout(debounceTimer.current);
+        debounceTimer.current = null;
+      }
       const newIndex = state.historyIndex - 1;
       const newValue = state.history[newIndex].value;
       dispatch({ type: 'UNDO' });
-      saveToDb(newValue);
+      saveCurrentEditorText(newValue);
     }
-  }, [state, saveToDb]);
+  }, [state.history, state.historyIndex, saveCurrentEditorText]);
   
   const redo = useCallback(() => {
     if (state.historyIndex < state.history.length - 1) {
+      if (debounceTimer.current) {
+        clearTimeout(debounceTimer.current);
+        debounceTimer.current = null;
+      }
       const newIndex = state.historyIndex + 1;
       const newValue = state.history[newIndex].value;
       dispatch({ type: 'REDO' });
-      saveToDb(newValue);
+      saveCurrentEditorText(newValue);
     }
-  }, [state, saveToDb]);
+  }, [state.history, state.historyIndex, saveCurrentEditorText]);
 
   const canUndo = state.historyIndex > 0;
   const canRedo = state.historyIndex < state.history.length - 1;
@@ -194,10 +205,11 @@ export const useEditor = (editorId: 'left' | 'right') => {
       if (debounceTimer.current) {
         clearTimeout(debounceTimer.current);
         debounceTimer.current = null;
-        saveToDb(valueRef.current);
+        saveCurrentEditorText(valueRef.current);
+        appendHistorySnapshot(valueRef.current);
       }
     };
-  }, [saveToDb]);
+  }, [saveCurrentEditorText, appendHistorySnapshot]);
 
   return {
     value: state.value,

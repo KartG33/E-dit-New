@@ -1,4 +1,5 @@
 import Dexie, { type Table } from 'dexie';
+import type { CommandId } from '../commands/registry';
 
 export interface Note {
   id?: number;
@@ -18,7 +19,7 @@ export interface HistoryRecord {
 
 export interface ChainPreset {
   type: 'chain';
-  commands: string[];
+  commands: CommandId[];
 }
 
 export interface RegexPreset {
@@ -37,6 +38,7 @@ export interface Preset {
   isFavorite: boolean;
   createdAt: number;
   updatedAt: number; // Added in v2
+  order?: number; // Added in v3
 }
 
 // typed settings map
@@ -68,11 +70,11 @@ export class EditDatabase extends Dexie {
     this.version(1).stores({
       notes: '++id, title, *tags, createdAt, updatedAt',
       history: '++id, editorId, timestamp',
-      presets: '++id, name, isFavorite, createdAt', // no updatedAt in V1 indexing (it doesn't need indexing anyway, but just for the sake of schema)
+      presets: '++id, name, isFavorite, createdAt',
       settings: 'key'
     });
 
-    // Version 2 Schema (Migration example: adding updatedAt to presets if missing)
+    // Version 2 Schema
     this.version(2).stores({
       notes: '++id, title, *tags, createdAt, updatedAt',
       history: '++id, editorId, timestamp',
@@ -85,10 +87,24 @@ export class EditDatabase extends Dexie {
         }
       });
     });
+
+    // Version 3 Schema
+    this.version(3).stores({
+      notes: '++id, title, *tags, createdAt, updatedAt',
+      history: '++id, editorId, timestamp',
+      presets: '++id, name, isFavorite, createdAt, updatedAt, order',
+      settings: 'key'
+    }).upgrade(trans => {
+      let currentOrder = 0;
+      return trans.table('presets').toCollection().modify((preset: Preset) => {
+        if (typeof preset.order !== 'number') {
+          preset.order = currentOrder++;
+        }
+      });
+    });
   }
 
-  // Method to add to history and enforce the limit per editor (max 50)
-  async addHistory(record: Omit<HistoryRecord, 'id'>, maxRecords: number = 50) {
+  async addHistory(record: OMit<HistoryRecord, 'id'>, maxRecords: number = 50) {
     await this.transaction('rw', this.history, async () => {
       await this.history.add(record);
       const count = await this.history.where('editorId').equals(record.editorId).count();

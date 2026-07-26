@@ -30,8 +30,9 @@ export const Editor = ({
   canUndo,
   canRedo,
   isActive,
-  onFocus
-}: EditorProps) => {
+  onFocus,
+  hydrated
+}: EditorProps & { hydrated?: boolean }) => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const stats = useSymbolAnalyzer(value);
   const lastAction = useRef<'UNDO' | 'REDO' | 'TYPE'>('TYPE');
@@ -119,7 +120,7 @@ export const Editor = ({
           {stats.tokens.map(t => (
             <button
               key={t.token}
-              onClick={() => updateValue(removeTokenFromText(value, t.token))}
+              onClick={() => updateValue(removeTokenFromText(value, t.token), undefined, undefined, true)}
               className="text-[10px] px-1.5 py-0.5 mt-1 bg-zinc-200 dark:bg-zinc-700 hover:bg-red-100 hover:text-red-600 dark:hover:bg-red-900/50 dark:hover:text-red-400 rounded transition-colors text-zinc-600 dark:text-zinc-300"
               title={`Remove all ${t.token}`}
             >
@@ -134,12 +135,12 @@ export const Editor = ({
         value={value}
         onChange={handleChange}
         onFocus={onFocus}
-        className="flex-1 w-full p-4 bg-transparent outline-none resize-none text-zinc-800 dark:text-zinc-200"
-        placeholder="Type or paste your text here..."
+        disabled={hydrated === false}
+        className="flex-1 w-full p-4 bg-transparent outline-none resize-none text-zinc-800 dark:text-zinc-200 disabled:opacity-50"
+        placeholder={hydrated === false ? "Loading..." : "Type or paste your text here..."}
         data-editor-id={id}
         spellCheck={false}
-        onClick={handleSelect}
-        onKeyUp={handleSelect}
+        onSelect={handleSelect}
       />
     </div>
   );

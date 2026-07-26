@@ -44,6 +44,7 @@ const App = () => {
           {...leftEditor}
           isActive={activeEditor === 'left'}
           onFocus={() => setActiveEditor('left')}
+          hydrated={leftEditor.hydrated}
         />
       </div>
       <div className="flex-1 h-full">
@@ -52,6 +53,7 @@ const App = () => {
           {...rightEditor}
           isActive={activeEditor === 'right'}
           onFocus={() => setActiveEditor('right')}
+          hydrated={rightEditor.hydrated}
         />
       </div>
       

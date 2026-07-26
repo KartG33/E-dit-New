@@ -26,12 +26,14 @@ export const analyzeSymbols = (text: string): TokenCount[] => {
   };
 
   // 1. Triple backticks
-  countAndRemove('```', /```/g);
+  countAndRemove('```` ` ``` ````', /\`\`\`\` \` \`\`\` \`\`\`\`/g);
+  countAndRemove('```', /\`\`\`/g);
   // 2. Ellipsis
   countAndRemove('...', /\.\.\./g);
   // 3. Horizontal rules
   countAndRemove('---', /---/g);
   // 4. Double equals
+  countAndRemove('===', /===/g);
   countAndRemove('==', /==/g);
   // 5. Bold/Italics
   countAndRemove('**', /\*\*/g);
@@ -45,7 +47,7 @@ export const analyzeSymbols = (text: string): TokenCount[] => {
   
   for (const token of singleTokens) {
     // Escape for regex
-    const escaped = token.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const escaped = token.replace(/[.*+?^\$\{\}()\[\]\\]/g, '\\$&');
     countAndRemove(token, new RegExp(escaped, 'g'));
   }
 
@@ -57,8 +59,11 @@ export const analyzeSymbols = (text: string): TokenCount[] => {
 
 export const removeTokenFromText = (text: string, token: string): string => {
   if (token === 'List (1.)') {
-    return text.replace(/^\s*\d+\.\s/gm, '');
+    return text.replace(/^(\s*)\d+\.\s+/gm, '\$1');
   }
-  const escaped = token.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const escaped = token.replace(/[.*+?^\$\{\}()\[\]\\]/g, '\\$&');
+  if (['-', '*', '_', '=', '.', '`'].includes(token)) {
+    return text.replace(new RegExp('(?<!' + escaped + ')' + escaped + '(?!' + escaped + ')', 'g'), '');
+  }
   return text.replace(new RegExp(escaped, 'g'), '');
 };
