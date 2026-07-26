@@ -6,7 +6,7 @@ import type { EditorState } from '../../hooks/useEditor';
 import { removeTokenFromText } from '../../lib/analyzer';
 
 export interface EditorProps {
-  id: 'left' | 'right' | 'main';
+  id: 'left' | 'right';
   value: string;
   isActive: boolean;
   onFocus: () => void;
@@ -17,6 +17,7 @@ export interface EditorProps {
   canUndo: boolean;
   canRedo: boolean;
   currentState: EditorState;
+  hydrated: boolean;
 }
 
 export const Editor = ({
@@ -32,7 +33,7 @@ export const Editor = ({
   isActive,
   onFocus,
   hydrated
-}: EditorProps & { hydrated?: boolean }) => {
+}: EditorProps) => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const stats = useSymbolAnalyzer(value);
   const lastAction = useRef<'UNDO' | 'REDO' | 'TYPE'>('TYPE');
@@ -135,9 +136,9 @@ export const Editor = ({
         value={value}
         onChange={handleChange}
         onFocus={onFocus}
-        disabled={hydrated === false}
+        disabled={!hydrated}
         className="flex-1 w-full p-4 bg-transparent outline-none resize-none text-zinc-800 dark:text-zinc-200 disabled:opacity-50"
-        placeholder={hydrated === false ? "Loading..." : "Type or paste your text here..."}
+        placeholder={!hydrated ? "Loading..." : "Type or paste your text here..."}
         data-editor-id={id}
         spellCheck={false}
         onSelect={handleSelect}

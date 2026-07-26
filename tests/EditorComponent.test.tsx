@@ -30,6 +30,7 @@ describe('Editor Component', () => {
         isActive={true}
         onFocus={onFocus}
         onSelect={vi.fn()}
+        hydrated={true}
       />
     );
 
@@ -46,7 +47,7 @@ describe('Editor Component', () => {
   it('disables textarea and shows Loading when hydrated is false', () => {
     render(
       <Editor
-        id="main"
+        id="left"
         value=""
         currentState={mockState}
         updateValue={vi.fn()}
@@ -69,7 +70,7 @@ describe('Editor Component', () => {
     const updateValue = vi.fn();
     render(
       <Editor
-        id="main"
+        id="left"
         value=""
         currentState={mockState}
         updateValue={updateValue}
@@ -96,7 +97,7 @@ describe('Editor Component', () => {
       <Editor
         id="left"
         value="ABC"
-        currentState={{ value: 'ABC', selectionStart: 1, selectionEnd: 2 }} // The snapshot state
+        currentState={{ value: 'ABC', selectionStart: 1, selectionEnd: 2 }}
         updateValue={vi.fn()}
         undo={vi.fn()}
         redo={vi.fn()}
@@ -111,16 +112,12 @@ describe('Editor Component', () => {
 
     const textarea = screen.getByRole('textbox') as HTMLTextAreaElement;
     
-    // Test that user selection fires onSelect correctly
     fireEvent.select(textarea, { target: { selectionStart: 1, selectionEnd: 2 } });
-    
     expect(onSelect).toHaveBeenCalledWith(1, 2);
 
-    // Trigger undo button to set lastAction to UNDO
     const undoBtn = screen.getByTitle('Undo (Ctrl+Z)');
     await userEvent.click(undoBtn);
 
-    // Simulate undo action restoring a previous state with selection (0,0)
     rerender(
       <Editor
         id="left"
@@ -142,39 +139,19 @@ describe('Editor Component', () => {
     expect(textarea.selectionEnd).toBe(0);
   });
 
-  it('restores selection correctly by pressing internal Undo button', async () => {
+  it('triggers Undo / Redo hotkeys only when editor is active', () => {
     const undo = vi.fn();
-    const { rerender } = render(
+    const redo = vi.fn();
+
+    render(
       <Editor
         id="left"
         value="ABC"
-        currentState={{ value: 'ABC', selectionStart: 1, selectionEnd: 2 }} // The snapshot state before undo
+        currentState={{ value: 'ABC', selectionStart: 0, selectionEnd: 0 }}
         updateValue={vi.fn()}
         undo={undo}
-        redo={vi.fn()}
+        redo={redo}
         canUndo={true}
-        canRedo={false}
-        isActive={true}
-        onFocus={vi.fn()}
-        onSelect={vi.fn()}
-        hydrated={true}
-      />
-    );
-
-    const undoBtn = screen.getByTitle('Undo (Ctrl+Z)');
-    await userEvent.click(undoBtn);
-    expect(undo).toHaveBeenCalled();
-
-    // Now mock the parent reacting to undo and passing the restored state
-    rerender(
-      <Editor
-        id="left"
-        value=""
-        currentState={{ value: '', selectionStart: 0, selectionEnd: 0 }} // restored snapshot state
-        updateValue={vi.fn()}
-        undo={undo}
-        redo={vi.fn()}
-        canUndo={false}
         canRedo={true}
         isActive={true}
         onFocus={vi.fn()}
@@ -183,8 +160,79 @@ describe('Editor Component', () => {
       />
     );
 
-    const textarea = screen.getByRole('textbox') as HTMLTextAreaElement;
-    expect(textarea.selectionStart).toBe(0);
-    expect(textarea.selectionEnd).toBe(0);
+    const textarea = screen.getByRole('textbox');
+
+    fireEvent.keyDown(textarea, { key: 'z', ctrlKey: true });
+    expect(undo).toHaveBeenCalledTimes(1);
+
+    fireEvent.keyDown(textarea, { key: 'y', ctrlKey: true });
+    expect(redo).toHaveBeenCalledTimes(1);
+
+    fireEvent.keyDown(textarea, { key: 'z', ctrlKey: true, shiftKey: true });
+    expect(redo).toHaveBeenCalledTimes(2);
+  });
+
+  it('does not trigger editor hotkeys when typing inside form input or contenteditable', () => {
+    const undo = vi.fn();
+
+    render(
+      <div>
+        <input data-testid="search-input" type="text" />
+        <div data-testid="editable" contentEditable={true} />
+        <Editor
+          id="left"
+          value="ABC"
+          currentState={{ value: 'ABC', selectionStart: 0, selectionEnd: 0 }}
+          updateValue={vi.fn()}
+          undo={undo}
+          redo={vi.fn()}
+          canUndo={true}
+          canRedo={true}
+          isActive={true}
+          onFocus={vi.fn()}
+          onSelect={vi.fn()}
+          hydrated={true}
+        />
+      </div>
+    );
+
+    const input = screen.getByTestId('search-input');
+    fireEvent.keyDown(input, { key: 'z', ctrlKey: true });
+    expect(undo).not.toHaveBeenCalled();
+
+    const editable = screen.getByTestId('editable');
+    fireEvent.keyDown(editable, { key: 'z', ctrlKey: true });
+    expect(undo).not.toHaveBeenCalled();
+  });
+
+  it('triggers hotkeys after clicking a command button outside the textarea', () => {
+    const undo = vi.fn();
+    const redo = vi.fn();
+
+    render(
+      <div>
+        <button data-testid="cmd-btn">Apply Command</button>
+        <Editor
+          id="left"
+          value="ABC"
+          currentState={{ value: 'ABC', selectionStart: 0, selectionEnd: 0 }}
+          updateValue={vi.fn()}
+          undo={undo}
+          redo={redo}
+          canUndo={true}
+          canRedo={true}
+          isActive={true}
+          onFocus={vi.fn()}
+          onSelect={vi.fn()}
+          hydrated={true}
+        />
+      </div>
+    );
+
+    const btn = screen.getByTestId('cmd-btn');
+    fireEvent.click(btn);
+
+    fireEvent.keyDown(btn, { key: 'z', ctrlKey: true });
+    expect(undo).toHaveBeenCalledTimes(1);
   });
 });
