@@ -155,7 +155,7 @@ export const useEditor = (editorId: 'left' | 'right') => {
         const text = await db.getSetting(settingKey) || '';
         if (!isMounted) return;
         dispatch({ type: 'HYDRATE', payload: { value: String(text), selectionStart: 0, selectionEnd: 0 } });
-      } catch (err) {
+      } catch {
         if (!isMounted) return;
         window.dispatchEvent(new CustomEvent('app-error', { detail: 'Failed to load editor state' }));
         dispatch({ type: 'HYDRATE_ERROR' });

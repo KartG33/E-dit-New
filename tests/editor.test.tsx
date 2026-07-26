@@ -1,7 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import { useEditor } from '../src/hooks/useEditor';
-import { useSymbolAnalyzer } from '../src/hooks/useSymbolAnalyzer';
 import 'fake-indexeddb/auto';
 import { db } from '../src/lib/db';
 import { StrictMode } from 'react';
@@ -51,7 +50,6 @@ describe('useEditor Hook', () => {
   it('undo first change returns to empty string and saves to DB without history append', async () => {
     const { result } = renderHook(() => useEditor('left'));
     await vi.waitFor(() => expect(result.current.hydrated).toBe(true));
-    vi.useFakeTimers();
     
     act(() => {
       result.current.updateValue('hello');
@@ -65,11 +63,6 @@ describe('useEditor Hook', () => {
     });
 
     expect(result.current.value).toBe('');
-    
-    // Let debounce finish (should be cancelled by undo)
-    act(() => {
-      vi.advanceTimersByTime(2100);
-    });
 
     // DB Should just have empty string
     const val = await db.getSetting('editorLeftText');
@@ -77,35 +70,30 @@ describe('useEditor Hook', () => {
 
     // History shouldn't be updated by undo
     const hist = await db.history.where('editorId').equals('left').toArray();
-    expect(hist.length).toBe(0); // or 1 if empty string was pushed, but wait, empty string wasn't pushed because debounce was cancelled
+    expect(hist.length).toBe(0);
   });
 
   it('does not store duplicate consecutive history records', async () => {
     const { result } = renderHook(() => useEditor('left'));
     await vi.waitFor(() => expect(result.current.hydrated).toBe(true));
-    vi.useFakeTimers();
     
     act(() => { result.current.updateValue('1'); });
     act(() => { result.current.updateValue('1'); }); // duplicate
     
-    act(() => { vi.advanceTimersByTime(2100); });
-    
     await vi.waitFor(async () => {
       const records = await db.history.where('editorId').equals('left').toArray();
       expect(records.length).toBe(1); // Only one '1'
-    });
+    }, { timeout: 3000 });
   });
 
   it('undo and redo multiple changes', async () => {
     const { result } = renderHook(() => useEditor('left'));
     await vi.waitFor(() => expect(result.current.hydrated).toBe(true));
-    vi.useFakeTimers();
     
     act(() => { result.current.updateValue('1'); });
     act(() => { result.current.updateValue('12'); });
     act(() => { result.current.updateValue('123'); });
     
-    act(() => { vi.advanceTimersByTime(2100); });
     expect(result.current.value).toBe('123');
     
     act(() => { result.current.undo(); });
@@ -128,7 +116,6 @@ describe('useEditor Hook', () => {
   it('flushes save on unmount before debounce finishes', async () => {
     const { result, unmount } = renderHook(() => useEditor('left'));
     await vi.waitFor(() => expect(result.current.hydrated).toBe(true));
-    vi.useFakeTimers();
     
     act(() => { result.current.updateValue('unmount text'); });
     

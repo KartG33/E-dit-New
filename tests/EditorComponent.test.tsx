@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
-import { render, screen, cleanup, act } from '@testing-library/react';
+import { render, screen, cleanup, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Editor } from '../src/components/Editor/Editor';
 import { EditorState } from '../src/hooks/useEditor';
@@ -112,14 +112,13 @@ describe('Editor Component', () => {
     const textarea = screen.getByRole('textbox') as HTMLTextAreaElement;
     
     // Test that user selection fires onSelect correctly
-    textarea.setSelectionRange(1, 2);
-    // Fire select event manually since userEvent doesn't perfectly fire react's onSelect polyfill in jsdom
-    act(() => {
-      const event = new Event('select', { bubbles: true });
-      textarea.dispatchEvent(event);
-    });
+    fireEvent.select(textarea, { target: { selectionStart: 1, selectionEnd: 2 } });
     
     expect(onSelect).toHaveBeenCalledWith(1, 2);
+
+    // Trigger undo button to set lastAction to UNDO
+    const undoBtn = screen.getByTitle('Undo (Ctrl+Z)');
+    await userEvent.click(undoBtn);
 
     // Simulate undo action restoring a previous state with selection (0,0)
     rerender(
@@ -139,10 +138,8 @@ describe('Editor Component', () => {
       />
     );
     
-    // Selection should be restored to 0,0 via useEffect due to lastAction = UNDO
-    // Wait, the component relies on undo() callback actually mutating the state, but we mocked it.
-    // However, it also checks lastAction.current == 'UNDO'. Since we didn't press the button inside the component, lastAction is 'TYPE'.
-    // Let's trigger the actual undo button inside the component to test the selection restore effect!
+    expect(textarea.selectionStart).toBe(0);
+    expect(textarea.selectionEnd).toBe(0);
   });
 
   it('restores selection correctly by pressing internal Undo button', async () => {

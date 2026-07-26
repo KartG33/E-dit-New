@@ -13,7 +13,7 @@ export const applyRegexPreset = (text: string, preset: RegexPreset): string => {
 export const applyChainPreset = (text: string, preset: ChainPreset): string => {
   let result = text;
   for (const cmdId of preset.commands) {
-    const fn = COMMAND_REGISTRY[cmdId as keyof typeof COMMAND_REGISTRY];
+    const fn = COMMAND_REGISTRY[cmdId as CommandId];
     if (!fn) {
       throw new Error(`Unknown CommandId: ${cmdId}`);
     }

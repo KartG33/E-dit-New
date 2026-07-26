@@ -104,7 +104,7 @@ export class EditDatabase extends Dexie {
     });
   }
 
-  async addHistory(record: OMit<HistoryRecord, 'id'>, maxRecords: number = 50) {
+  async addHistory(record: Omit<HistoryRecord, 'id'>, maxRecords: number = 50) {
     await this.transaction('rw', this.history, async () => {
       await this.history.add(record);
       const count = await this.history.where('editorId').equals(record.editorId).count();

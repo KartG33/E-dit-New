@@ -8,7 +8,7 @@ export const COMMAND_REGISTRY = {
   'text.lower': textCmds.lower,
   'text.sentence': textCmds.sentence,
   'text.removeSpaceBeforePunctuation': textCmds.removeSpaceBeforePunctuation,
-  'text.adeSpaceAfterPunctuation': textCmds.adeSpaceAfterPunctuation,
+  'text.addSpaceAfterPunctuation': textCmds.addSpaceAfterPunctuation,
   'text.line1': textCmds.line1,
   'text.lineX': textCmds.lineX,
   'text.inline': textCmds.inline,
