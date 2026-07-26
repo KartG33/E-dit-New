@@ -2,6 +2,7 @@ import { useReducer, useCallback, useRef, useEffect } from 'react';
 import { db } from '../lib/db';
 
 const MAX_HISTORY = 100;
+const AUTOSAVE_DELAY = 2000;
 
 export interface EditorState {
   value: string;
@@ -47,7 +48,7 @@ const editorReducer = (state: ReducerState, action: Action): ReducerState => {
       
       const currentHistory = state.history.slice(0, state.historyIndex + 1);
       
-      // Prevent consecutive duplicates in history
+      // Prevent consecutive duplicates in history stack
       const prev = currentHistory[currentHistory.length - 1];
       if (prev && prev.value === action.payload.value) {
         return state;
@@ -67,7 +68,6 @@ const editorReducer = (state: ReducerState, action: Action): ReducerState => {
       };
     }
     case 'SET_SELECTION': {
-      // Update cursor for latest state without creating undo step
       const newHistory = [...state.history];
       newHistory[state.historyIndex] = {
         ...newHistory[state.historyIndex],
@@ -118,10 +118,20 @@ export const useEditor = (editorId: 'left' | 'right') => {
 
   const appendHistorySnapshot = useCallback(async (text: string) => {
     try {
-      const lastRecord = await db.history.where('editorId').equals(editorId).reverse().sortBy('timestamp');
-      if (lastRecord.length === 0 || lastRecord[0].text !== text) {
-        await db.addHistory({ editorId, text, timestamp: Date.now() }, 50);
-      }
+      await db.transaction('rw', db.history, async () => {
+        const records = await db.history
+          .where('editorId')
+          .equals(editorId)
+          .sortBy('timestamp');
+        const lastRecord = records[records.length - 1];
+        if (!lastRecord || lastRecord.text !== text) {
+          await db.history.add({ editorId, text, timestamp: Date.now() });
+          if (records.length + 1 > 50) {
+            const oldest = records.slice(0, records.length + 1 - 50).map(r => r.id!);
+            await db.history.bulkDelete(oldest);
+          }
+        }
+      });
     } catch {
       window.dispatchEvent(new CustomEvent('app-error', { detail: 'Failed to save history' }));
     }
@@ -129,7 +139,12 @@ export const useEditor = (editorId: 'left' | 'right') => {
 
   const updateValue = useCallback((newValue: string, selectionStart: number = 0, selectionEnd: number = 0, addToHistory: boolean = true) => {
     if (!state.hydrated) {
-      return; // Ignored. The UI should disable the input until hydrated.
+      return; // Ignored while not hydrated
+    }
+
+    if (newValue === valueRef.current) {
+      dispatch({ type: 'SET_SELECTION', payload: { selectionStart, selectionEnd } });
+      return;
     }
     
     dispatch({ type: 'UPDATE', payload: { value: newValue, selectionStart, selectionEnd }, addToHistory });
@@ -142,7 +157,7 @@ export const useEditor = (editorId: 'left' | 'right') => {
         saveCurrentEditorText(newValue);
         appendHistorySnapshot(newValue);
         debounceTimer.current = null;
-      }, 2100);
+      }, AUTOSAVE_DELAY);
     }
   }, [state.hydrated, saveCurrentEditorText, appendHistorySnapshot]);
 
@@ -152,7 +167,7 @@ export const useEditor = (editorId: 'left' | 'right') => {
     const loadState = async () => {
       try {
         const settingKey: 'editorLeftText' | 'editorRightText' = editorId === 'left' ? 'editorLeftText' : 'editorRightText';
-        const text = await db.getSetting(settingKey) || '';
+        const text = (await db.getSetting(settingKey)) || '';
         if (!isMounted) return;
         dispatch({ type: 'HYDRATE', payload: { value: String(text), selectionStart: 0, selectionEnd: 0 } });
       } catch {
