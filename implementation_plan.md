@@ -54,7 +54,7 @@
 ### 8. History
 - **History Live**: Use a live-query or custom subscription to auto-update list. Restore (loads into active), delete single, clear all (with confirmation), separate left/right records, enforce limits. Prevent cross-editor restoration.
 
-### 9. Backup и платформенный слой
+### 9. Data и платформенный слой
 - **Three-part backup**: 
   1. Creation and runtime validation of backup object.
   2. Dexie read/write transaction.

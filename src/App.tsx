@@ -74,7 +74,7 @@ const App = () => {
         </div>
       </main>
 
-      {/* Sliding Side Drawer for History, Notes, Backup */}
+      {/* Sliding Side Drawer for History, Data */}
       <SlidingDrawer 
         isOpen={drawerOpen}
         onClose={() => setDrawerOpen(false)}

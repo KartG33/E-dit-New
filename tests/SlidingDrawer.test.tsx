@@ -64,6 +64,6 @@ describe('SlidingDrawer Component', () => {
 
     const dataTab = screen.getByText('Data');
     fireEvent.click(dataTab);
-    expect(onTabChange).toHaveBeenCalledWith('backup');
+    expect(onTabChange).toHaveBeenCalledWith('data');
   });
 });

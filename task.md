@@ -14,7 +14,7 @@
   - `[ ]` 6. Favorites & Startup Tab (AppSettings expansion, favorites logic, UI pin/startup)
   - `[ ]` 7. Suno Tags (Pure parsing functions, grouped identical tags editor, mass update)
   - `[x]` 8. History (Live query history, limit enforcement)
-  - `[ ]` 9. Backup & Platform Layer (Service layer, atomic restore, strict JSON validation, typed adapters)
+  - `[ ]` 9. Data & Platform Layer (Service layer, atomic restore, strict JSON validation, typed adapters)
   - `[x]` 10. Typing (Remove any, strict type checks, linting)
   - `[x]` 11. Tests (Comprehensive Vitest coverage for all implemented features)
 - `[ ]` Phase 3: Desktop UI & Tauri Integration

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { db } from '../../lib/db';
 
-export const BackupRestore = () => {
+export const DataPanel = () => {
   const [msg, setMsg] = useState('');
 
   const handleExport = async () => {
@@ -20,7 +20,7 @@ export const BackupRestore = () => {
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `edit-backup-${new Date().toISOString().split('T')[0]}.json`;
+      a.download = `edit-data-${new Date().toISOString().split('T')[0]}.json`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -61,7 +61,7 @@ export const BackupRestore = () => {
 
   return (
     <div className="flex flex-col gap-2 mt-4 pt-4 border-t border-zinc-200 dark:border-zinc-700">
-      <h3 className="text-xs font-medium text-zinc-500 uppercase tracking-wider mb-1">Backup & Restore</h3>
+      <h3 className="text-xs font-medium text-zinc-500 uppercase tracking-wider mb-1">Data</h3>
       <div className="flex gap-2">
         <button 
           onClick={handleExport}

@@ -70,7 +70,7 @@ export const CommandPanel = ({ applyCommand, insertText, onOpenDrawer }: Command
             <span className="hidden sm:inline">History</span>
           </button>
           <button
-            onClick={() => onOpenDrawer?.('backup')}
+            onClick={() => onOpenDrawer?.('data')}
             className="px-2.5 py-1 text-xs font-medium bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 rounded-md transition-colors flex items-center gap-1.5"
             title="Открыть данные"
           >

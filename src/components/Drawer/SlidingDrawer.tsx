@@ -2,9 +2,9 @@ import { useState, useEffect } from 'react';
 import { Clock, HardDrive, X } from 'lucide-react';
 import { db } from '../../lib/db';
 import type { HistoryRecord } from '../../lib/db';
-import { BackupRestore } from '../Backup/BackupRestore';
+import { DataPanel } from '../Data/DataPanel';
 
-export type DrawerTab = 'history' | 'backup';
+export type DrawerTab = 'history' | 'data';
 
 interface SlidingDrawerProps {
   isOpen: boolean;
@@ -64,10 +64,10 @@ export const SlidingDrawer = ({
         <div className="flex items-center justify-between px-4 py-3 border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-800/60">
           <div className="flex items-center gap-1.5 font-semibold text-sm text-zinc-800 dark:text-zinc-200">
             {activeTab === 'history' && <Clock size={16} className="text-blue-500" />}
-            {activeTab === 'backup' && <HardDrive size={16} className="text-emerald-500" />}
+            {activeTab === 'data' && <HardDrive size={16} className="text-emerald-500" />}
             <span>
               {activeTab === 'history' && 'История изменений'}
-              {activeTab === 'backup' && 'Data'}
+              {activeTab === 'data' && 'Data'}
             </span>
           </div>
           <button 
@@ -93,9 +93,9 @@ export const SlidingDrawer = ({
             <Clock size={13} /> History
           </button>
           <button
-            onClick={() => onTabChange('backup')}
+            onClick={() => onTabChange('data')}
             className={`flex-1 py-1.5 text-xs font-medium rounded-md flex items-center justify-center gap-1.5 transition-all ${
-              activeTab === 'backup'
+              activeTab === 'data'
                 ? 'bg-white dark:bg-zinc-900 text-emerald-600 dark:text-emerald-400 shadow-xs'
                 : 'text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200'
             }`}
@@ -137,9 +137,9 @@ export const SlidingDrawer = ({
             </div>
           )}
 
-          {activeTab === 'backup' && (
+          {activeTab === 'data' && (
             <div className="bg-white dark:bg-zinc-900 p-4 rounded-lg border border-zinc-200 dark:border-zinc-800">
-              <BackupRestore />
+              <DataPanel />
             </div>
           )}
         </div>
