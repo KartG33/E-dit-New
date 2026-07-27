@@ -55,10 +55,10 @@
 - **History Live**: Use a live-query or custom subscription to auto-update list. Restore (loads into active), delete single, clear all (with confirmation), separate left/right records, enforce limits. Prevent cross-editor restoration.
 
 ### 9. Data и платформенный слой
-- **Three-part backup**: 
-  1. Creation and runtime validation of backup object.
+- **Three-part data persistence**: 
+  1. Creation and runtime validation of data export object.
   2. Dexie read/write transaction.
-  3. UI trigger via an agnostic `BackupFileAdapter`.
+  3. UI trigger via an agnostic `DataFileAdapter`.
 - **Schema & Validation**: Standardized JSON structure. Runtime schema validation (no generic type-casting). Reject missing/invalid fields, bad types, unknown versions.
 - **Atomic Operations**: Perform everything inside `db.transaction('rw')`. Rollback on error. Only update UI state after successful commit.
 - **No File API in Component**: Abstracted adapters (temporary browser adapter, mock Windows/Android adapters for testing). No success toasts, only error messages.
@@ -68,5 +68,5 @@
 - **No `any`**: Strictly enforce zero explicit `any` and `as any` in production code. Add linting rules for explicit any.
 
 ### 11. Тесты
-- Vastly expand Vitest coverage according to the requirements, including basic commands, tokens, single-undo removals, hydration, StrictMode, hotkey ignoring, regex via `Preset.data`, History, Favorites, Suno parsing, and comprehensive backup validation (valid, corrupted, rollback).
+- Vastly expand Vitest coverage according to the requirements, including basic commands, tokens, single-undo removals, hydration, StrictMode, hotkey ignoring, regex via `Preset.data`, History, Favorites, Suno parsing, and comprehensive data import/export validation (valid, corrupted, rollback).
 - Fix `editor.test.tsx` selection test to simulate real user events.

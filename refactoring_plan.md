@@ -41,7 +41,7 @@
 * **`CommandPanel.tsx` сочетает разметку шапки, вкладки, кнопки и прямые вызовы команд:**
   * Компонент [src/components/Commands/CommandPanel.tsx](file:///d:/Documents/Antigravity%20Projects/E-dit%20New/src/components/Commands/CommandPanel.tsx) одновременно отвечает за логотип, переключение вкладок, вызов функций текстов, внедрение модального окна `SunoTagsEditor` и рендеринг `PresetsTab`.
 * **`DataPanel.tsx` смешивает UI и платформенную работу с файлами:**
-  * В [src/components/Data/DataPanel.tsx](file:///d:/Documents/Antigravity%20Projects/E-dit%20New/src/components/Data/DataPanel.tsx) прямо внутри React-компонента создаются HTML5 DOM элементы `<a>` для скачивания файла и обработчики `<input type="file">`, что нарушает требование по разделению платформенного слоя `BackupFileAdapter`.
+  * В [src/components/Data/DataPanel.tsx](file:///d:/Documents/Antigravity%20Projects/E-dit%20New/src/components/Data/DataPanel.tsx) прямо внутри React-компонента создаются HTML5 DOM элементы `<a>` для скачивания файла и обработчики `<input type="file">`, что нарушает требование по разделению платформенного слоя `DataFileAdapter`.
 
 ### 1.6 Расхождения между кодом, интерфейсом, тестами, task.md и implementation_plan.md
 * **Пункт 6 Фазы 2 (Favorites & startupTab):**
@@ -52,21 +52,21 @@
   * В `task.md` (строка 15) пункт `[ ] 7. Suno Tags`.
   * В `implementation_plan.md` требовался полноценный редактор тегов (группировка одинаковых тегов, mass update, редактирование стилей в скобках).
   * В коде [src/components/SunoTags/SunoTagsEditor.tsx](file:///d:/Documents/Antigravity%20Projects/E-dit%20New/src/components/SunoTags/SunoTagsEditor.tsx) реализован только простой билдер новых тегов (`[Chorus x2]`).
-* **Пункт 9 Фазы 2 (Backup & Platform Layer):**
-  * В `implementation_plan.md` требовалась валидация схемы JSON при импорте, обработка ошибок, атомарные транзакции и выделенный сервисный слой `BackupFileAdapter`.
-  * В [src/components/Backup/BackupRestore.tsx](file:///d:/Documents/Antigravity%20Projects/E-dit%20New/src/components/Backup/BackupRestore.tsx) валидация схемы отсутствует (`JSON.parse` напрямую заливается в DB).
+* **Пункт 9 Фазы 2 (Data & Platform Layer):**
+  * В `implementation_plan.md` требовалась валидация схемы JSON при импорте, обработка ошибок, атомарные транзакции и выделенный сервисный слой `DataFileAdapter`.
+  * В [src/components/Data/DataPanel.tsx](file:///d:/Documents/Antigravity%20Projects/E-dit%20New/src/components/Data/DataPanel.tsx) валидация схемы отсутствует (`JSON.parse` напрямую заливается в DB).
 
 ### 1.7 Задачи, отмеченные завершёнными преждевременно
 * **Пункт 9 Фазы 2 в `task.md` не отмечен, но в `implementation_plan.md` описан как готовый план:**
-  * Резервное копирование было поверхностно создано без строгого валидатора JSON и без абстракции платформенных адаптеров (`BackupFileAdapter`), хотя минимальный UI работает.
+  * Сохранение и экспорт данных были поверхностно созданы без строгого валидатора JSON и без абстракции платформенных адаптеров (`DataFileAdapter`), хотя минимальный UI работает.
 * **Связано с Пресетами (Пункт 5):**
   * Отмечен выполненным `[x]`, но пресеты не содержат полноценного UI конструктора цепочек (Chain Editor) и Regex Editor для пользователя, а только отображение имеющихся в DB пресетов ([src/components/Commands/PresetsTab.tsx](file:///d:/Documents/Antigravity%20Projects/E-dit%20New/src/components/Commands/PresetsTab.tsx)).
 
 ### 1.8 Проблемы с хранением данных и будущими версиями приложения
-* **Отсутствие валидации при импорте бэкапа:**
-  * В `BackupRestore.tsx` при импорте любой некорректный JSON сломает IndexedDB или занесет поврежденные данные (например, missing `data` field в Preset).
-* **Отсутствие версионирования в экспортируемом бэкапе:**
-  * Экспортируется жестко зашитая `version: 2` ([BackupRestore.tsx](file:///d:/Documents/Antigravity%20Projects/E-dit%20New/src/components/Backup/BackupRestore.tsx#L13)), несмотря на то что текущая схема Dexie находится на версии 3 (`version(3)` в [src/lib/db/index.ts](file:///d:/Documents/Antigravity%20Projects/E-dit%20New/src/lib/db/index.ts#L92)).
+* **Отсутствие валидации при импорте данных:**
+  * В `DataPanel.tsx` при импорте любой некорректный JSON сломает IndexedDB или занесет поврежденные данные (например, missing `data` field в Preset).
+* **Отсутствие версионирования в экспортируемом файле данных:**
+  * Экспортируется жестко зашитая `version: 2` ([DataPanel.tsx](file:///d:/Documents/Antigravity%20Projects/E-dit%20New/src/components/Data/DataPanel.tsx#L13)), несмотря на то что текущая схема Dexie находится на версии 3 (`version(3)` в [src/lib/db/index.ts](file:///d:/Documents/Antigravity%20Projects/E-dit%20New/src/lib/db/index.ts#L92)).
 
 ---
 
@@ -75,12 +75,12 @@
 ### Категория A: Рефакторинг существующего кода
 1. **Удаление устаревших стилей CRA/Vite (`App.css`).** (Важность: Низкая)
 2. **Централизация логики записи истории в IndexedDB (`addHistory`).** (Важность: Средняя)
-3. **Разделение UI и логики экспорта/импорта бэкапа через `BackupFileAdapter`.** (Важность: Средняя)
+3. **Разделение UI и логики экспорта/импорта данных через `DataFileAdapter`.** (Важность: Средняя)
 4. **Унификация наименований команд и UI-элементов.** (Важность: Средняя)
 
 ### Категория B: Реальные ошибки
-1. **Несоответствие версии бэкапа версии схемы Dexie (экспорт version 2 вместо 3).** (Важность: Высокая)
-2. **Отсутствие строгой runtime-валидации при импорте JSON бэкапа.** (Важность: Высокая)
+1. **Несоответствие версии экспорта данных версии схемы Dexie (экспорт version 2 вместо 3).** (Важность: Высокая)
+2. **Отсутствие строгой runtime-валидации при импорте JSON данных.** (Важность: Высокая)
 3. **Отсутствие обработки невалидных данных пресетов при их выполнении из UI.** (Важность: Средняя)
 
 ### Категория C: Ещё не реализованные функции
@@ -97,7 +97,7 @@
 | Обрезка пробелов в начале/конце строк | `text.edges`, `suno.trim`, button `"Trim"`, `"Edges"` | `trimLines` (модуль text), `sunoTrim` (модуль suno) | Функция очистки строк |
 | Перевод текста в верхний регистр | `text.upper`, `suno.upper` | `toUpperCase` / `toSunoTitleCase` | Разграничение банального Upper и Suno-Capitalize |
 | Очистка повторяющихся пробелов | `text.spaces` | `collapseSpaces` | Нормализация внутристрочных пробелов |
-| Раздел/Вкладка резервных копий | `backup`, `BackupRestore`, button `"Data"` | `DataBackup` / вкладка `backup` | UI и навигация |
+| Раздел/Вкладка данных | `data`, `DataPanel`, button `"Data"` | `DataPanel` / вкладка `data` | UI и навигация |
 | Редактор тегов Suno | `SunoTagsEditor` (на самом деле Tag Builder) | `SunoTagBuilder` (для вставки), `SunoTagManager` (для редактирования) | Компоненты работы с тегами |
 | Таблица заметок в БД | `notes` | *Удалить из БД* или пометить `Deprecated` | Хранилище Dexie |
 
@@ -131,21 +131,21 @@ graph TD
 
 ---
 
-### Этап 2: Исправление версионирования Dexie и слоя резервного копирования
+### Этап 2: Исправление версионирования Dexie и слоя импорта/экспорта данных
 
 * **Что исправляется:**
-  1. Синхронизируется версия экспортируемого файла бэкапа с версией схемы Dexie (`version: 3`).
-  2. Добавляется строгая валидация JSON-схемы бэкапа перед импортом в базу данных (проверка типов `presets`, `settings`, структуры `PresetData`).
+  1. Синхронизируется версия экспортируемого файла данных с версией схемы Dexie (`version: 3`).
+  2. Добавляется строгая валидация JSON-схемы данных перед импортом в базу данных (проверка типов `presets`, `settings`, структуры `PresetData`).
   3. Дедуплицируется вызов `addHistory` между `useEditor` и `db.ts`.
 * **Зачем это нужно:** Предотвращение порчи IndexedDB при импорте некорректных файлов, гарантия целостности данных пользователя.
 * **Какие файлы затрагиваются:**
   * [MODIFY] [src/lib/db/index.ts](file:///d:/Documents/Antigravity%20Projects/E-dit%20New/src/lib/db/index.ts)
   * [MODIFY] [src/hooks/useEditor.ts](file:///d:/Documents/Antigravity%20Projects/E-dit%20New/src/hooks/useEditor.ts)
-  * [NEW] `src/lib/backup/validation.ts`
+  * [NEW] `src/lib/data/validation.ts`
   * [MODIFY] [src/components/Data/DataPanel.tsx](file:///d:/Documents/Antigravity%20Projects/E-dit%20New/src/components/Data/DataPanel.tsx)
-  * [NEW] `tests/backup.test.ts`
+  * [NEW] `tests/data.test.ts`
 * **От каких этапов зависит:** Зависит от Этапа 1.
-* **Как проверить результат:** Новые Vitest тесты с валидным, поврежденным и устаревшим JSON файлом бэкапа.
+* **Как проверить результат:** Новые Vitest тесты с валидным, поврежденным и устаревшим JSON файлом данных.
 * **Какой риск имеет изменение:** Средний (затрагивает операции записи в IndexedDB).
 
 ---
@@ -153,11 +153,11 @@ graph TD
 ### Этап 3: Декомпозиция UI-компонентов и Платформенный слой
 
 * **Что исправляется:**
-  1. Выделение абстракции `BackupFileAdapter` (web-адаптер для скачивания/загрузки файлов), изолируя DOM-манипуляции из React-компонента `BackupRestore.tsx`.
+  1. Выделение абстракции `DataFileAdapter` (web-адаптер для скачивания/загрузки файлов), изолируя DOM-манипуляции из React-компонента `DataPanel.tsx`.
   2. Разделение `CommandPanel.tsx` на более мелкие субкомпоненты по категориям.
 * **Зачем это нужно:** Подготовка к будущей интеграции с Tauri (Desktop) и Capacitor (Mobile), соблюдение чистоты архитектуры.
 * **Какие файлы затрагиваются:**
-  * [NEW] `src/lib/platform/backupAdapter.ts`
+  * [NEW] `src/lib/platform/dataFileAdapter.ts`
   * [MODIFY] [src/components/Data/DataPanel.tsx](file:///d:/Documents/Antigravity%20Projects/E-dit%20New/src/components/Data/DataPanel.tsx)
   * [MODIFY] [src/components/Commands/CommandPanel.tsx](file:///d:/Documents/Antigravity%20Projects/E-dit%20New/src/components/Commands/CommandPanel.tsx)
 * **От каких этапов зависит:** Зависит от Этапа 2.

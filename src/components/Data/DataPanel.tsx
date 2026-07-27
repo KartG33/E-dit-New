@@ -9,14 +9,14 @@ export const DataPanel = () => {
       const presets = await db.presets.toArray();
       const settings = await db.settings.toArray();
       
-      const backupData = {
+      const dataPayload = {
         version: 2,
         presets,
         settings,
         timestamp: Date.now()
       };
       
-      const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: 'application/json' });
+      const blob = new Blob([JSON.stringify(dataPayload, null, 2)], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
