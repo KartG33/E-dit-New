@@ -32,6 +32,31 @@ describe('useEditor Hook Autosave & Hydration', () => {
     expect(right.current.value).toBe('Right Content');
   });
 
+  it('left editor changes do not change right editor history or state', async () => {
+    const { result: left } = renderHook(() => useEditor('left'));
+    const { result: right } = renderHook(() => useEditor('right'));
+
+    await act(async () => { await vi.runAllTimersAsync(); });
+
+    act(() => { left.current.updateValue('Left Edit 1'); });
+    act(() => { left.current.updateValue('Left Edit 2'); });
+
+    expect(left.current.value).toBe('Left Edit 2');
+    expect(left.current.canUndo).toBe(true);
+
+    expect(right.current.value).toBe('');
+    expect(right.current.canUndo).toBe(false);
+
+    act(() => { left.current.undo(); });
+
+    expect(left.current.value).toBe('Left Edit 1');
+    expect(right.current.value).toBe('');
+    expect(right.current.canUndo).toBe(false);
+
+    const rightHistory = await db.history.where('editorId').equals('right').toArray();
+    expect(rightHistory.length).toBe(0);
+  });
+
   it('handles hydration error gracefully', async () => {
     vi.spyOn(db, 'getSetting').mockRejectedValueOnce(new Error('DB Error'));
     let errorFired = false;
@@ -191,12 +216,11 @@ describe('useEditor Hook Autosave & Hydration', () => {
     expect(result.current.value).toBe('State 1');
     expect(result.current.canRedo).toBe(true);
 
-    // New change should clear Redo branch
     act(() => { result.current.updateValue('State 3 (New Branch)'); });
     expect(result.current.value).toBe('State 3 (New Branch)');
     expect(result.current.canRedo).toBe(false);
 
-    act(() => { result.current.redo(); }); // should be no-op
+    act(() => { result.current.redo(); });
     expect(result.current.value).toBe('State 3 (New Branch)');
   });
 
@@ -210,7 +234,6 @@ describe('useEditor Hook Autosave & Hydration', () => {
 
     expect(result.current.value).toBe('Text 105');
     
-    // Undo 100 times until reaching the start of trimmed memory history
     let undoCount = 0;
     while (result.current.canUndo) {
       act(() => { result.current.undo(); });
@@ -218,7 +241,7 @@ describe('useEditor Hook Autosave & Hydration', () => {
     }
 
     expect(undoCount).toBe(99);
-    expect(result.current.value).toBe('Text 6'); // Oldest state remaining in memory after shift
+    expect(result.current.value).toBe('Text 6');
   });
 
   it('stores and restores selectionStart and selectionEnd on Undo and Redo', async () => {
@@ -250,14 +273,12 @@ describe('useEditor Hook Autosave & Hydration', () => {
     act(() => { result.current.updateValue('Sample Text', 0, 0); });
     expect(result.current.canUndo).toBe(true);
 
-    // Change selection only via onSelect
     act(() => { result.current.onSelect(2, 6); });
 
     expect(result.current.value).toBe('Sample Text');
     expect(result.current.currentState.selectionStart).toBe(2);
     expect(result.current.currentState.selectionEnd).toBe(6);
 
-    // First undo should return directly to initial empty state, proving no intermediate step was added
     act(() => { result.current.undo(); });
     expect(result.current.value).toBe('');
     expect(result.current.canUndo).toBe(false);

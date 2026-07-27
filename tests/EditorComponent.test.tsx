@@ -172,6 +172,50 @@ describe('Editor Component', () => {
     expect(redo).toHaveBeenCalledTimes(2);
   });
 
+  it('hotkey acts on active editor and does not act on inactive editor', () => {
+    const leftUndo = vi.fn();
+    const rightUndo = vi.fn();
+
+    render(
+      <div>
+        <Editor
+          id="left"
+          value="Left Text"
+          currentState={{ value: 'Left Text', selectionStart: 0, selectionEnd: 0 }}
+          updateValue={vi.fn()}
+          undo={leftUndo}
+          redo={vi.fn()}
+          canUndo={true}
+          canRedo={false}
+          isActive={true}
+          onFocus={vi.fn()}
+          onSelect={vi.fn()}
+          hydrated={true}
+        />
+        <Editor
+          id="right"
+          value="Right Text"
+          currentState={{ value: 'Right Text', selectionStart: 0, selectionEnd: 0 }}
+          updateValue={vi.fn()}
+          undo={rightUndo}
+          redo={vi.fn()}
+          canUndo={true}
+          canRedo={false}
+          isActive={false}
+          onFocus={vi.fn()}
+          onSelect={vi.fn()}
+          hydrated={true}
+        />
+      </div>
+    );
+
+    const leftTextarea = screen.getByDisplayValue('Left Text');
+
+    fireEvent.keyDown(leftTextarea, { key: 'z', ctrlKey: true });
+    expect(leftUndo).toHaveBeenCalledTimes(1);
+    expect(rightUndo).not.toHaveBeenCalled();
+  });
+
   it('does not trigger editor hotkeys when typing inside form input or contenteditable', () => {
     const undo = vi.fn();
 
