@@ -50,7 +50,6 @@ export interface AppSettings {
   editorLeftText: string;
   editorRightText: string;
   favoriteCommandIds: string[];
-  drawerNoteText: string;
 }
 
 export interface Setting {

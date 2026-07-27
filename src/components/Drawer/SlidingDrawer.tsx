@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
-import { Clock, StickyNote, HardDrive, X } from 'lucide-react';
+import { Clock, HardDrive, X } from 'lucide-react';
 import { db } from '../../lib/db';
 import type { HistoryRecord } from '../../lib/db';
 import { BackupRestore } from '../Backup/BackupRestore';
 
-export type DrawerTab = 'history' | 'notes' | 'backup';
+export type DrawerTab = 'history' | 'backup';
 
 interface SlidingDrawerProps {
   isOpen: boolean;
@@ -22,7 +22,6 @@ export const SlidingDrawer = ({
   applyHistory
 }: SlidingDrawerProps) => {
   const [history, setHistory] = useState<HistoryRecord[]>([]);
-  const [noteText, setNoteText] = useState('');
 
   // Close drawer on Esc key
   useEffect(() => {
@@ -36,31 +35,12 @@ export const SlidingDrawer = ({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, onClose]);
 
-  // Load persistent note text from DB
-  useEffect(() => {
-    let isMounted = true;
-    db.getSetting('drawerNoteText').then(text => {
-      if (isMounted && typeof text === 'string') {
-        setNoteText(text);
-      }
-    });
-    return () => {
-      isMounted = false;
-    };
-  }, []);
-
   // Refresh history when drawer opens or history tab becomes active
   useEffect(() => {
     if (isOpen && activeTab === 'history') {
       db.history.orderBy('timestamp').reverse().limit(50).toArray().then(setHistory);
     }
   }, [isOpen, activeTab]);
-
-  const handleNoteChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const val = e.target.value;
-    setNoteText(val);
-    db.setSetting('drawerNoteText', val);
-  };
 
   return (
     <>
@@ -84,12 +64,10 @@ export const SlidingDrawer = ({
         <div className="flex items-center justify-between px-4 py-3 border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-800/60">
           <div className="flex items-center gap-1.5 font-semibold text-sm text-zinc-800 dark:text-zinc-200">
             {activeTab === 'history' && <Clock size={16} className="text-blue-500" />}
-            {activeTab === 'notes' && <StickyNote size={16} className="text-blue-500" />}
-            {activeTab === 'backup' && <HardDrive size={16} className="text-blue-500" />}
+            {activeTab === 'backup' && <HardDrive size={16} className="text-emerald-500" />}
             <span>
               {activeTab === 'history' && 'История изменений'}
-              {activeTab === 'notes' && 'Заметки'}
-              {activeTab === 'backup' && 'Резервная копия'}
+              {activeTab === 'backup' && 'Data'}
             </span>
           </div>
           <button 
@@ -112,27 +90,17 @@ export const SlidingDrawer = ({
                 : 'text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200'
             }`}
           >
-            <Clock size={13} /> История
-          </button>
-          <button
-            onClick={() => onTabChange('notes')}
-            className={`flex-1 py-1.5 text-xs font-medium rounded-md flex items-center justify-center gap-1.5 transition-all ${
-              activeTab === 'notes'
-                ? 'bg-white dark:bg-zinc-900 text-blue-600 dark:text-blue-400 shadow-xs'
-                : 'text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200'
-            }`}
-          >
-            <StickyNote size={13} /> Заметки
+            <Clock size={13} /> History
           </button>
           <button
             onClick={() => onTabChange('backup')}
             className={`flex-1 py-1.5 text-xs font-medium rounded-md flex items-center justify-center gap-1.5 transition-all ${
               activeTab === 'backup'
-                ? 'bg-white dark:bg-zinc-900 text-blue-600 dark:text-blue-400 shadow-xs'
+                ? 'bg-white dark:bg-zinc-900 text-emerald-600 dark:text-emerald-400 shadow-xs'
                 : 'text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200'
             }`}
           >
-            <HardDrive size={13} /> Бекап
+            <HardDrive size={13} /> Data
           </button>
         </div>
 
@@ -166,19 +134,6 @@ export const SlidingDrawer = ({
                   История пока пуста.
                 </div>
               )}
-            </div>
-          )}
-
-          {activeTab === 'notes' && (
-            <div className="h-full flex flex-col">
-              <textarea 
-                value={noteText}
-                onChange={handleNoteChange}
-                className="w-full flex-1 p-3 resize-none outline-none bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg text-xs text-zinc-800 dark:text-zinc-200 placeholder-zinc-400 font-mono leading-relaxed focus:ring-1 focus:ring-blue-500" 
-                placeholder="Блокнот для временных заметок..."
-                spellCheck={false}
-                data-testid="drawer-notes-textarea"
-              />
             </div>
           )}
 

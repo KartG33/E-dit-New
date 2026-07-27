@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Settings2, Music, Zap, Clock, StickyNote, HardDrive } from 'lucide-react';
+import { Settings2, Music, Zap, Clock, HardDrive } from 'lucide-react';
 import { clean as sunoClean, space as sunoSpace, upper as sunoUpper, lyrics as sunoLyrics, structure as sunoStructure, trim as sunoTrim } from '../../lib/commands/suno';
 import { spaces, edges, line1, lineX, inline, inlineComma, lower, sentence, removeSpaceBeforePunctuation, addSpaceAfterPunctuation, upper as textUpper } from '../../lib/commands/text';
 import { SunoTagsEditor } from '../SunoTags/SunoTagsEditor';
@@ -59,7 +59,7 @@ export const CommandPanel = ({ applyCommand, insertText, onOpenDrawer }: Command
           </div>
         </div>
 
-        {/* Right Section: Drawer Toggle Buttons */}
+        {/* Right Section: Drawer Toggle Buttons (History & Data) */}
         <div className="flex items-center gap-1">
           <button
             onClick={() => onOpenDrawer?.('history')}
@@ -67,23 +67,15 @@ export const CommandPanel = ({ applyCommand, insertText, onOpenDrawer }: Command
             title="Открыть историю"
           >
             <Clock size={13} className="text-blue-500" />
-            <span className="hidden sm:inline">История</span>
-          </button>
-          <button
-            onClick={() => onOpenDrawer?.('notes')}
-            className="px-2.5 py-1 text-xs font-medium bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 rounded-md transition-colors flex items-center gap-1.5"
-            title="Открыть заметки"
-          >
-            <StickyNote size={13} className="text-amber-500" />
-            <span className="hidden sm:inline">Заметки</span>
+            <span className="hidden sm:inline">History</span>
           </button>
           <button
             onClick={() => onOpenDrawer?.('backup')}
             className="px-2.5 py-1 text-xs font-medium bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 rounded-md transition-colors flex items-center gap-1.5"
-            title="Открыть бекап"
+            title="Открыть данные"
           >
             <HardDrive size={13} className="text-emerald-500" />
-            <span className="hidden sm:inline">Бекап</span>
+            <span className="hidden sm:inline">Data</span>
           </button>
         </div>
       </div>
