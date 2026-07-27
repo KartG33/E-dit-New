@@ -88,7 +88,7 @@ export const Editor = ({
 
   return (
     <div className={`flex flex-col h-full bg-white dark:bg-zinc-900 border ${isActive ? 'border-blue-500 shadow-sm ring-1 ring-blue-500/20' : 'border-zinc-300 dark:border-zinc-700'} rounded-lg overflow-hidden transition-all duration-200`}>
-      <div className="flex items-center justify-between px-3 py-2 bg-zinc-50 dark:bg-zinc-800 border-b border-zinc-200 dark:border-zinc-700 text-xs text-zinc-500">
+      <div className="flex items-center justify-between px-3 py-1.5 bg-zinc-50 dark:bg-zinc-800 border-b border-zinc-200 dark:border-zinc-700 text-xs text-zinc-500">
         <div className="flex items-center gap-2">
           <span className="font-medium text-zinc-700 dark:text-zinc-300 capitalize mr-2">{id} Editor</span>
           <button 
@@ -108,28 +108,7 @@ export const Editor = ({
             <Redo2 size={14} />
           </button>
         </div>
-        <div className="flex gap-4">
-          <span>{stats.characters} chars</span>
-          <span>{stats.charactersWithoutSpaces} chars (no space)</span>
-          <span>{stats.words} words</span>
-          <span>{stats.lines} lines</span>
-        </div>
       </div>
-      
-      {stats.tokens && stats.tokens.length > 0 && (
-        <div className="flex flex-wrap gap-1 px-3 pb-2 bg-zinc-50 dark:bg-zinc-800 border-t border-zinc-200 dark:border-zinc-700">
-          {stats.tokens.map(t => (
-            <button
-              key={t.token}
-              onClick={() => updateValue(removeTokenFromText(value, t.token), undefined, undefined, true)}
-              className="text-[10px] px-1.5 py-0.5 mt-1 bg-zinc-200 dark:bg-zinc-700 hover:bg-red-100 hover:text-red-600 dark:hover:bg-red-900/50 dark:hover:text-red-400 rounded transition-colors text-zinc-600 dark:text-zinc-300"
-              title={`Remove all ${t.token}`}
-            >
-              {t.token}: {t.count}
-            </button>
-          ))}
-        </div>
-      )}
 
       <textarea
         ref={textareaRef}
@@ -137,12 +116,39 @@ export const Editor = ({
         onChange={handleChange}
         onFocus={onFocus}
         disabled={!hydrated}
-        className="flex-1 w-full p-4 bg-transparent outline-none resize-none text-zinc-800 dark:text-zinc-200 disabled:opacity-50"
+        className="flex-1 w-full p-4 bg-transparent outline-none resize-none text-zinc-800 dark:text-zinc-200 disabled:opacity-50 font-mono text-sm leading-relaxed"
         placeholder={!hydrated ? "Loading..." : "Type or paste your text here..."}
         data-editor-id={id}
         spellCheck={false}
         onSelect={handleSelect}
       />
+
+      <div className="flex flex-col bg-zinc-50 dark:bg-zinc-800 border-t border-zinc-200 dark:border-zinc-700 text-xs text-zinc-500">
+        {stats.tokens && stats.tokens.length > 0 && (
+          <div className="flex flex-wrap gap-1 px-3 py-1.5 border-b border-zinc-200 dark:border-zinc-700">
+            {stats.tokens.map(t => (
+              <button
+                key={t.token}
+                onClick={() => updateValue(removeTokenFromText(value, t.token), undefined, undefined, true)}
+                className="text-[10px] px-1.5 py-0.5 bg-zinc-200 dark:bg-zinc-700 hover:bg-red-100 hover:text-red-600 dark:hover:bg-red-900/50 dark:hover:text-red-400 rounded transition-colors text-zinc-600 dark:text-zinc-300"
+                title={`Remove all ${t.token}`}
+              >
+                {t.token}: {t.count}
+              </button>
+            ))}
+          </div>
+        )}
+        <div className="flex items-center justify-between px-3 py-1.5 text-[11px] text-zinc-500 dark:text-zinc-400 font-medium">
+          <div className="flex gap-3">
+            <span>{stats.characters} chars</span>
+            <span>{stats.charactersWithoutSpaces} chars (no space)</span>
+          </div>
+          <div className="flex gap-3">
+            <span>{stats.words} words</span>
+            <span>{stats.lines} lines</span>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
