@@ -6,7 +6,6 @@ import Dexie from 'dexie';
 describe('Database & Migrations', () => {
   beforeEach(async () => {
     await db.history.clear();
-    await db.notes.clear();
     await db.presets.clear();
     await db.settings.clear();
   });

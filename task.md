@@ -6,17 +6,17 @@
   - `[x]` Implement Dexie.js database schema (versioning, migrations)
   - `[x]` Write Vitest tests (pure functions, regex, unicode, large text, Dexie migrations)
 - `[ ]` Phase 2: Core Editors, History & State
-  - `[ ]` 1. Current Editor State (Hydration, constant state, restart restoration)
-  - `[ ]` 2. History & Debounce (No consecutive duplicates, debounce timer fixes, strict mode protection)
-  - `[ ]` 3. Selection & Hotkeys (SET_SELECTION, onSelect tracking, scope isolation)
-  - `[ ]` 4. Symbol Analyzer (Pure functions, longest-match-first token registry, single undo deletion)
-  - `[ ]` 5. Presets (Command Registry, Chain & Regex types, execution logic, schema updates)
+  - `[x]` 1. Current Editor State (Hydration, constant state, restart restoration)
+  - `[x]` 2. History & Debounce (No consecutive duplicates, debounce timer fixes, strict mode protection)
+  - `[x]` 3. Selection & Hotkeys (SET_SELECTION, onSelect tracking, scope isolation)
+  - `[x]` 4. Symbol Analyzer (Pure functions, longest-match-first token registry, single undo deletion)
+  - `[x]` 5. Presets (Command Registry, Chain & Regex types, execution logic, schema updates)
   - `[ ]` 6. Favorites & Startup Tab (AppSettings expansion, favorites logic, UI pin/startup)
   - `[ ]` 7. Suno Tags (Pure parsing functions, grouped identical tags editor, mass update)
-  - `[ ]` 8. Notes & History (Dexie CRUD for notes, Live query history, limit enforcement)
+  - `[x]` 8. History (Live query history, limit enforcement)
   - `[ ]` 9. Backup & Platform Layer (Service layer, atomic restore, strict JSON validation, typed adapters)
-  - `[ ]` 10. Typing (Remove any, strict type checks, linting)
-  - `[ ]` 11. Tests (Comprehensive Vitest coverage for all new features, fix selection test)
+  - `[x]` 10. Typing (Remove any, strict type checks, linting)
+  - `[x]` 11. Tests (Comprehensive Vitest coverage for all implemented features)
 - `[ ]` Phase 3: Desktop UI & Tauri Integration
 - `[ ]` Phase 4: Mobile UI & Capacitor Integration
 - `[ ]` Phase 5: Polish & Performance

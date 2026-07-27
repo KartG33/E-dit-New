@@ -51,8 +51,7 @@
   - Retain linebreaks. No text mutation on form cancel. Apply changes as one undo step.
   - No blind variable injection into RegExp.
 
-### 8. Notes и History
-- **Notes CRUD**: Dexie-backed notes with title, text (from editor), tags, tag filtering.
+### 8. History
 - **History Live**: Use a live-query or custom subscription to auto-update list. Restore (loads into active), delete single, clear all (with confirmation), separate left/right records, enforce limits. Prevent cross-editor restoration.
 
 ### 9. Backup и платформенный слой
@@ -69,5 +68,5 @@
 - **No `any`**: Strictly enforce zero explicit `any` and `as any` in production code. Add linting rules for explicit any.
 
 ### 11. Тесты
-- Vastly expand Vitest coverage according to the requirements, including basic commands, tokens, single-undo removals, hydration, StrictMode, hotkey ignoring, regex via `Preset.data`, Notes, History, Favorites, Suno parsing, and comprehensive backup validation (valid, corrupted, rollback).
+- Vastly expand Vitest coverage according to the requirements, including basic commands, tokens, single-undo removals, hydration, StrictMode, hotkey ignoring, regex via `Preset.data`, History, Favorites, Suno parsing, and comprehensive backup validation (valid, corrupted, rollback).
 - Fix `editor.test.tsx` selection test to simulate real user events.
