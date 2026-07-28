@@ -1,15 +1,6 @@
 import Dexie, { type Table } from 'dexie';
 import type { CommandId } from '../commands/registry';
 
-export interface Note {
-  id?: number;
-  title: string;
-  text: string;
-  tags: string[];
-  createdAt: number;
-  updatedAt: number;
-}
-
 export interface HistoryRecord {
   id?: number;
   text: string;
@@ -58,7 +49,6 @@ export interface Setting {
 }
 
 export class EditDatabase extends Dexie {
-  notes!: Table<Note, number>;
   history!: Table<HistoryRecord, number>;
   presets!: Table<Preset, number>;
   settings!: Table<Setting, string>;
@@ -101,6 +91,11 @@ export class EditDatabase extends Dexie {
           preset.order = currentOrder++;
         }
       });
+    });
+
+    // Version 4 Schema
+    this.version(4).stores({
+      notes: null
     });
   }
 
