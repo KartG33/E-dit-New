@@ -14,7 +14,7 @@
   - `[ ]` 6. Favorites & Startup Tab (AppSettings expansion, favorites logic, UI pin/startup)
   - `[ ]` 7. Suno Tags (Pure parsing functions, grouped identical tags editor, mass update)
   - `[x]` 8. History (Saved text versions in Dexie and the right panel, live query, limit enforcement)
-  - `[ ]` 9. Data & Platform Layer (Safe Data v2 service, atomic restore, and strict JSON validation complete; typed platform adapters remain)
+  - `[x]` 9. Data & Platform Layer (Safe Data v2 import, atomic restore, strict validation, and replaceable browser file adapter)
   - `[x]` 10. Typing (Remove any, strict type checks, linting)
   - `[x]` 11. Tests (Comprehensive Vitest coverage for all implemented features)
 - `[ ]` Phase 3: Desktop UI & Tauri Integration

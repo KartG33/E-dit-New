@@ -63,6 +63,7 @@
 - **Atomic Operations**: Perform everything inside `db.transaction('rw')`. Rollback on error. Only update UI state after successful commit.
 - **Implemented for Data v2**: `src/lib/data/import.ts` validates the complete payload before a single transaction replaces settings and presets. The exported version and composition remain unchanged.
 - **No File API in Component**: Abstracted adapters (temporary browser adapter, mock Windows/Android adapters for testing). No success toasts, only error messages.
+- **Implemented adapter boundary**: `DataPanel` uses the typed `DataFileAdapter` contract for selection, reading, and saving. The browser implementation is active; Tauri and Capacitor implementations can replace it without UI changes.
 
 ### 10. Типизация
 - Replace `Setting.value: any` with `unknown` + generic getters.

@@ -38,8 +38,8 @@
 ### 1.5 Слишком сложные или смешанные компоненты
 * **`CommandPanel.tsx` сочетает разметку шапки, вкладки, кнопки и прямые вызовы команд:**
   * Компонент [src/components/Commands/CommandPanel.tsx](file:///d:/Documents/Antigravity%20Projects/E-dit%20New/src/components/Commands/CommandPanel.tsx) одновременно отвечает за логотип, переключение вкладок, вызов функций текстов, внедрение модального окна `SunoTagsEditor` и рендеринг `PresetsTab`.
-* **`DataPanel.tsx` смешивает UI и платформенную работу с файлами:**
-  * В [src/components/Data/DataPanel.tsx](file:///d:/Documents/Antigravity%20Projects/E-dit%20New/src/components/Data/DataPanel.tsx) прямо внутри React-компонента создаются HTML5 DOM элементы `<a>` для скачивания файла и обработчики `<input type="file">`, что нарушает требование по разделению платформенного слоя `DataFileAdapter`.
+* **`DataPanel.tsx` отделён от платформенной работы с файлами:**
+  * Компонент зависит только от интерфейса `DataFileAdapter`. Выбор, чтение и сохранение файлов реализованы browser-адаптером в `src/lib/platform/dataFileAdapter.ts`; для Tauri или Capacitor его можно заменить без изменения раздела Data.
 
 ### 1.6 Расхождения между кодом, интерфейсом, тестами, task.md и implementation_plan.md
 * **Пункт 6 Фазы 2 (Favorites & startupTab):**
@@ -52,11 +52,11 @@
   * В коде [src/components/SunoTags/SunoTagsEditor.tsx](file:///d:/Documents/Antigravity%20Projects/E-dit%20New/src/components/SunoTags/SunoTagsEditor.tsx) реализован только простой билдер новых тегов (`[Chorus x2]`).
 * **Пункт 9 Фазы 2 (Data & Platform Layer):**
   * В `implementation_plan.md` требовалась валидация схемы JSON при импорте, обработка ошибок, атомарные транзакции и выделенный сервисный слой `DataFileAdapter`.
-  * Строгая валидация Data v2 и атомарный импорт реализованы в `src/lib/data/import.ts`; из пункта остаётся выделение платформенного `DataFileAdapter`.
+  * Строгая валидация Data v2 и атомарный импорт реализованы в `src/lib/data/import.ts`, а файловые операции изолированы за `DataFileAdapter` с действующей browser-реализацией.
 
-### 1.7 Задачи, отмеченные завершёнными преждевременно
-* **Пункт 9 Фазы 2 в `task.md` выполнен частично:**
-  * Безопасный сервис импорта с runtime-валидацией и атомарной транзакцией реализован; абстракция платформенных адаптеров (`DataFileAdapter`) ещё не выделена.
+### 1.7 Статус ранее незавершённых задач
+* **Пункт 9 Фазы 2 (Data & Platform Layer) выполнен:**
+  * Data v2 валидируется и импортируется атомарно, а `DataFileAdapter` отделяет UI от browser API и задаёт контракт для будущих реализаций Tauri и Capacitor.
 * **Связано с Пресетами (Пункт 5):**
   * Отмечен выполненным `[x]`, но пресеты не содержат полноценного UI конструктора цепочек (Chain Editor) и Regex Editor для пользователя, а только отображение имеющихся в DB пресетов ([src/components/Commands/PresetsTab.tsx](file:///d:/Documents/Antigravity%20Projects/E-dit%20New/src/components/Commands/PresetsTab.tsx)).
 
@@ -73,7 +73,7 @@
 ### Категория A: Рефакторинг существующего кода
 1. **Удаление устаревших стилей CRA/Vite (`App.css`).** (Важность: Низкая)
 2. **Централизация логики записи History в IndexedDB (`addHistory`).** Выполнено: сохранение, дедупликация и лимит реализованы в слое базы данных. (Важность: Средняя)
-3. **Разделение UI и логики экспорта/импорта данных через `DataFileAdapter`.** (Важность: Средняя)
+3. **Разделение UI и файловых операций через `DataFileAdapter`.** Выполнено: browser-реализация заменяема платформенными адаптерами. (Важность: Средняя)
 4. **Унификация наименований команд и UI-элементов.** (Важность: Средняя)
 
 ### Категория B: Реальные ошибки
@@ -150,12 +150,13 @@ graph TD
 ### Этап 3: Декомпозиция UI-компонентов и Платформенный слой
 
 * **Что исправляется:**
-  1. Выделение абстракции `DataFileAdapter` (web-адаптер для скачивания/загрузки файлов), изолируя DOM-манипуляции из React-компонента `DataPanel.tsx`.
+  1. Абстракция `DataFileAdapter` и browser-адаптер выделены: выбор, чтение и сохранение файлов изолированы от `DataPanel.tsx`; будущие Tauri/Capacitor-реализации смогут использовать тот же контракт.
   2. Разделение `CommandPanel.tsx` на более мелкие субкомпоненты по категориям.
 * **Зачем это нужно:** Подготовка к будущей интеграции с Tauri (Desktop) и Capacitor (Mobile), соблюдение чистоты архитектуры.
 * **Какие файлы затрагиваются:**
   * [NEW] `src/lib/platform/dataFileAdapter.ts`
   * [MODIFY] [src/components/Data/DataPanel.tsx](file:///d:/Documents/Antigravity%20Projects/E-dit%20New/src/components/Data/DataPanel.tsx)
+  * [NEW] `tests/dataFileAdapter.test.tsx`
   * [MODIFY] [src/components/Commands/CommandPanel.tsx](file:///d:/Documents/Antigravity%20Projects/E-dit%20New/src/components/Commands/CommandPanel.tsx)
 * **От каких этапов зависит:** Зависит от Этапа 2.
 * **Как проверить результат:** Ручная и автоматизированная проверка работы импорта/экспорта в браузере.
