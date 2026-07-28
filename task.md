@@ -7,7 +7,7 @@
   - `[x]` Write Vitest tests (pure functions, regex, unicode, large text, Dexie migrations)
 - `[ ]` Phase 2: Core Editors, Undo Stack, History & State
   - `[x]` 1. Current Editor State (Hydration, constant state, restart restoration)
-  - `[x]` 2. Undo Stack & History Debounce (No consecutive Undo Stack states or History versions, debounce timer fixes, strict mode protection)
+  - `[x]` 2. Undo Stack & History Debounce (Independent Undo Stack; History persistence, consecutive deduplication, and the per-editor 50-record limit centralized in the database layer)
   - `[x]` 3. Selection & Hotkeys (SET_SELECTION, onSelect tracking, scope isolation)
   - `[x]` 4. Symbol Analyzer (Pure functions, longest-match-first token registry, single undo deletion)
   - `[x]` 5. Presets (Command Registry, Chain & Regex types, execution logic, schema updates)

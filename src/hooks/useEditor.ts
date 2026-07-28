@@ -118,20 +118,7 @@ export const useEditor = (editorId: 'left' | 'right') => {
 
   const appendHistoryVersion = useCallback(async (text: string) => {
     try {
-      await db.transaction('rw', db.history, async () => {
-        const records = await db.history
-          .where('editorId')
-          .equals(editorId)
-          .sortBy('timestamp');
-        const lastRecord = records[records.length - 1];
-        if (!lastRecord || lastRecord.text !== text) {
-          await db.history.add({ editorId, text, timestamp: Date.now() });
-          if (records.length + 1 > 50) {
-            const oldest = records.slice(0, records.length + 1 - 50).map(r => r.id!);
-            await db.history.bulkDelete(oldest);
-          }
-        }
-      });
+      await db.addHistory({ editorId, text, timestamp: Date.now() });
     } catch {
       window.dispatchEvent(new CustomEvent('app-error', { detail: 'Failed to save history' }));
     }

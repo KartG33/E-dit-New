@@ -9,7 +9,7 @@
 - **Restart Restoration**: Both texts, active editor, and selections must restore cleanly after a restart.
 
 ### 2. История и debounce
-- **No Consecutive Duplicates**: Prevent adding identical states to the Undo Stack or identical versions to History in Dexie.
+- **No Consecutive Duplicates**: Prevent adding identical states to the Undo Stack. `EditDatabase.addHistory` independently prevents consecutive duplicate History versions and enforces the 50-record limit per editor.
 - **Debounce Timer**: Set `debounceTimer.current = null` after execution.
 - **Cleanup**: Save on unmount *only* if there's a pending change.
 - **React StrictMode**: Defend against creating empty/duplicate records due to double-mounts.

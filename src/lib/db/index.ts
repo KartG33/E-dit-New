@@ -1,6 +1,8 @@
 import Dexie, { type Table } from 'dexie';
 import type { CommandId } from '../commands/registry';
 
+const MAX_HISTORY_RECORDS_PER_EDITOR = 50;
+
 export interface HistoryRecord {
   id?: number;
   text: string;
@@ -99,16 +101,27 @@ export class EditDatabase extends Dexie {
     });
   }
 
-  async addHistory(record: Omit<HistoryRecord, 'id'>, maxRecords: number = 50) {
+  async addHistory(record: Omit<HistoryRecord, 'id'>): Promise<void> {
     await this.transaction('rw', this.history, async () => {
+      const records = await this.history
+        .where('editorId')
+        .equals(record.editorId)
+        .sortBy('timestamp');
+      const latestRecord = records[records.length - 1];
+
+      if (latestRecord?.text === record.text) {
+        return;
+      }
+
       await this.history.add(record);
-      const count = await this.history.where('editorId').equals(record.editorId).count();
-      if (count > maxRecords) {
-        const oldest = await this.history
+      if (records.length + 1 > MAX_HISTORY_RECORDS_PER_EDITOR) {
+        const recordsAfterInsert = await this.history
           .where('editorId')
           .equals(record.editorId)
           .sortBy('timestamp');
-        const toDelete = oldest.slice(0, count - maxRecords).map(r => r.id!);
+        const toDelete = recordsAfterInsert
+          .slice(0, recordsAfterInsert.length - MAX_HISTORY_RECORDS_PER_EDITOR)
+          .map(historyRecord => historyRecord.id!);
         await this.history.bulkDelete(toDelete);
       }
     });

@@ -10,11 +10,22 @@ describe('Database & Migrations', () => {
     await db.settings.clear();
   });
 
-  it('enforces max history records per editor independently', async () => {
+  it('owns History deduplication and the 50-record limit per editor', async () => {
+    await db.addHistory({ editorId: 'left', text: 'Consecutive duplicate', timestamp: 1 });
+    await db.addHistory({ editorId: 'left', text: 'Consecutive duplicate', timestamp: 2 });
+    await db.addHistory({ editorId: 'left', text: 'Different version', timestamp: 3 });
+    await db.addHistory({ editorId: 'left', text: 'Consecutive duplicate', timestamp: 4 });
+    await db.addHistory({ editorId: 'right', text: 'Consecutive duplicate', timestamp: 3 });
+
+    expect(await db.history.where('editorId').equals('left').count()).toBe(3);
+    expect(await db.history.where('editorId').equals('right').count()).toBe(1);
+
+    await db.history.clear();
+
     // Add 60 to 'left' and 60 to 'right'
     for (let i = 0; i < 60; i++) {
-      await db.addHistory({ editorId: 'left', text: `Left ${i}`, timestamp: Date.now() + i }, 50);
-      await db.addHistory({ editorId: 'right', text: `Right ${i}`, timestamp: Date.now() + i }, 50);
+      await db.addHistory({ editorId: 'left', text: `Left ${i}`, timestamp: i });
+      await db.addHistory({ editorId: 'right', text: `Right ${i}`, timestamp: i });
     }
 
     const leftCount = await db.history.where('editorId').equals('left').count();
