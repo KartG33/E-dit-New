@@ -3,13 +3,13 @@
 ## Proposed Changes
 
 ### 1. Текущее состояние редакторов
-- **Constant State**: Do not rely on History to restore text. Add a typed table/settings entry for permanent editor texts: `editorLeftText: string; editorRightText: string`.
+- **Constant State**: Do not rely on saved History versions to restore text. Add a typed table/settings entry for permanent editor texts: `editorLeftText: string; editorRightText: string`.
 - **Hydration**: Initialize `useReducer` with a loading state, fetch texts in `useEffect`, dispatch a `HYDRATE` action.
 - **Auto-save block**: Prevent auto-saving until hydration completes. Protect against overwriting saved text with an initial empty string.
 - **Restart Restoration**: Both texts, active editor, and selections must restore cleanly after a restart.
 
 ### 2. История и debounce
-- **No Consecutive Duplicates**: Prevent adding identical states to undo-history or Dexie.
+- **No Consecutive Duplicates**: Prevent adding identical states to the Undo Stack or identical versions to History in Dexie.
 - **Debounce Timer**: Set `debounceTimer.current = null` after execution.
 - **Cleanup**: Save on unmount *only* if there's a pending change.
 - **React StrictMode**: Defend against creating empty/duplicate records due to double-mounts.
@@ -52,7 +52,7 @@
   - No blind variable injection into RegExp.
 
 ### 8. History
-- **History Live**: Use a live-query or custom subscription to auto-update list. Restore (loads into active), delete single, clear all (with confirmation), separate left/right records, enforce limits. Prevent cross-editor restoration.
+- **History Live**: History contains saved text versions in Dexie and is shown in the right panel. Use a live-query or custom subscription to auto-update the list. Restore (loads into active), delete single, clear all (with confirmation), separate left/right records, enforce limits. Prevent cross-editor restoration. It is independent from the in-memory Undo Stack used by Undo/Redo.
 
 ### 9. Data и платформенный слой
 - **Three-part data persistence**: 

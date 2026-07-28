@@ -11,7 +11,7 @@ interface SlidingDrawerProps {
   onClose: () => void;
   activeTab: DrawerTab;
   onTabChange: (tab: DrawerTab) => void;
-  applyHistory: (text: string) => void;
+  applyHistoryVersion: (text: string) => void;
 }
 
 export const SlidingDrawer = ({
@@ -19,9 +19,9 @@ export const SlidingDrawer = ({
   onClose,
   activeTab,
   onTabChange,
-  applyHistory
+  applyHistoryVersion
 }: SlidingDrawerProps) => {
-  const [history, setHistory] = useState<HistoryRecord[]>([]);
+  const [historyRecords, setHistoryRecords] = useState<HistoryRecord[]>([]);
 
   // Close drawer on Esc key
   useEffect(() => {
@@ -38,7 +38,7 @@ export const SlidingDrawer = ({
   // Refresh history when drawer opens or history tab becomes active
   useEffect(() => {
     if (isOpen && activeTab === 'history') {
-      db.history.orderBy('timestamp').reverse().limit(50).toArray().then(setHistory);
+      db.history.orderBy('timestamp').reverse().limit(50).toArray().then(setHistoryRecords);
     }
   }, [isOpen, activeTab]);
 
@@ -108,12 +108,12 @@ export const SlidingDrawer = ({
         <div className="flex-1 overflow-y-auto p-4 bg-zinc-50/50 dark:bg-zinc-950/50">
           {activeTab === 'history' && (
             <div className="flex flex-col gap-2.5">
-              {history.map(record => (
+              {historyRecords.map(record => (
                 <div 
                   key={record.id} 
                   className="p-3 text-xs bg-white dark:bg-zinc-900 rounded-lg border border-zinc-200 dark:border-zinc-800 cursor-pointer hover:border-blue-500 dark:hover:border-blue-500 transition-all shadow-2xs group" 
                   onClick={() => {
-                    applyHistory(record.text);
+                    applyHistoryVersion(record.text);
                     onClose();
                   }}
                   title="Нажмите, чтобы вставить в активный редактор"
@@ -129,7 +129,7 @@ export const SlidingDrawer = ({
                   </div>
                 </div>
               ))}
-              {history.length === 0 && (
+              {historyRecords.length === 0 && (
                 <div className="text-center text-zinc-400 dark:text-zinc-500 py-8 text-xs">
                   История пока пуста.
                 </div>

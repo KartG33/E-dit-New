@@ -5,15 +5,15 @@
   - `[x]` Implement line diff logic in shared business logic
   - `[x]` Implement Dexie.js database schema (versioning, migrations)
   - `[x]` Write Vitest tests (pure functions, regex, unicode, large text, Dexie migrations)
-- `[ ]` Phase 2: Core Editors, History & State
+- `[ ]` Phase 2: Core Editors, Undo Stack, History & State
   - `[x]` 1. Current Editor State (Hydration, constant state, restart restoration)
-  - `[x]` 2. History & Debounce (No consecutive duplicates, debounce timer fixes, strict mode protection)
+  - `[x]` 2. Undo Stack & History Debounce (No consecutive Undo Stack states or History versions, debounce timer fixes, strict mode protection)
   - `[x]` 3. Selection & Hotkeys (SET_SELECTION, onSelect tracking, scope isolation)
   - `[x]` 4. Symbol Analyzer (Pure functions, longest-match-first token registry, single undo deletion)
   - `[x]` 5. Presets (Command Registry, Chain & Regex types, execution logic, schema updates)
   - `[ ]` 6. Favorites & Startup Tab (AppSettings expansion, favorites logic, UI pin/startup)
   - `[ ]` 7. Suno Tags (Pure parsing functions, grouped identical tags editor, mass update)
-  - `[x]` 8. History (Live query history, limit enforcement)
+  - `[x]` 8. History (Saved text versions in Dexie and the right panel, live query, limit enforcement)
   - `[ ]` 9. Data & Platform Layer (Service layer, atomic restore, strict JSON validation, typed adapters)
   - `[x]` 10. Typing (Remove any, strict type checks, linting)
   - `[x]` 11. Tests (Comprehensive Vitest coverage for all implemented features)

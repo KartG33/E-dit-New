@@ -22,7 +22,7 @@ describe('SlidingDrawer Component', () => {
         onClose={onClose}
         activeTab="history"
         onTabChange={vi.fn()}
-        applyHistory={vi.fn()}
+        applyHistoryVersion={vi.fn()}
       />
     );
 
@@ -38,7 +38,7 @@ describe('SlidingDrawer Component', () => {
         onClose={onClose}
         activeTab="history"
         onTabChange={vi.fn()}
-        applyHistory={vi.fn()}
+        applyHistoryVersion={vi.fn()}
       />
     );
 
@@ -54,7 +54,7 @@ describe('SlidingDrawer Component', () => {
         onClose={vi.fn()}
         activeTab="history"
         onTabChange={onTabChange}
-        applyHistory={vi.fn()}
+        applyHistoryVersion={vi.fn()}
       />
     );
 

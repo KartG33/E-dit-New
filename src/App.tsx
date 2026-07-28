@@ -18,7 +18,7 @@ const App = () => {
     setDrawerOpen(true);
   };
 
-  const applyHistory = (text: string) => {
+  const applyHistoryVersion = (text: string) => {
     if (activeEditor === 'left') {
       leftEditor.updateValue(text);
     } else {
@@ -80,7 +80,7 @@ const App = () => {
         onClose={() => setDrawerOpen(false)}
         activeTab={drawerTab}
         onTabChange={setDrawerTab}
-        applyHistory={applyHistory}
+        applyHistoryVersion={applyHistoryVersion}
       />
     </div>
   );

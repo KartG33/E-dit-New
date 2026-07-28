@@ -10,7 +10,7 @@ export interface EditorProps {
   value: string;
   isActive: boolean;
   onFocus: () => void;
-  updateValue: (val: string, selectionStart?: number, selectionEnd?: number, addToHistory?: boolean) => void;
+  updateValue: (val: string, selectionStart?: number, selectionEnd?: number, addToUndoStack?: boolean) => void;
   onSelect: (start: number, end: number) => void;
   undo: () => void;
   redo: () => void;

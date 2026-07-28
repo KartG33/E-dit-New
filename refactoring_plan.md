@@ -35,7 +35,7 @@
 * **Дублирование зачистки устаревших записей истории:**
   * Ограничение истории до 50 записей реализовано дважды с немного различающимся кодом:
     1. В [src/lib/db/index.ts](file:///d:/Documents/Antigravity%20Projects/E-dit%20New/src/lib/db/index.ts#L107-L120) в методе `addHistory`.
-    2. В [src/hooks/useEditor.ts](file:///d:/Documents/Antigravity%20Projects/E-dit%20New/src/hooks/useEditor.ts#L119-L138) в callback `appendHistorySnapshot`.
+    2. В [src/hooks/useEditor.ts](file:///d:/Documents/Antigravity%20Projects/E-dit%20New/src/hooks/useEditor.ts) в callback `appendHistoryVersion`. Временные состояния Undo/Redo при этом называются `Undo Stack` и не относятся к сохранённой History.
 
 ### 1.5 Слишком сложные или смешанные компоненты
 * **`CommandPanel.tsx` сочетает разметку шапки, вкладки, кнопки и прямые вызовы команд:**

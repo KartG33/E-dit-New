@@ -32,7 +32,7 @@ describe('useEditor Hook Autosave & Hydration', () => {
     expect(right.current.value).toBe('Right Content');
   });
 
-  it('left editor changes do not change right editor history or state', async () => {
+  it('left editor changes do not change the right editor Undo Stack or History', async () => {
     const { result: left } = renderHook(() => useEditor('left'));
     const { result: right } = renderHook(() => useEditor('right'));
 
@@ -53,8 +53,8 @@ describe('useEditor Hook Autosave & Hydration', () => {
     expect(right.current.value).toBe('');
     expect(right.current.canUndo).toBe(false);
 
-    const rightHistory = await db.history.where('editorId').equals('right').toArray();
-    expect(rightHistory.length).toBe(0);
+    const rightHistoryRecords = await db.history.where('editorId').equals('right').toArray();
+    expect(rightHistoryRecords.length).toBe(0);
   });
 
   it('handles hydration error gracefully', async () => {
@@ -97,9 +97,9 @@ describe('useEditor Hook Autosave & Hydration', () => {
     savedText = await db.getSetting('editorLeftText');
     expect(savedText).toBe('ABC');
 
-    const history = await db.history.where('editorId').equals('left').toArray();
-    expect(history.length).toBe(1);
-    expect(history[0].text).toBe('ABC');
+    const historyRecords = await db.history.where('editorId').equals('left').toArray();
+    expect(historyRecords.length).toBe(1);
+    expect(historyRecords[0].text).toBe('ABC');
   });
 
   it('prevents duplicate history entries after multiple pauses', async () => {
@@ -112,16 +112,16 @@ describe('useEditor Hook Autosave & Hydration', () => {
     act(() => { result.current.updateValue('Hello'); });
     await act(async () => { await vi.advanceTimersByTimeAsync(2000); });
 
-    const history1 = await db.history.where('editorId').equals('left').toArray();
-    expect(history1.length).toBe(1);
-    expect(history1[0].text).toBe('Hello');
+    const firstHistoryRecords = await db.history.where('editorId').equals('left').toArray();
+    expect(firstHistoryRecords.length).toBe(1);
+    expect(firstHistoryRecords[0].text).toBe('Hello');
 
     act(() => { result.current.updateValue('Hello World'); });
     await act(async () => { await vi.advanceTimersByTimeAsync(2000); });
 
-    const history2 = await db.history.where('editorId').equals('left').toArray();
-    expect(history2.length).toBe(2);
-    expect(history2[1].text).toBe('Hello World');
+    const secondHistoryRecords = await db.history.where('editorId').equals('left').toArray();
+    expect(secondHistoryRecords.length).toBe(2);
+    expect(secondHistoryRecords[1].text).toBe('Hello World');
   });
 
   it('cancels pending timer on Undo and does not save undone text', async () => {
@@ -139,8 +139,8 @@ describe('useEditor Hook Autosave & Hydration', () => {
     const savedText = await db.getSetting('editorLeftText');
     expect(savedText).toBe('');
 
-    const history = await db.history.where('editorId').equals('left').toArray();
-    expect(history.length).toBe(0);
+    const historyRecords = await db.history.where('editorId').equals('left').toArray();
+    expect(historyRecords.length).toBe(0);
   });
 
   it('flushes pending change once on unmount', async () => {
@@ -156,9 +156,9 @@ describe('useEditor Hook Autosave & Hydration', () => {
     const savedText = await db.getSetting('editorLeftText');
     expect(savedText).toBe('Unmounting text');
 
-    const history = await db.history.where('editorId').equals('left').toArray();
-    expect(history.length).toBe(1);
-    expect(history[0].text).toBe('Unmounting text');
+    const historyRecords = await db.history.where('editorId').equals('left').toArray();
+    expect(historyRecords.length).toBe(1);
+    expect(historyRecords[0].text).toBe('Unmounting text');
   });
 
   it('works properly in StrictMode without creating empty or duplicate entries', async () => {
@@ -168,8 +168,8 @@ describe('useEditor Hook Autosave & Hydration', () => {
     expect(result.current.hydrated).toBe(true);
     expect(result.current.value).toBe('');
 
-    const history = await db.history.where('editorId').equals('left').toArray();
-    expect(history.length).toBe(0);
+    const historyRecords = await db.history.where('editorId').equals('left').toArray();
+    expect(historyRecords.length).toBe(0);
   });
 
   it('does not schedule a save timer if updateValue is called with unchanged text', async () => {
@@ -179,14 +179,14 @@ describe('useEditor Hook Autosave & Hydration', () => {
     act(() => { result.current.updateValue('Same Text'); });
     await act(async () => { await vi.advanceTimersByTimeAsync(2000); });
 
-    const historyAfterFirst = await db.history.where('editorId').equals('left').toArray();
-    expect(historyAfterFirst.length).toBe(1);
+    const historyRecordsAfterFirst = await db.history.where('editorId').equals('left').toArray();
+    expect(historyRecordsAfterFirst.length).toBe(1);
 
     act(() => { result.current.updateValue('Same Text'); });
     await act(async () => { await vi.advanceTimersByTimeAsync(2000); });
 
-    const historyAfterSecond = await db.history.where('editorId').equals('left').toArray();
-    expect(historyAfterSecond.length).toBe(1);
+    const historyRecordsAfterSecond = await db.history.where('editorId').equals('left').toArray();
+    expect(historyRecordsAfterSecond.length).toBe(1);
   });
 
   it('returns to initial startup text on first Undo', async () => {
@@ -224,7 +224,7 @@ describe('useEditor Hook Autosave & Hydration', () => {
     expect(result.current.value).toBe('State 3 (New Branch)');
   });
 
-  it('limits memory history stack to MAX_HISTORY (100) items', async () => {
+  it('limits the in-memory Undo Stack to MAX_UNDO_STACK (100) items', async () => {
     const { result } = renderHook(() => useEditor('left'));
     await act(async () => { await vi.runAllTimersAsync(); });
 
@@ -266,7 +266,7 @@ describe('useEditor Hook Autosave & Hydration', () => {
     expect(result.current.currentState.selectionEnd).toBe(15);
   });
 
-  it('does not create new history step when cursor selection changes without text change', async () => {
+  it('does not create a new Undo Stack state when selection changes without text change', async () => {
     const { result } = renderHook(() => useEditor('left'));
     await act(async () => { await vi.runAllTimersAsync(); });
 

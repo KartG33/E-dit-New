@@ -1,7 +1,7 @@
 import { useReducer, useCallback, useRef, useEffect } from 'react';
 import { db } from '../lib/db';
 
-const MAX_HISTORY = 100;
+const MAX_UNDO_STACK = 100;
 const AUTOSAVE_DELAY = 2000;
 
 export interface EditorState {
@@ -12,15 +12,15 @@ export interface EditorState {
 
 interface ReducerState {
   value: string;
-  history: EditorState[];
-  historyIndex: number;
+  undoStack: EditorState[];
+  undoStackIndex: number;
   hydrated: boolean;
 }
 
 type Action = 
   | { type: 'HYDRATE'; payload: EditorState }
   | { type: 'HYDRATE_ERROR' }
-  | { type: 'UPDATE'; payload: EditorState; addToHistory: boolean }
+  | { type: 'UPDATE'; payload: EditorState; addToUndoStack: boolean }
   | { type: 'SET_SELECTION'; payload: { selectionStart: number; selectionEnd: number } }
   | { type: 'UNDO' }
   | { type: 'REDO' };
@@ -30,8 +30,8 @@ const editorReducer = (state: ReducerState, action: Action): ReducerState => {
     case 'HYDRATE': {
       return {
         value: action.payload.value,
-        history: [action.payload],
-        historyIndex: 0,
+        undoStack: [action.payload],
+        undoStackIndex: 0,
         hydrated: true,
       };
     }
@@ -42,51 +42,51 @@ const editorReducer = (state: ReducerState, action: Action): ReducerState => {
       };
     }
     case 'UPDATE': {
-      if (!action.addToHistory) {
+      if (!action.addToUndoStack) {
         return { ...state, value: action.payload.value };
       }
       
-      const currentHistory = state.history.slice(0, state.historyIndex + 1);
+      const currentUndoStack = state.undoStack.slice(0, state.undoStackIndex + 1);
       
-      // Prevent consecutive duplicates in history stack
-      const prev = currentHistory[currentHistory.length - 1];
+      // Prevent consecutive duplicates in the Undo Stack
+      const prev = currentUndoStack[currentUndoStack.length - 1];
       if (prev && prev.value === action.payload.value) {
         return state;
       }
       
-      const nextHistory = [...currentHistory, action.payload];
+      const nextUndoStack = [...currentUndoStack, action.payload];
       
-      if (nextHistory.length > MAX_HISTORY) {
-        nextHistory.shift();
+      if (nextUndoStack.length > MAX_UNDO_STACK) {
+        nextUndoStack.shift();
       }
       
       return {
         ...state,
         value: action.payload.value,
-        history: nextHistory,
-        historyIndex: nextHistory.length - 1,
+        undoStack: nextUndoStack,
+        undoStackIndex: nextUndoStack.length - 1,
       };
     }
     case 'SET_SELECTION': {
-      const newHistory = [...state.history];
-      newHistory[state.historyIndex] = {
-        ...newHistory[state.historyIndex],
+      const nextUndoStack = [...state.undoStack];
+      nextUndoStack[state.undoStackIndex] = {
+        ...nextUndoStack[state.undoStackIndex],
         selectionStart: action.payload.selectionStart,
         selectionEnd: action.payload.selectionEnd,
       };
-      return { ...state, history: newHistory };
+      return { ...state, undoStack: nextUndoStack };
     }
     case 'UNDO': {
-      if (state.historyIndex > 0) {
-        const newIndex = state.historyIndex - 1;
-        return { ...state, value: state.history[newIndex].value, historyIndex: newIndex };
+      if (state.undoStackIndex > 0) {
+        const newIndex = state.undoStackIndex - 1;
+        return { ...state, value: state.undoStack[newIndex].value, undoStackIndex: newIndex };
       }
       return state;
     }
     case 'REDO': {
-      if (state.historyIndex < state.history.length - 1) {
-        const newIndex = state.historyIndex + 1;
-        return { ...state, value: state.history[newIndex].value, historyIndex: newIndex };
+      if (state.undoStackIndex < state.undoStack.length - 1) {
+        const newIndex = state.undoStackIndex + 1;
+        return { ...state, value: state.undoStack[newIndex].value, undoStackIndex: newIndex };
       }
       return state;
     }
@@ -98,8 +98,8 @@ const editorReducer = (state: ReducerState, action: Action): ReducerState => {
 export const useEditor = (editorId: 'left' | 'right') => {
   const [state, dispatch] = useReducer(editorReducer, {
     value: '',
-    history: [{ value: '', selectionStart: 0, selectionEnd: 0 }],
-    historyIndex: 0,
+    undoStack: [{ value: '', selectionStart: 0, selectionEnd: 0 }],
+    undoStackIndex: 0,
     hydrated: false,
   });
 
@@ -116,7 +116,7 @@ export const useEditor = (editorId: 'left' | 'right') => {
     }
   }, [editorId]);
 
-  const appendHistorySnapshot = useCallback(async (text: string) => {
+  const appendHistoryVersion = useCallback(async (text: string) => {
     try {
       await db.transaction('rw', db.history, async () => {
         const records = await db.history
@@ -137,7 +137,7 @@ export const useEditor = (editorId: 'left' | 'right') => {
     }
   }, [editorId]);
 
-  const updateValue = useCallback((newValue: string, selectionStart: number = 0, selectionEnd: number = 0, addToHistory: boolean = true) => {
+  const updateValue = useCallback((newValue: string, selectionStart: number = 0, selectionEnd: number = 0, addToUndoStack: boolean = true) => {
     if (!state.hydrated) {
       return; // Ignored while not hydrated
     }
@@ -147,19 +147,19 @@ export const useEditor = (editorId: 'left' | 'right') => {
       return;
     }
     
-    dispatch({ type: 'UPDATE', payload: { value: newValue, selectionStart, selectionEnd }, addToHistory });
+    dispatch({ type: 'UPDATE', payload: { value: newValue, selectionStart, selectionEnd }, addToUndoStack });
     
-    if (addToHistory) {
+    if (addToUndoStack) {
       if (debounceTimer.current) {
         clearTimeout(debounceTimer.current);
       }
       debounceTimer.current = setTimeout(() => {
         saveCurrentEditorText(newValue);
-        appendHistorySnapshot(newValue);
+        appendHistoryVersion(newValue);
         debounceTimer.current = null;
       }, AUTOSAVE_DELAY);
     }
-  }, [state.hydrated, saveCurrentEditorText, appendHistorySnapshot]);
+  }, [state.hydrated, saveCurrentEditorText, appendHistoryVersion]);
 
   // Hydration from settings
   useEffect(() => {
@@ -185,34 +185,34 @@ export const useEditor = (editorId: 'left' | 'right') => {
   }, []);
 
   const undo = useCallback(() => {
-    if (state.historyIndex > 0) {
+    if (state.undoStackIndex > 0) {
       if (debounceTimer.current) {
         clearTimeout(debounceTimer.current);
         debounceTimer.current = null;
       }
-      const newIndex = state.historyIndex - 1;
-      const newValue = state.history[newIndex].value;
+      const newIndex = state.undoStackIndex - 1;
+      const newValue = state.undoStack[newIndex].value;
       dispatch({ type: 'UNDO' });
       saveCurrentEditorText(newValue);
     }
-  }, [state.history, state.historyIndex, saveCurrentEditorText]);
+  }, [state.undoStack, state.undoStackIndex, saveCurrentEditorText]);
   
   const redo = useCallback(() => {
-    if (state.historyIndex < state.history.length - 1) {
+    if (state.undoStackIndex < state.undoStack.length - 1) {
       if (debounceTimer.current) {
         clearTimeout(debounceTimer.current);
         debounceTimer.current = null;
       }
-      const newIndex = state.historyIndex + 1;
-      const newValue = state.history[newIndex].value;
+      const newIndex = state.undoStackIndex + 1;
+      const newValue = state.undoStack[newIndex].value;
       dispatch({ type: 'REDO' });
       saveCurrentEditorText(newValue);
     }
-  }, [state.history, state.historyIndex, saveCurrentEditorText]);
+  }, [state.undoStack, state.undoStackIndex, saveCurrentEditorText]);
 
-  const canUndo = state.historyIndex > 0;
-  const canRedo = state.historyIndex < state.history.length - 1;
-  const currentState = state.history[state.historyIndex];
+  const canUndo = state.undoStackIndex > 0;
+  const canRedo = state.undoStackIndex < state.undoStack.length - 1;
+  const currentState = state.undoStack[state.undoStackIndex];
 
   // Cleanup on unmount: flush debounced save ONLY if pending
   useEffect(() => {
@@ -221,10 +221,10 @@ export const useEditor = (editorId: 'left' | 'right') => {
         clearTimeout(debounceTimer.current);
         debounceTimer.current = null;
         saveCurrentEditorText(valueRef.current);
-        appendHistorySnapshot(valueRef.current);
+        appendHistoryVersion(valueRef.current);
       }
     };
-  }, [saveCurrentEditorText, appendHistorySnapshot]);
+  }, [saveCurrentEditorText, appendHistoryVersion]);
 
   return {
     value: state.value,
