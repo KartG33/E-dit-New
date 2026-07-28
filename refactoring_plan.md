@@ -52,17 +52,17 @@
   * В коде [src/components/SunoTags/SunoTagsEditor.tsx](file:///d:/Documents/Antigravity%20Projects/E-dit%20New/src/components/SunoTags/SunoTagsEditor.tsx) реализован только простой билдер новых тегов (`[Chorus x2]`).
 * **Пункт 9 Фазы 2 (Data & Platform Layer):**
   * В `implementation_plan.md` требовалась валидация схемы JSON при импорте, обработка ошибок, атомарные транзакции и выделенный сервисный слой `DataFileAdapter`.
-  * В [src/components/Data/DataPanel.tsx](file:///d:/Documents/Antigravity%20Projects/E-dit%20New/src/components/Data/DataPanel.tsx) валидация схемы отсутствует (`JSON.parse` напрямую заливается в DB).
+  * Строгая валидация Data v2 и атомарный импорт реализованы в `src/lib/data/import.ts`; из пункта остаётся выделение платформенного `DataFileAdapter`.
 
 ### 1.7 Задачи, отмеченные завершёнными преждевременно
-* **Пункт 9 Фазы 2 в `task.md` не отмечен, но в `implementation_plan.md` описан как готовый план:**
-  * Сохранение и экспорт данных были поверхностно созданы без строгого валидатора JSON и без абстракции платформенных адаптеров (`DataFileAdapter`), хотя минимальный UI работает.
+* **Пункт 9 Фазы 2 в `task.md` выполнен частично:**
+  * Безопасный сервис импорта с runtime-валидацией и атомарной транзакцией реализован; абстракция платформенных адаптеров (`DataFileAdapter`) ещё не выделена.
 * **Связано с Пресетами (Пункт 5):**
   * Отмечен выполненным `[x]`, но пресеты не содержат полноценного UI конструктора цепочек (Chain Editor) и Regex Editor для пользователя, а только отображение имеющихся в DB пресетов ([src/components/Commands/PresetsTab.tsx](file:///d:/Documents/Antigravity%20Projects/E-dit%20New/src/components/Commands/PresetsTab.tsx)).
 
 ### 1.8 Проблемы с хранением данных и будущими версиями приложения
-* **Отсутствие валидации при импорте данных:**
-  * В `DataPanel.tsx` при импорте любой некорректный JSON сломает IndexedDB или занесет поврежденные данные (например, missing `data` field в Preset).
+* **Безопасная валидация при импорте данных:**
+  * Data v2 полностью проверяется до изменения IndexedDB: версия, верхнеуровневая структура, настройки, пресеты, CommandId и regex. Настройки и пресеты заменяются одной транзакцией с rollback при ошибке.
 * **Независимое версионирование экспортируемого файла данных:**
   * Формат Data сохраняет собственную `version: 2` ([DataPanel.tsx](file:///d:/Documents/Antigravity%20Projects/E-dit%20New/src/components/Data/DataPanel.tsx#L13)) и не зависит от внутренней схемы Dexie, которая переведена на v4 для удаления таблицы `notes`.
 
@@ -78,7 +78,7 @@
 
 ### Категория B: Реальные ошибки
 1. **Несоответствие версии экспорта данных версии схемы Dexie (экспорт version 2 вместо 3).** (Важность: Высокая)
-2. **Отсутствие строгой runtime-валидации при импорте JSON данных.** (Важность: Высокая)
+2. **Строгая runtime-валидация при импорте JSON данных.** Выполнено для Data v2 с атомарным импортом. (Важность: Высокая)
 3. **Отсутствие обработки невалидных данных пресетов при их выполнении из UI.** (Важность: Средняя)
 
 ### Категория C: Ещё не реализованные функции
@@ -133,15 +133,15 @@ graph TD
 
 * **Что исправляется:**
   1. Версия и формат экспортируемого файла Data остаются без изменений и версионируются отдельно от схемы Dexie.
-  2. Добавляется строгая валидация JSON-схемы данных перед импортом в базу данных (проверка типов `presets`, `settings`, структуры `PresetData`).
+  2. Реализована строгая валидация JSON-схемы Data v2 до импорта (версия, `presets`, `settings`, структура `PresetData`) и атомарная замена обеих таблиц.
   3. Логика записи History централизована в `EditDatabase.addHistory`; `useEditor` делегирует ей сохранение версий, дедупликацию и лимит.
 * **Зачем это нужно:** Предотвращение порчи IndexedDB при импорте некорректных файлов, гарантия целостности данных пользователя.
 * **Какие файлы затрагиваются:**
   * [MODIFY] [src/lib/db/index.ts](file:///d:/Documents/Antigravity%20Projects/E-dit%20New/src/lib/db/index.ts)
   * [MODIFY] [src/hooks/useEditor.ts](file:///d:/Documents/Antigravity%20Projects/E-dit%20New/src/hooks/useEditor.ts)
-  * [NEW] `src/lib/data/validation.ts`
+  * [NEW] `src/lib/data/import.ts`
   * [MODIFY] [src/components/Data/DataPanel.tsx](file:///d:/Documents/Antigravity%20Projects/E-dit%20New/src/components/Data/DataPanel.tsx)
-  * [NEW] `tests/data.test.ts`
+  * [NEW] `tests/dataImport.test.ts`
 * **От каких этапов зависит:** Зависит от Этапа 1.
 * **Как проверить результат:** Новые Vitest тесты с валидным, поврежденным и устаревшим JSON файлом данных.
 * **Какой риск имеет изменение:** Средний (затрагивает операции записи в IndexedDB).

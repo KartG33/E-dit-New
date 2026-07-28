@@ -61,6 +61,7 @@
   3. UI trigger via an agnostic `DataFileAdapter`.
 - **Schema & Validation**: Standardized JSON structure. Runtime schema validation (no generic type-casting). Reject missing/invalid fields, bad types, unknown versions.
 - **Atomic Operations**: Perform everything inside `db.transaction('rw')`. Rollback on error. Only update UI state after successful commit.
+- **Implemented for Data v2**: `src/lib/data/import.ts` validates the complete payload before a single transaction replaces settings and presets. The exported version and composition remain unchanged.
 - **No File API in Component**: Abstracted adapters (temporary browser adapter, mock Windows/Android adapters for testing). No success toasts, only error messages.
 
 ### 10. Типизация

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { db } from '../../lib/db';
+import { DATA_FILE_VERSION, importDataFile } from '../../lib/data/import';
 
 export const DataPanel = () => {
   const [msg, setMsg] = useState('');
@@ -10,7 +11,7 @@ export const DataPanel = () => {
       const settings = await db.settings.toArray();
       
       const dataPayload = {
-        version: 2,
+        version: DATA_FILE_VERSION,
         presets,
         settings,
         timestamp: Date.now()
@@ -38,24 +39,12 @@ export const DataPanel = () => {
     
     try {
       const text = await file.text();
-      const data = JSON.parse(text);
-      
-      await db.transaction('rw', db.presets, db.settings, async () => {
-        if (data.presets && Array.isArray(data.presets)) {
-          await db.presets.clear();
-          await db.presets.bulkAdd(data.presets);
-        }
-        if (data.settings && Array.isArray(data.settings)) {
-          await db.settings.clear();
-          await db.settings.bulkAdd(data.settings);
-        }
-      });
+      await importDataFile(text);
       
       setMsg('Import successful. Reloading...');
       setTimeout(() => window.location.reload(), 1500);
-    } catch (e) {
-      console.error(e);
-      setMsg('Import failed');
+    } catch (error) {
+      setMsg(`Import failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   };
 
