@@ -373,7 +373,7 @@ button:disabled {
   display: flex;
   min-height: 2rem;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
   gap: var(--space-3);
   padding: 0 var(--space-3);
   color: var(--text-muted);
@@ -381,11 +381,6 @@ button:disabled {
   font-variant-numeric: tabular-nums;
   font-weight: 550;
   letter-spacing: 0.015em;
-}
-
-.editor-stats-group {
-  display: flex;
-  gap: var(--space-3);
 }
 
 .section-eyebrow {

@@ -6,6 +6,8 @@ E-dit is a two-pane text editor with text transformations, presets, history, and
 
 The interface uses a shared dark visual system defined in `src/index.css`. Semantic component classes draw from one set of surface, border, text, accent, spacing, and radius tokens. Editor content uses a 16 px monospace face with a 1.72 line height for sustained reading; controls, headings, metadata, and statistics use distinct compact hierarchy levels while preserving the existing two-pane layout.
 
+Each editor footer keeps its text statistics compact and right-aligned: total characters including whitespace and line count. Detected special-symbol buttons show only the symbol; clicking one still removes every occurrence of that token in a single editor update.
+
 ## Suno tags
 
 The Suno section reads bracketed tags from the active editor and displays identical tags as a grouped list with occurrence counts, ordered by first appearance. The list updates with the active editor text. The adjacent tag builder continues to insert new structural tags; editing existing tags is intentionally deferred to a later step.

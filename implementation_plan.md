@@ -27,6 +27,7 @@
 - **Single Undo Deletion**: Text updates go through `editor.updateValue`.
 - **Token Registry**: Match exactly: `---`, `...`, ` ``` `, `==`, numbered lists, punctuation, markdown chars.
 - **Longest-match-first**: Ensure `...` doesn't count as three `.` tokens.
+- **Compact Footer**: Both editors show only total characters including whitespace and line count on the right. Detected-token buttons display only the token while preserving remove-all behavior.
 - **Tests**: Add strict counts and removal tests for overlapping tokens.
 
 ### 5. Пресеты

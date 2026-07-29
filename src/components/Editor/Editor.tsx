@@ -134,20 +134,14 @@ export const Editor = ({
                 className="token-button"
                 title={`Remove all ${t.token}`}
               >
-                {t.token}: {t.count}
+                {t.token}
               </button>
             ))}
           </div>
         )}
         <div className="editor-stats" data-testid="editor-stats">
-          <div className="editor-stats-group">
-            <span>{stats.characters} chars</span>
-            <span>{stats.charactersWithoutSpaces} chars (no space)</span>
-          </div>
-          <div className="editor-stats-group">
-            <span>{stats.words} words</span>
-            <span>{stats.lines} lines</span>
-          </div>
+          <span>{stats.characters} chars</span>
+          <span>{stats.lines} lines</span>
         </div>
       </div>
     </div>

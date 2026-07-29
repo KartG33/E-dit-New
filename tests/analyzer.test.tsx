@@ -114,7 +114,54 @@ describe('Symbol Analyzer', () => {
     });
 
     expect(result.current.characters).toBe(5);
-    expect(result.current.words).toBe(1);
+    expect(result.current.lines).toBe(1);
+  });
+
+  it('renders compact statistics in both editor footers and symbol-only chip labels', () => {
+    render(
+      <div>
+        <Editor
+          id="left"
+          value={'a b\nc'}
+          currentState={{ value: 'a b\nc', selectionStart: 0, selectionEnd: 0 }}
+          updateValue={vi.fn()}
+          undo={vi.fn()}
+          redo={vi.fn()}
+          canUndo={false}
+          canRedo={false}
+          isActive={true}
+          onFocus={vi.fn()}
+          onSelect={vi.fn()}
+          hydrated={true}
+        />
+        <Editor
+          id="right"
+          value={'--- ---\ntext'}
+          currentState={{ value: '--- ---\ntext', selectionStart: 0, selectionEnd: 0 }}
+          updateValue={vi.fn()}
+          undo={vi.fn()}
+          redo={vi.fn()}
+          canUndo={false}
+          canRedo={false}
+          isActive={false}
+          onFocus={vi.fn()}
+          onSelect={vi.fn()}
+          hydrated={true}
+        />
+      </div>
+    );
+
+    act(() => {
+      vi.advanceTimersByTime(300);
+    });
+
+    const [leftStats, rightStats] = screen.getAllByTestId('editor-stats');
+    expect(leftStats.textContent).toBe('5 chars2 lines');
+    expect(rightStats.textContent).toBe('12 chars2 lines');
+    expect(screen.queryByText(/words|no space/)).toBeNull();
+
+    const chip = screen.getByTitle('Remove all ---');
+    expect(chip.textContent).toBe('---');
   });
 
   it('calls updateValue exactly once when a symbol chip is clicked in Editor', () => {
@@ -142,6 +189,7 @@ describe('Symbol Analyzer', () => {
     });
 
     const chip = screen.getByTitle('Remove all -');
+    expect(chip.textContent).toBe('-');
     fireEvent.click(chip);
 
     expect(updateValue).toHaveBeenCalledTimes(1);
