@@ -61,16 +61,16 @@
   3. UI trigger via an agnostic `DataFileAdapter`.
 - **Schema & Validation**: Standardized JSON structure. Runtime schema validation (no generic type-casting). Reject missing/invalid fields, bad types, unknown versions.
 - **Atomic Operations**: Perform everything inside `db.transaction('rw')`. Rollback on error. Only update UI state after successful commit.
-- **Implemented for Data v2**: `src/lib/data/import.ts` validates the complete payload before a single transaction replaces settings and presets. The exported version and composition remain unchanged.
-- **No File API in Component**: Abstracted adapters (temporary browser adapter, mock Windows/Android adapters for testing). No success toasts, only error messages.
-- **Implemented adapter boundary**: `DataPanel` uses the typed `DataFileAdapter` contract for selection, reading, and saving. The browser implementation is active; Tauri and Capacitor implementations can replace it without UI changes.
+- **Implemented for Data v2**: [src/lib/data/import.ts](src/lib/data/import.ts) validates the complete payload before a single transaction replaces settings and presets. The exported version and composition remain unchanged.
+- **No File API in Component**: [DataPanel](src/components/Data/DataPanel.tsx) delegates selection, reading, and saving to the typed `DataFileAdapter` contract.
+- **Current platform support**: Only `BrowserDataFileAdapter` in [dataFileAdapter.ts](src/lib/platform/dataFileAdapter.ts) is implemented. Tauri and Capacitor adapters do not exist yet and belong to future platform phases; they can implement the same contract without changing `DataPanel`.
 
 ### 10. Типизация
 - Replace `Setting.value: any` with `unknown` + generic getters.
 - **No `any`**: Strictly enforce zero explicit `any` and `as any` in production code. Add linting rules for explicit any.
 
 ### Command panel composition
-- **Independent sections**: `CommandPanel` owns navigation and shared layout, while `TextCommands`, `SunoCommands`, and `PresetsCommands` own their section-specific UI and dependencies.
+- **Independent sections**: [CommandPanel](src/components/Commands/CommandPanel.tsx) owns navigation and shared layout, while [TextCommands](src/components/Commands/TextCommands.tsx), [SunoCommands](src/components/Commands/SunoCommands.tsx), and [PresetsCommands](src/components/Commands/PresetsCommands.tsx) own their section-specific UI and dependencies.
 
 ### 11. Тесты
 - Vastly expand Vitest coverage according to the requirements, including basic commands, tokens, single-undo removals, hydration, StrictMode, hotkey ignoring, regex via `Preset.data`, History, Favorites, Suno parsing, and comprehensive data import/export validation (valid, corrupted, rollback).

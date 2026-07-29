@@ -10,17 +10,17 @@
 * **Именование команд и функций обрезки пробелов по краям:**
   * В [src/lib/commands/text.ts](file:///d:/Documents/Antigravity%20Projects/E-dit%20New/src/lib/commands/text.ts#L5) функция называется `edges`.
   * В [src/lib/commands/suno.ts](file:///d:/Documents/Antigravity%20Projects/E-dit%20New/src/lib/commands/suno.ts#L73) аналогичная/родственная функция называется `trim`.
-  * В интерфейсе [src/components/Commands/CommandPanel.tsx](file:///d:/Documents/Antigravity%20Projects/E-dit%20New/src/components/Commands/CommandPanel.tsx#L87-L89) кнопка для `sunoTrim` подписана как `"Trim"`, а кнопка для `text.edges` как `"Edges"`.
+  * В интерфейсе [TextCommands.tsx](src/components/Commands/TextCommands.tsx) кнопка для `suno.trim` подписана как `"Trim"`, а кнопка для `text.edges` — как `"Edges"`.
 * **Вкладка/компонент работы с данными:**
-  * Переименовано из `BackupRestore` в `DataPanel` ([src/components/Data/DataPanel.tsx](file:///d:/Documents/Antigravity%20Projects/E-dit%20New/src/components/Data/DataPanel.tsx)).
-  * В типах навигации называется `data` ([src/components/Drawer/SlidingDrawer.tsx](file:///d:/Documents/Antigravity%20Projects/E-dit%20New/src/components/Drawer/SlidingDrawer.tsx#L7)).
-  * В UI раздел назван `"Data"` ([src/components/Commands/CommandPanel.tsx](file:///d:/Documents/Antigravity%20Projects/E-dit%20New/src/components/Commands/CommandPanel.tsx#L78)).
+  * Переименовано из `BackupRestore` в `DataPanel` ([DataPanel.tsx](src/components/Data/DataPanel.tsx)).
+  * В типах навигации называется `data` ([SlidingDrawer.tsx](src/components/Drawer/SlidingDrawer.tsx)).
+  * В UI раздел назван `"Data"`; кнопка открытия находится в [CommandPanel.tsx](src/components/Commands/CommandPanel.tsx), а содержимое — в [DataPanel.tsx](src/components/Data/DataPanel.tsx).
 
 ### 1.2 Одинаковые названия у разных функций / сущностей
 * **Пересечение имен команд `upper`:**
   * В [src/lib/commands/text.ts](file:///d:/Documents/Antigravity%20Projects/E-dit%20New/src/lib/commands/text.ts#L12) экспортируется `upper(text: string)`, переводящая весь текст в верхний регистр.
   * В [src/lib/commands/suno.ts](file:///d:/Documents/Antigravity%20Projects/E-dit%20New/src/lib/commands/suno.ts#L51) экспортируется `upper(text: string)`, которая переводит в верхний регистр только первая буквы строк, кроме тегов Suno в скобках `[...]`.
-  * В реестре команд [src/lib/commands/registry.ts](file:///d:/Documents/Antigravity%20Projects/E-dit%20New/src/lib/commands/registry.ts) они разграничены префиксами (`text.upper` и `suno.upper`), но в импортах при переименовании возникает путаница (например `textUpper` vs `sunoUpper` в `CommandPanel.tsx`).
+  * В реестре команд [registry.ts](src/lib/commands/registry.ts) они разграничены префиксами (`text.upper` и `suno.upper`). UI-импорты также разделены: текстовая команда подключена в [TextCommands.tsx](src/components/Commands/TextCommands.tsx), Suno-команда — в [SunoCommands.tsx](src/components/Commands/SunoCommands.tsx).
 * **Использование термина `space` / `spaces`:**
   * `spaces` в `text.ts` — замена множественных пробелов/табов на 1 пробел.
   * `space` в `suno.ts` — нормализация пустых строк вокруг structural tags `[...]`.
@@ -37,9 +37,9 @@
 
 ### 1.5 Слишком сложные или смешанные компоненты
 * **`CommandPanel.tsx` разделён на самостоятельные секции:**
-  * Родительский компонент отвечает только за общую шапку, навигацию и выбор активной вкладки. `TextCommands`, `SunoCommands` и `PresetsCommands` независимо содержат разметку и зависимости своих разделов, а `CommandButton` сохраняет общий внешний вид кнопок.
+  * [CommandPanel.tsx](src/components/Commands/CommandPanel.tsx) отвечает только за общую шапку, навигацию и выбор активной вкладки. [TextCommands.tsx](src/components/Commands/TextCommands.tsx), [SunoCommands.tsx](src/components/Commands/SunoCommands.tsx) и [PresetsCommands.tsx](src/components/Commands/PresetsCommands.tsx) независимо содержат разметку и зависимости своих разделов, а [CommandButton.tsx](src/components/Commands/CommandButton.tsx) сохраняет общий внешний вид кнопок.
 * **`DataPanel.tsx` отделён от платформенной работы с файлами:**
-  * Компонент зависит только от интерфейса `DataFileAdapter`. Выбор, чтение и сохранение файлов реализованы browser-адаптером в `src/lib/platform/dataFileAdapter.ts`; для Tauri или Capacitor его можно заменить без изменения раздела Data.
+  * [DataPanel.tsx](src/components/Data/DataPanel.tsx) зависит только от интерфейса `DataFileAdapter`. Сейчас существует единственная реализация — `BrowserDataFileAdapter` в [dataFileAdapter.ts](src/lib/platform/dataFileAdapter.ts). Адаптеров Tauri и Capacitor в проекте пока нет; позднее их можно добавить без изменения раздела Data.
 
 ### 1.6 Расхождения между кодом, интерфейсом, тестами, task.md и implementation_plan.md
 * **Пункт 6 Фазы 2 (Favorites & startupTab):**
@@ -52,11 +52,11 @@
   * В коде [src/components/SunoTags/SunoTagsEditor.tsx](file:///d:/Documents/Antigravity%20Projects/E-dit%20New/src/components/SunoTags/SunoTagsEditor.tsx) реализован только простой билдер новых тегов (`[Chorus x2]`).
 * **Пункт 9 Фазы 2 (Data & Platform Layer):**
   * В `implementation_plan.md` требовалась валидация схемы JSON при импорте, обработка ошибок, атомарные транзакции и выделенный сервисный слой `DataFileAdapter`.
-  * Строгая валидация Data v2 и атомарный импорт реализованы в `src/lib/data/import.ts`, а файловые операции изолированы за `DataFileAdapter` с действующей browser-реализацией.
+  * Строгая валидация Data v2 и атомарный импорт реализованы в [import.ts](src/lib/data/import.ts), а файловые операции изолированы за `DataFileAdapter`. Реализован только браузерный адаптер.
 
 ### 1.7 Статус ранее незавершённых задач
 * **Пункт 9 Фазы 2 (Data & Platform Layer) выполнен:**
-  * Data v2 валидируется и импортируется атомарно, а `DataFileAdapter` отделяет UI от browser API и задаёт контракт для будущих реализаций Tauri и Capacitor.
+  * Data v2 валидируется и импортируется атомарно, а `DataFileAdapter` отделяет UI от browser API. Сейчас используется только `BrowserDataFileAdapter`; Tauri/Capacitor остаются будущими интеграциями.
 * **Связано с Пресетами (Пункт 5):**
   * Отмечен выполненным `[x]`, но пресеты не содержат полноценного UI конструктора цепочек (Chain Editor) и Regex Editor для пользователя, а только отображение имеющихся в DB пресетов ([src/components/Commands/PresetsTab.tsx](file:///d:/Documents/Antigravity%20Projects/E-dit%20New/src/components/Commands/PresetsTab.tsx)).
 
@@ -73,7 +73,7 @@
 ### Категория A: Рефакторинг существующего кода
 1. **Удаление устаревших стилей CRA/Vite (`App.css`).** (Важность: Низкая)
 2. **Централизация логики записи History в IndexedDB (`addHistory`).** Выполнено: сохранение, дедупликация и лимит реализованы в слое базы данных. (Важность: Средняя)
-3. **Разделение UI и файловых операций через `DataFileAdapter`.** Выполнено: browser-реализация заменяема платформенными адаптерами. (Важность: Средняя)
+3. **Разделение UI и файловых операций через `DataFileAdapter`.** Выполнено для браузера; нативные реализации ещё не созданы. (Важность: Средняя)
 4. **Унификация наименований команд и UI-элементов.** (Важность: Средняя)
 
 ### Категория B: Реальные ошибки
@@ -138,9 +138,9 @@ graph TD
 * **Какие файлы затрагиваются:**
   * [MODIFY] [src/lib/db/index.ts](file:///d:/Documents/Antigravity%20Projects/E-dit%20New/src/lib/db/index.ts)
   * [MODIFY] [src/hooks/useEditor.ts](file:///d:/Documents/Antigravity%20Projects/E-dit%20New/src/hooks/useEditor.ts)
-  * [NEW] `src/lib/data/import.ts`
-  * [MODIFY] [src/components/Data/DataPanel.tsx](file:///d:/Documents/Antigravity%20Projects/E-dit%20New/src/components/Data/DataPanel.tsx)
-  * [NEW] `tests/dataImport.test.ts`
+  * [src/lib/data/import.ts](src/lib/data/import.ts)
+  * [src/components/Data/DataPanel.tsx](src/components/Data/DataPanel.tsx)
+  * [tests/dataImport.test.ts](tests/dataImport.test.ts)
 * **От каких этапов зависит:** Зависит от Этапа 1.
 * **Как проверить результат:** Новые Vitest тесты с валидным, поврежденным и устаревшим JSON файлом данных.
 * **Какой риск имеет изменение:** Средний (затрагивает операции записи в IndexedDB).
@@ -150,19 +150,19 @@ graph TD
 ### Этап 3: Декомпозиция UI-компонентов и Платформенный слой
 
 * **Что исправляется:**
-  1. Абстракция `DataFileAdapter` и browser-адаптер выделены: выбор, чтение и сохранение файлов изолированы от `DataPanel.tsx`; будущие Tauri/Capacitor-реализации смогут использовать тот же контракт.
+  1. Абстракция `DataFileAdapter` и единственная текущая реализация `BrowserDataFileAdapter` выделены: выбор, чтение и сохранение файлов изолированы от `DataPanel.tsx`. Реализации Tauri/Capacitor отсутствуют и запланированы на будущие фазы.
   2. `CommandPanel.tsx` разделён на `TextCommands`, `SunoCommands` и `PresetsCommands`; общая кнопка вынесена в `CommandButton`.
 * **Зачем это нужно:** Подготовка к будущей интеграции с Tauri (Desktop) и Capacitor (Mobile), соблюдение чистоты архитектуры.
 * **Какие файлы затрагиваются:**
-  * [NEW] `src/lib/platform/dataFileAdapter.ts`
-  * [MODIFY] [src/components/Data/DataPanel.tsx](file:///d:/Documents/Antigravity%20Projects/E-dit%20New/src/components/Data/DataPanel.tsx)
-  * [NEW] `tests/dataFileAdapter.test.tsx`
-  * [MODIFY] [src/components/Commands/CommandPanel.tsx](file:///d:/Documents/Antigravity%20Projects/E-dit%20New/src/components/Commands/CommandPanel.tsx)
-  * [NEW] `src/components/Commands/TextCommands.tsx`
-  * [NEW] `src/components/Commands/SunoCommands.tsx`
-  * [NEW] `src/components/Commands/PresetsCommands.tsx`
-  * [NEW] `src/components/Commands/CommandButton.tsx`
-  * [NEW] `tests/CommandPanel.test.tsx`
+  * [src/lib/platform/dataFileAdapter.ts](src/lib/platform/dataFileAdapter.ts)
+  * [src/components/Data/DataPanel.tsx](src/components/Data/DataPanel.tsx)
+  * [tests/dataFileAdapter.test.tsx](tests/dataFileAdapter.test.tsx)
+  * [src/components/Commands/CommandPanel.tsx](src/components/Commands/CommandPanel.tsx)
+  * [src/components/Commands/TextCommands.tsx](src/components/Commands/TextCommands.tsx)
+  * [src/components/Commands/SunoCommands.tsx](src/components/Commands/SunoCommands.tsx)
+  * [src/components/Commands/PresetsCommands.tsx](src/components/Commands/PresetsCommands.tsx)
+  * [src/components/Commands/CommandButton.tsx](src/components/Commands/CommandButton.tsx)
+  * [tests/CommandPanel.test.tsx](tests/CommandPanel.test.tsx)
 * **От каких этапов зависит:** Зависит от Этапа 2.
 * **Как проверить результат:** Ручная и автоматизированная проверка работы импорта/экспорта в браузере.
 * **Какой риск имеет изменение:** Низкий.
@@ -189,7 +189,8 @@ graph TD
 * **Что исправляется:** Реализация UI для добавления команд в Избранное (`favoriteCommandIds`) и возможность выбора/закрепления стартовой вкладки (`startupTab`) при загрузке приложения.
 * **Зачем это нужно:** Закрытие последнего нереализованного пункта Фазы 2.
 * **Какие файлы затрагиваются:**
-  * [MODIFY] [src/components/Commands/CommandPanel.tsx](file:///d:/Documents/Antigravity%20Projects/E-dit%20New/src/components/Commands/CommandPanel.tsx)
+  * [MODIFY] [src/components/Commands/CommandPanel.tsx](src/components/Commands/CommandPanel.tsx) — навигация новой вкладки.
+  * [MODIFY] [src/components/Commands/TextCommands.tsx](src/components/Commands/TextCommands.tsx) и [PresetsCommands.tsx](src/components/Commands/PresetsCommands.tsx) — отображение избранного.
   * [MODIFY] [src/App.tsx](file:///d:/Documents/Antigravity%20Projects/E-dit%20New/src/App.tsx)
   * [NEW] `tests/favorites.test.ts`
   * [MODIFY] [task.md](file:///d:/Documents/Antigravity%20Projects/E-dit%20New/task.md)
