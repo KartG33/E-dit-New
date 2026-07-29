@@ -1,15 +1,15 @@
-export const spaces = (text: string): string => {
+export const collapseSpaces = (text: string): string => {
   return text.replace(/[ \t]+/g, ' ');
 };
 
-export const edges = (text: string): string => {
+export const trimLines = (text: string): string => {
   return text
     .split(/\r?\n/)
     .map(line => line.trim())
     .join('\n');
 };
 
-export const upper = (text: string): string => text.toUpperCase();
+export const toUpperCase = (text: string): string => text.toUpperCase();
 
 export const lower = (text: string): string => text.toLowerCase();
 

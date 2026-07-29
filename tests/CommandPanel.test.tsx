@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { CommandPanel } from '../src/components/Commands/CommandPanel';
-import { spaces } from '../src/lib/commands/text';
+import { collapseSpaces } from '../src/lib/commands/text';
 import { clean } from '../src/lib/commands/suno';
 import { db } from '../src/lib/db';
 
@@ -18,7 +18,7 @@ describe('CommandPanel', () => {
     expect(screen.queryByRole('button', { name: 'Suno Clean' })).toBeNull();
 
     fireEvent.click(screen.getByRole('button', { name: 'Spaces' }));
-    expect(applyCommand).toHaveBeenCalledWith(spaces);
+    expect(applyCommand).toHaveBeenCalledWith(collapseSpaces);
   });
 
   it('switches to the Suno section without changing its commands or tag builder', () => {

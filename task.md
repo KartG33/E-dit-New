@@ -1,7 +1,7 @@
 - `[x]` Phase 1: Pure Logic, Data Models & Unit Tests
   - `[x]` Setup Vite + React + TypeScript + Tailwind
-  - `[x]` Implement pure text command functions (Spaces, Edges, Upper, Lower, etc.)
-  - `[x]` Implement Suno commands (Clean, Space, Upper, Lyrics, Structure, Trim)
+  - `[x]` Implement pure text command functions with unambiguous internal names and stable command IDs/button labels
+  - `[x]` Implement Suno commands with distinct text/Suno transformation names and stable command IDs/button labels
   - `[x]` Implement line diff logic in shared business logic
   - `[x]` Implement Dexie.js database schema (versioning, migrations)
   - `[x]` Write Vitest tests (pure functions, regex, unicode, large text, Dexie migrations)

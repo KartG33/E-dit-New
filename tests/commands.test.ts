@@ -1,18 +1,28 @@
 import { describe, it, expect } from 'vitest';
 import * as textCmds from '../src/lib/commands/text';
+import * as sunoCmds from '../src/lib/commands/suno';
+import { COMMAND_REGISTRY } from '../src/lib/commands/registry';
 
 describe('Text Commands', () => {
+  it('keeps stable command IDs mapped to the unambiguous internal names', () => {
+    expect(COMMAND_REGISTRY['text.spaces']).toBe(textCmds.collapseSpaces);
+    expect(COMMAND_REGISTRY['text.edges']).toBe(textCmds.trimLines);
+    expect(COMMAND_REGISTRY['text.upper']).toBe(textCmds.toUpperCase);
+    expect(COMMAND_REGISTRY['suno.trim']).toBe(sunoCmds.sunoTrim);
+    expect(COMMAND_REGISTRY['suno.upper']).toBe(sunoCmds.toSunoTitleCase);
+  });
+
   it('Spaces', () => {
-    expect(textCmds.spaces('hello   world\t!')).toBe('hello world !');
+    expect(textCmds.collapseSpaces('hello   world\t!')).toBe('hello world !');
   });
 
   it('Edges', () => {
-    expect(textCmds.edges('  hello  \n  world ')).toBe('hello\nworld');
-    expect(textCmds.edges('  hello  \r\n  world ')).toBe('hello\nworld'); // crlf test
+    expect(textCmds.trimLines('  hello  \n  world ')).toBe('hello\nworld');
+    expect(textCmds.trimLines('  hello  \r\n  world ')).toBe('hello\nworld'); // crlf test
   });
 
   it('Upper and Lower', () => {
-    expect(textCmds.upper('hello')).toBe('HELLO');
+    expect(textCmds.toUpperCase('hello')).toBe('HELLO');
     expect(textCmds.lower('HELLO')).toBe('hello');
   });
 
@@ -66,7 +76,7 @@ describe('Text Commands', () => {
   it('1 Million Characters test', () => {
     const largeText = 'a'.repeat(1000000);
     const start = performance.now();
-    const result = textCmds.upper(largeText);
+    const result = textCmds.toUpperCase(largeText);
     const end = performance.now();
     
     expect(result.length).toBe(1000000);

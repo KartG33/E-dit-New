@@ -1,7 +1,7 @@
-import { trim as sunoTrim } from '../../lib/commands/suno';
+import { sunoTrim } from '../../lib/commands/suno';
 import {
   addSpaceAfterPunctuation,
-  edges,
+  collapseSpaces,
   inline,
   inlineComma,
   line1,
@@ -9,8 +9,8 @@ import {
   lower,
   removeSpaceBeforePunctuation,
   sentence,
-  spaces,
-  upper,
+  toUpperCase,
+  trimLines,
 } from '../../lib/commands/text';
 import { CommandButton } from './CommandButton';
 
@@ -21,9 +21,9 @@ interface TextCommandsProps {
 export const TextCommands = ({ applyCommand }: TextCommandsProps) => (
   <div className="flex flex-wrap items-center gap-1.5 w-full">
     <CommandButton label="Trim" onClick={() => applyCommand(sunoTrim)} />
-    <CommandButton label="Spaces" onClick={() => applyCommand(spaces)} />
-    <CommandButton label="Edges" onClick={() => applyCommand(edges)} />
-    <CommandButton label="Upper" onClick={() => applyCommand(upper)} />
+    <CommandButton label="Spaces" onClick={() => applyCommand(collapseSpaces)} />
+    <CommandButton label="Edges" onClick={() => applyCommand(trimLines)} />
+    <CommandButton label="Upper" onClick={() => applyCommand(toUpperCase)} />
     <CommandButton label="Lower" onClick={() => applyCommand(lower)} />
     <CommandButton label="Sentence" onClick={() => applyCommand(sentence)} />
     <CommandButton label="Line 1" onClick={() => applyCommand(line1)} />

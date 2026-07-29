@@ -34,9 +34,9 @@ describe('Suno Commands', () => {
 
   it('Upper', () => {
     // Should capitalize the first letter of each text line without changing tags
-    expect(sunoCmds.upper('[Verse 1]\nhello world\n[Chorus]\nyes')).toBe('[Verse 1]\nHello world\n[Chorus]\nYes');
+    expect(sunoCmds.toSunoTitleCase('[Verse 1]\nhello world\n[Chorus]\nyes')).toBe('[Verse 1]\nHello world\n[Chorus]\nYes');
     // Unicode
-    expect(sunoCmds.upper('[Verse 1]\nпривет')).toBe('[Verse 1]\nПривет');
+    expect(sunoCmds.toSunoTitleCase('[Verse 1]\nпривет')).toBe('[Verse 1]\nПривет');
   });
   
   it('Lyrics', () => {
@@ -57,19 +57,19 @@ describe('Suno Commands', () => {
   it('Trim', () => {
     // Multiple blocks and excess newlines
     const input = '[Verse]\nline1\n\n\nline2\n\n[Chorus]\nline3';
-    expect(sunoCmds.trim(input)).toBe('[Verse]\nline1\nline2\n\n[Chorus]\nline3');
+    expect(sunoCmds.sunoTrim(input)).toBe('[Verse]\nline1\nline2\n\n[Chorus]\nline3');
     
     // CRLF
-    expect(sunoCmds.trim('[Verse]\r\nline1\r\n\r\n\r\nline2')).toBe('[Verse]\nline1\nline2');
+    expect(sunoCmds.sunoTrim('[Verse]\r\nline1\r\n\r\n\r\nline2')).toBe('[Verse]\nline1\nline2');
     
     // Empty text
-    expect(sunoCmds.trim('')).toBe('');
+    expect(sunoCmds.sunoTrim('')).toBe('');
     
     // Repeated application
-    const output = sunoCmds.trim(input);
-    expect(sunoCmds.trim(output)).toBe(output);
+    const output = sunoCmds.sunoTrim(input);
+    expect(sunoCmds.sunoTrim(output)).toBe(output);
 
     // Neighboring tags
-    expect(sunoCmds.trim('[Verse 1]\n\n[Chorus]')).toBe('[Verse 1]\n\n[Chorus]');
+    expect(sunoCmds.sunoTrim('[Verse 1]\n\n[Chorus]')).toBe('[Verse 1]\n\n[Chorus]');
   });
 });

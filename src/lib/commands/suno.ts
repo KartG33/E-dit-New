@@ -48,7 +48,7 @@ export const space = (text: string): string => {
   return result;
 };
 
-export const upper = (text: string): string => {
+export const toSunoTitleCase = (text: string): string => {
   return text
     .split(/\r?\n/)
     .map(line => {
@@ -70,7 +70,7 @@ export const structure = (text: string): string => {
   return matches ? matches.join('\n') : '';
 };
 
-export const trim = (text: string): string => {
+export const sunoTrim = (text: string): string => {
   let result = text.replace(/\r\n/g, '\n');
   
   const blocks = result.split(/(\[[^\]]+\])/);

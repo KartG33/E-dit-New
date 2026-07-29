@@ -8,21 +8,21 @@
 
 ### 1.1 Разные названия одной функции / концепции
 * **Именование команд и функций обрезки пробелов по краям:**
-  * В [src/lib/commands/text.ts](file:///d:/Documents/Antigravity%20Projects/E-dit%20New/src/lib/commands/text.ts#L5) функция называется `edges`.
-  * В [src/lib/commands/suno.ts](file:///d:/Documents/Antigravity%20Projects/E-dit%20New/src/lib/commands/suno.ts#L73) аналогичная/родственная функция называется `trim`.
-  * В интерфейсе [TextCommands.tsx](src/components/Commands/TextCommands.tsx) кнопка для `suno.trim` подписана как `"Trim"`, а кнопка для `text.edges` — как `"Edges"`.
+  * В [text.ts](src/lib/commands/text.ts) общая функция очистки краёв каждой строки называется `trimLines`.
+  * В [suno.ts](src/lib/commands/suno.ts) очистка переносов в блоках Suno называется `sunoTrim`.
+  * Стабильные идентификаторы `text.edges` и `suno.trim`, а также подписи кнопок `"Edges"` и `"Trim"`, сохранены для совместимости интерфейса и существующих пресетов.
 * **Вкладка/компонент работы с данными:**
   * Переименовано из `BackupRestore` в `DataPanel` ([DataPanel.tsx](src/components/Data/DataPanel.tsx)).
   * В типах навигации называется `data` ([SlidingDrawer.tsx](src/components/Drawer/SlidingDrawer.tsx)).
   * В UI раздел назван `"Data"`; кнопка открытия находится в [CommandPanel.tsx](src/components/Commands/CommandPanel.tsx), а содержимое — в [DataPanel.tsx](src/components/Data/DataPanel.tsx).
 
 ### 1.2 Одинаковые названия у разных функций / сущностей
-* **Пересечение имен команд `upper`:**
-  * В [src/lib/commands/text.ts](file:///d:/Documents/Antigravity%20Projects/E-dit%20New/src/lib/commands/text.ts#L12) экспортируется `upper(text: string)`, переводящая весь текст в верхний регистр.
-  * В [src/lib/commands/suno.ts](file:///d:/Documents/Antigravity%20Projects/E-dit%20New/src/lib/commands/suno.ts#L51) экспортируется `upper(text: string)`, которая переводит в верхний регистр только первая буквы строк, кроме тегов Suno в скобках `[...]`.
-  * В реестре команд [registry.ts](src/lib/commands/registry.ts) они разграничены префиксами (`text.upper` и `suno.upper`). UI-импорты также разделены: текстовая команда подключена в [TextCommands.tsx](src/components/Commands/TextCommands.tsx), Suno-команда — в [SunoCommands.tsx](src/components/Commands/SunoCommands.tsx).
-* **Использование термина `space` / `spaces`:**
-  * `spaces` в `text.ts` — замена множественных пробелов/табов на 1 пробел.
+* **Разграничение команд изменения регистра:**
+  * В [text.ts](src/lib/commands/text.ts) `toUpperCase(text)` переводит весь текст в верхний регистр.
+  * В [suno.ts](src/lib/commands/suno.ts) `toSunoTitleCase(text)` меняет только первые буквы текстовых строк и не изменяет теги `[...]`.
+  * Стабильные идентификаторы реестра `text.upper` и `suno.upper` не изменены, но внутренние импорты теперь однозначны в [TextCommands.tsx](src/components/Commands/TextCommands.tsx) и [SunoCommands.tsx](src/components/Commands/SunoCommands.tsx).
+* **Разграничение команд работы с пробелами:**
+  * `collapseSpaces` в `text.ts` — замена множественных пробелов/табов на 1 пробел.
   * `space` в `suno.ts` — нормализация пустых строк вокруг structural tags `[...]`.
 
 ### 1.3 Устаревший и неиспользуемый код
@@ -91,9 +91,9 @@
 
 | Сущность / Функция / Компонент | Текущие варианты в коде | Единое утверждённое название | Область применения |
 | :--- | :--- | :--- | :--- |
-| Обрезка пробелов в начале/конце строк | `text.edges`, `suno.trim`, button `"Trim"`, `"Edges"` | `trimLines` (модуль text), `sunoTrim` (модуль suno) | Функция очистки строк |
-| Перевод текста в верхний регистр | `text.upper`, `suno.upper` | `toUpperCase` / `toSunoTitleCase` | Разграничение банального Upper и Suno-Capitalize |
-| Очистка повторяющихся пробелов | `text.spaces` | `collapseSpaces` | Нормализация внутристрочных пробелов |
+| Обрезка пробелов в начале/конце строк | ID `text.edges`, `suno.trim`; кнопки `"Edges"`, `"Trim"` | `trimLines` (модуль text), `sunoTrim` (модуль suno) | Внутренние функции; ID и подписи стабильны |
+| Изменение регистра | ID `text.upper`, `suno.upper`; кнопки `"Upper"`, `"Suno Upper"` | `toUpperCase` / `toSunoTitleCase` | Весь текст / первые буквы строк вне тегов |
+| Очистка повторяющихся пробелов | ID `text.spaces`; кнопка `"Spaces"` | `collapseSpaces` | Нормализация внутристрочных пробелов |
 | Раздел/Вкладка данных | `data`, `DataPanel`, button `"Data"` | `DataPanel` / вкладка `data` | UI и навигация |
 | Редактор тегов Suno | `SunoTagsEditor` (на самом деле Tag Builder) | `SunoTagBuilder` (для вставки), `SunoTagManager` (для редактирования) | Компоненты работы с тегами |
 | Таблица заметок в БД | `notes` в исторических схемах v1-v3 | Удалена миграцией v4 | Хранилище Dexie |
@@ -114,14 +114,15 @@ graph TD
 
 ### Этап 1: Чистка неиспользуемого кода и нормализация именования
 
-* **Что исправляется:** Удаляется неиспользуемый файл `src/App.css`, а интерфейс `Note` и свойство `EditDatabase.notes` уже удалены; схемы Dexie v1-v3 сохранены без изменений, и версия 4 фактически удаляет таблицу `notes` при миграции. Имена функций в `src/lib/commands/` приводятся к единообразию.
+* **Что исправляется:** Удаляется неиспользуемый файл `src/App.css`, а интерфейс `Note` и свойство `EditDatabase.notes` уже удалены; схемы Dexie v1-v3 сохранены без изменений, и версия 4 фактически удаляет таблицу `notes` при миграции. Имена функций в `src/lib/commands/` приведены к словарю выше без изменения постоянных `CommandId`.
 * **Зачем это нужно:** Избавление от "мертвого" кода, устранение путаницы в названиях функций и импортах.
 * **Какие файлы затрагиваются:**
   * [DELETE] `src/App.css`
   * [MODIFY] [src/App.tsx](file:///d:/Documents/Antigravity%20Projects/E-dit%20New/src/App.tsx)
   * [MODIFY] [src/lib/db/index.ts](file:///d:/Documents/Antigravity%20Projects/E-dit%20New/src/lib/db/index.ts)
-  * [MODIFY] [src/lib/commands/text.ts](file:///d:/Documents/Antigravity%20Projects/E-dit%20New/src/lib/commands/text.ts)
-  * [MODIFY] [src/lib/commands/registry.ts](file:///d:/Documents/Antigravity%20Projects/E-dit%20New/src/lib/commands/registry.ts)
+  * [MODIFY] [src/lib/commands/text.ts](src/lib/commands/text.ts)
+  * [MODIFY] [src/lib/commands/suno.ts](src/lib/commands/suno.ts)
+  * [MODIFY] [src/lib/commands/registry.ts](src/lib/commands/registry.ts)
 * **От каких этапов зависит:** Нет зависимостей.
 * **Как проверить результат:** Запуск `npx vitest run` и `npm run build` должен проходить без ошибок типов и тестов.
 * **Какой риск имеет изменение:** Низкий.
