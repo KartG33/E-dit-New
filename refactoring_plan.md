@@ -19,7 +19,7 @@
 ### 1.2 Одинаковые названия у разных функций / сущностей
 * **Разграничение команд изменения регистра:**
   * В [text.ts](src/lib/commands/text.ts) `toUpperCase(text)` переводит весь текст в верхний регистр.
-  * В [suno.ts](src/lib/commands/suno.ts) `toSunoTitleCase(text)` меняет только первые буквы текстовых строк и не изменяет теги `[...]`.
+  * В [suno.ts](src/lib/commands/suno.ts) `capitalizeSunoLines(text)` переводит в верхний регистр только первую букву каждой текстовой строки и не изменяет теги `[...]`.
   * Стабильные идентификаторы реестра `text.upper` и `suno.upper` не изменены, но внутренние импорты теперь однозначны в [TextCommands.tsx](src/components/Commands/TextCommands.tsx) и [SunoCommands.tsx](src/components/Commands/SunoCommands.tsx).
 * **Разграничение команд работы с пробелами:**
   * `collapseSpaces` в `text.ts` — замена множественных пробелов/табов на 1 пробел.
@@ -92,7 +92,7 @@
 | Сущность / Функция / Компонент | Текущие варианты в коде | Единое утверждённое название | Область применения |
 | :--- | :--- | :--- | :--- |
 | Обрезка пробелов в начале/конце строк | ID `text.edges`, `suno.trim`; кнопки `"Edges"`, `"Trim"` | `trimLines` (модуль text), `sunoTrim` (модуль suno) | Внутренние функции; ID и подписи стабильны |
-| Изменение регистра | ID `text.upper`, `suno.upper`; кнопки `"Upper"`, `"Suno Upper"` | `toUpperCase` / `toSunoTitleCase` | Весь текст / первые буквы строк вне тегов |
+| Изменение регистра | ID `text.upper`, `suno.upper`; кнопки `"Upper"`, `"Suno Upper"` | `toUpperCase` / `capitalizeSunoLines` | Весь текст / первая буква каждой строки вне тегов |
 | Очистка повторяющихся пробелов | ID `text.spaces`; кнопка `"Spaces"` | `collapseSpaces` | Нормализация внутристрочных пробелов |
 | Раздел/Вкладка данных | `data`, `DataPanel`, button `"Data"` | `DataPanel` / вкладка `data` | UI и навигация |
 | Редактор тегов Suno | `SunoTagsEditor` (на самом деле Tag Builder) | `SunoTagBuilder` (для вставки), `SunoTagManager` (для редактирования) | Компоненты работы с тегами |

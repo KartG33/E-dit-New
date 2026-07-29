@@ -34,9 +34,9 @@ describe('Suno Commands', () => {
 
   it('Upper', () => {
     // Should capitalize the first letter of each text line without changing tags
-    expect(sunoCmds.toSunoTitleCase('[Verse 1]\nhello world\n[Chorus]\nyes')).toBe('[Verse 1]\nHello world\n[Chorus]\nYes');
+    expect(sunoCmds.capitalizeSunoLines('[Verse 1]\nhello world\n[Chorus]\nyes')).toBe('[Verse 1]\nHello world\n[Chorus]\nYes');
     // Unicode
-    expect(sunoCmds.toSunoTitleCase('[Verse 1]\nпривет')).toBe('[Verse 1]\nПривет');
+    expect(sunoCmds.capitalizeSunoLines('[Verse 1]\nпривет')).toBe('[Verse 1]\nПривет');
   });
   
   it('Lyrics', () => {

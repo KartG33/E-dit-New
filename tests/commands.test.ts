@@ -9,7 +9,7 @@ describe('Text Commands', () => {
     expect(COMMAND_REGISTRY['text.edges']).toBe(textCmds.trimLines);
     expect(COMMAND_REGISTRY['text.upper']).toBe(textCmds.toUpperCase);
     expect(COMMAND_REGISTRY['suno.trim']).toBe(sunoCmds.sunoTrim);
-    expect(COMMAND_REGISTRY['suno.upper']).toBe(sunoCmds.toSunoTitleCase);
+    expect(COMMAND_REGISTRY['suno.upper']).toBe(sunoCmds.capitalizeSunoLines);
   });
 
   it('Spaces', () => {

@@ -30,7 +30,7 @@
 - **Tests**: Add strict counts and removal tests for overlapping tokens.
 
 ### 5. Пресеты
-- **Command Registry**: `CommandId` values remain stable for stored presets, while internal function names follow the shared vocabulary: `collapseSpaces`, `trimLines`, `sunoTrim`, `toUpperCase`, and `toSunoTitleCase`.
+- **Command Registry**: `CommandId` values remain stable for stored presets, while internal function names follow the shared vocabulary: `collapseSpaces`, `trimLines`, `sunoTrim`, `toUpperCase`, and `capitalizeSunoLines`.
 - **Chain Presets**: Store only stable `CommandId`. Support repeating and reordering commands. Apply chain as one undo.
 - **Regex Presets**: Create/edit/delete, preview without mutating editor, display concise errors. Check `preset.data.type === 'regex'` and pass `preset.data` to applicator, no `any`.
 - **Import/Schema**: Check for unknown `CommandId`. Add `order` to schema and a Dexie migration.

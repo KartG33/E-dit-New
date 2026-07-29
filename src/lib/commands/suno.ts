@@ -48,7 +48,7 @@ export const space = (text: string): string => {
   return result;
 };
 
-export const toSunoTitleCase = (text: string): string => {
+export const capitalizeSunoLines = (text: string): string => {
   return text
     .split(/\r?\n/)
     .map(line => {

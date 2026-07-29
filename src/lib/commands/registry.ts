@@ -15,7 +15,7 @@ export const COMMAND_REGISTRY = {
   'text.inlineComma': textCmds.inlineComma,
   'suno.clean': sunoCmds.clean,
   'suno.space': sunoCmds.space,
-  'suno.upper': sunoCmds.toSunoTitleCase,
+  'suno.upper': sunoCmds.capitalizeSunoLines,
   'suno.lyrics': sunoCmds.lyrics,
   'suno.structure': sunoCmds.structure,
   'suno.trim': sunoCmds.sunoTrim,
