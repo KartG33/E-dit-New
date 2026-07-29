@@ -117,7 +117,7 @@ describe('Symbol Analyzer', () => {
     expect(result.current.lines).toBe(1);
   });
 
-  it('renders compact statistics in both editor footers and symbol-only chip labels', () => {
+  it('renders compact statistics in both editor headers and symbol-only chip labels', () => {
     render(
       <div>
         <Editor
@@ -156,12 +156,15 @@ describe('Symbol Analyzer', () => {
     });
 
     const [leftStats, rightStats] = screen.getAllByTestId('editor-stats');
-    expect(leftStats.textContent).toBe('5 chars2 lines');
-    expect(rightStats.textContent).toBe('12 chars2 lines');
+    expect(leftStats.textContent).toBe('5 chars·2 lines');
+    expect(rightStats.textContent).toBe('12 chars·2 lines');
+    expect(leftStats.parentElement?.classList.contains('editor-header')).toBe(true);
+    expect(rightStats.parentElement?.classList.contains('editor-header')).toBe(true);
     expect(screen.queryByText(/words|no space/)).toBeNull();
 
     const chip = screen.getByTitle('Remove all ---');
     expect(chip.textContent).toBe('---');
+    expect(chip.closest('.editor-footer')?.querySelector('[data-testid="editor-stats"]')).toBeNull();
   });
 
   it('calls updateValue exactly once when a symbol chip is clicked in Editor', () => {

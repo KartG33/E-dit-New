@@ -89,23 +89,31 @@ export const Editor = ({
   return (
     <div className={`editor-card ${isActive ? 'is-active' : ''}`}>
       <div className="editor-header">
-        <div className="editor-header-group">
-          <span className="editor-title">{id} Editor</span>
+        <div className="editor-stats" data-testid="editor-stats">
+          <span>{stats.characters} chars</span>
+          <span aria-hidden="true">·</span>
+          <span>{stats.lines} lines</span>
+        </div>
+        <div className="editor-header-controls">
           <button 
+            type="button"
             onClick={handleUndo} 
             disabled={!canUndo}
             className="icon-button"
             title="Undo (Ctrl+Z)"
+            aria-label="Undo"
           >
-            <Undo2 size={14} />
+            <Undo2 size={18} />
           </button>
           <button 
+            type="button"
             onClick={handleRedo} 
             disabled={!canRedo}
             className="icon-button"
             title="Redo (Ctrl+Y)"
+            aria-label="Redo"
           >
-            <Redo2 size={14} />
+            <Redo2 size={18} />
           </button>
         </div>
       </div>
@@ -124,11 +132,12 @@ export const Editor = ({
         onSelect={handleSelect}
       />
 
-      <div className="editor-footer">
-        {stats.tokens && stats.tokens.length > 0 && (
+      {stats.tokens && stats.tokens.length > 0 && (
+        <div className="editor-footer">
           <div className="token-list">
             {stats.tokens.map(t => (
               <button
+                type="button"
                 key={t.token}
                 onClick={() => updateValue(removeTokenFromText(value, t.token), undefined, undefined, true)}
                 className="token-button"
@@ -138,12 +147,8 @@ export const Editor = ({
               </button>
             ))}
           </div>
-        )}
-        <div className="editor-stats" data-testid="editor-stats">
-          <span>{stats.characters} chars</span>
-          <span>{stats.lines} lines</span>
         </div>
-      </div>
+      )}
     </div>
   );
 };
