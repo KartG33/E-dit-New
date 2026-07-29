@@ -12,7 +12,7 @@
   - `[x]` 4. Symbol Analyzer (Pure functions, longest-match-first token registry, single undo deletion)
   - `[x]` 5. Presets (Command Registry, Chain & Regex types, execution logic, schema updates)
   - `[ ]` 6. Favorites & Startup Tab (AppSettings expansion, favorites logic, UI pin/startup)
-  - `[ ]` 7. Suno Tags (Pure parsing functions, grouped identical tags editor, mass update)
+  - `[ ]` 7. Suno Tags (viewing complete: pure parsing and live grouped identical-tag counts; editing and mass update remain)
   - `[x]` 8. History (Saved text versions in Dexie and the right panel, live query, limit enforcement)
   - `[x]` 9. Data & Platform Layer (Safe Data v2 import, atomic restore, strict validation, and the current browser-only file adapter)
   - `[x]` 10. Typing (Remove any, strict type checks, linting)

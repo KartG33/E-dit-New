@@ -21,14 +21,34 @@ describe('CommandPanel', () => {
     expect(applyCommand).toHaveBeenCalledWith(collapseSpaces);
   });
 
-  it('switches to the Suno section without changing its commands or tag builder', () => {
+  it('shows live grouped tags from the active editor beside the tag builder', () => {
     const applyCommand = vi.fn();
-    render(<CommandPanel applyCommand={applyCommand} insertText={vi.fn()} />);
+    const { rerender } = render(
+      <CommandPanel
+        applyCommand={applyCommand}
+        editorText={'[Verse]\nFirst\n[Chorus]\n[Verse]'}
+        insertText={vi.fn()}
+      />,
+    );
 
     fireEvent.click(screen.getByRole('button', { name: 'Suno' }));
 
     expect(screen.queryByRole('button', { name: 'Spaces' })).toBeNull();
     expect(screen.getByText('Tag Builder')).toBeDefined();
+    expect(screen.getByText('[Verse]')).toBeDefined();
+    expect(screen.getByLabelText('2 occurrences')).toBeDefined();
+    expect(screen.getByText('[Chorus]')).toBeDefined();
+
+    rerender(
+      <CommandPanel
+        applyCommand={applyCommand}
+        editorText="No tags anymore"
+        insertText={vi.fn()}
+      />,
+    );
+    expect(screen.queryByText('[Verse]')).toBeNull();
+    expect(screen.getByText('No tags in active editor')).toBeDefined();
+
     fireEvent.click(screen.getByRole('button', { name: 'Suno Clean' }));
     expect(applyCommand).toHaveBeenCalledWith(clean);
   });

@@ -1,13 +1,20 @@
 import { useState } from 'react';
+import { groupSunoTags } from '../../lib/commands/suno';
 
 const SUNO_TAGS = [
   'Intro', 'Verse', 'Pre-Chorus', 'Chorus', 'Bridge', 'Hook', 
   'Refrain', 'Break', 'Drop', 'Interlude', 'Solo', 'Fade Out', 'Outro'
 ];
 
-export const SunoTagsEditor = ({ onInsert }: { onInsert: (tag: string) => void }) => {
+interface SunoTagsEditorProps {
+  editorText: string;
+  onInsert: (tag: string) => void;
+}
+
+export const SunoTagsEditor = ({ editorText, onInsert }: SunoTagsEditorProps) => {
   const [multiplier, setMultiplier] = useState(1);
   const [customNum, setCustomNum] = useState('');
+  const existingTags = groupSunoTags(editorText);
 
   const handleInsert = (tag: string) => {
     let finalTag = tag;
@@ -20,8 +27,33 @@ export const SunoTagsEditor = ({ onInsert }: { onInsert: (tag: string) => void }
   };
 
   return (
-    <div className="flex flex-col gap-3 mt-4 pt-4 border-t border-zinc-200 dark:border-zinc-700">
-      <h3 className="text-xs font-medium text-zinc-500 uppercase tracking-wider">Tag Builder</h3>
+    <div className="flex flex-wrap items-start gap-4 mt-4 pt-4 border-t border-zinc-200 dark:border-zinc-700">
+      <section className="flex min-w-44 flex-col gap-2" aria-labelledby="existing-suno-tags-heading">
+        <h3 id="existing-suno-tags-heading" className="text-xs font-medium text-zinc-500 uppercase tracking-wider">
+          Existing Tags
+        </h3>
+
+        {existingTags.length > 0 ? (
+          <ul className="flex flex-col gap-1 text-xs" aria-live="polite">
+            {existingTags.map(({ tag, count }) => (
+              <li key={tag} className="flex items-center justify-between gap-3 text-zinc-700 dark:text-zinc-300">
+                <span className="break-all">[{tag}]</span>
+                <span
+                  className="min-w-6 rounded-full bg-zinc-100 px-1.5 py-0.5 text-center text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400"
+                  aria-label={`${count} occurrences`}
+                >
+                  {count}
+                </span>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="text-xs text-zinc-400" aria-live="polite">No tags in active editor</p>
+        )}
+      </section>
+
+      <section className="flex flex-1 flex-col gap-3" aria-labelledby="tag-builder-heading">
+        <h3 id="tag-builder-heading" className="text-xs font-medium text-zinc-500 uppercase tracking-wider">Tag Builder</h3>
       
       <div className="flex items-center gap-2">
         <label className="text-xs text-zinc-500">Mult:</label>
@@ -57,6 +89,7 @@ export const SunoTagsEditor = ({ onInsert }: { onInsert: (tag: string) => void }
           </button>
         ))}
       </div>
+      </section>
     </div>
   );
 };

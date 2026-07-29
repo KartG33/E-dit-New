@@ -2,6 +2,15 @@ import { describe, it, expect } from 'vitest';
 import * as sunoCmds from '../src/lib/commands/suno';
 
 describe('Suno Commands', () => {
+  it('groups tags by exact trimmed content in first-appearance order', () => {
+    expect(sunoCmds.groupSunoTags('[Verse]\nLine\n[ Chorus ]\n[Verse]\n[verse]\n[]')).toEqual([
+      { tag: 'Verse', count: 2 },
+      { tag: 'Chorus', count: 1 },
+      { tag: 'verse', count: 1 },
+    ]);
+    expect(sunoCmds.groupSunoTags('Text without tags')).toEqual([]);
+  });
+
   it('Clean', () => {
     // structural tag
     expect(sunoCmds.clean('[Verse 1 (soft piano)]\nText')).toBe('[Verse 1]\nText');

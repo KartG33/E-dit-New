@@ -6,6 +6,29 @@ const SUNO_STRUCTURAL_TAGS = [
   'fade out', 'fadeout', 'outro'
 ];
 
+export interface GroupedSunoTag {
+  tag: string;
+  count: number;
+}
+
+export const groupSunoTags = (text: string): GroupedSunoTag[] => {
+  const groups = new Map<string, GroupedSunoTag>();
+
+  for (const match of text.matchAll(/\[([^\]]+)\]/g)) {
+    const tag = match[1].trim();
+    if (!tag) continue;
+
+    const existing = groups.get(tag);
+    if (existing) {
+      existing.count += 1;
+    } else {
+      groups.set(tag, { tag, count: 1 });
+    }
+  }
+
+  return Array.from(groups.values());
+};
+
 export const clean = (text: string): string => {
   // Extract all tags in brackets
   let result = text.replace(/\[([^\]]+)\]/g, (_match, content) => {

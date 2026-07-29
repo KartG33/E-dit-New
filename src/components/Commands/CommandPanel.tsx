@@ -7,11 +7,12 @@ import { TextCommands } from './TextCommands';
 
 interface CommandPanelProps {
   applyCommand: (cmd: (text: string) => string) => void;
+  editorText?: string;
   insertText: (text: string) => void;
   onOpenDrawer?: (tab: DrawerTab) => void;
 }
 
-export const CommandPanel = ({ applyCommand, insertText, onOpenDrawer }: CommandPanelProps) => {
+export const CommandPanel = ({ applyCommand, editorText = '', insertText, onOpenDrawer }: CommandPanelProps) => {
   const [activeTab, setActiveTab] = useState<'standard'|'suno'|'presets'>('standard');
 
   return (
@@ -86,7 +87,7 @@ export const CommandPanel = ({ applyCommand, insertText, onOpenDrawer }: Command
         )}
 
         {activeTab === 'suno' && (
-          <SunoCommands applyCommand={applyCommand} insertText={insertText} />
+          <SunoCommands applyCommand={applyCommand} editorText={editorText} insertText={insertText} />
         )}
 
         {activeTab === 'presets' && (

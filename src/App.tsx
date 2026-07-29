@@ -48,6 +48,7 @@ const App = () => {
       {/* Top Compact Command Panel */}
       <CommandPanel 
         applyCommand={applyCommand} 
+        editorText={activeEditor === 'left' ? leftEditor.value : rightEditor.value}
         insertText={insertText} 
         onOpenDrawer={handleOpenDrawer}
       />

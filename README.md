@@ -1,4 +1,12 @@
-# React + TypeScript + Vite
+# E-dit
+
+E-dit is a two-pane text editor with text transformations, presets, history, and Suno-specific tools.
+
+## Suno tags
+
+The Suno section reads bracketed tags from the active editor and displays identical tags as a grouped list with occurrence counts, ordered by first appearance. The list updates with the active editor text. The adjacent tag builder continues to insert new structural tags; editing existing tags is intentionally deferred to a later step.
+
+## Development
 
 This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
 

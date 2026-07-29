@@ -43,6 +43,7 @@
 
 ### 7. Suno Tags
 - **Pure Functions**: Parser and transformations independent of React.
+- **Implemented viewing slice**: The Suno panel shows tags from the active editor, grouped by exact trimmed content with occurrence counts in first-appearance order. It reacts directly to editor text changes and keeps the tag builder alongside the list. Existing-tag editing is deferred.
 - **Full Tag Editor**: 
   - Parse existing text tags: `[structure | style 1 | style 2]`.
   - Preserve numbers/multipliers.
