@@ -69,6 +69,9 @@
 - Replace `Setting.value: any` with `unknown` + generic getters.
 - **No `any`**: Strictly enforce zero explicit `any` and `as any` in production code. Add linting rules for explicit any.
 
+### Command panel composition
+- **Independent sections**: `CommandPanel` owns navigation and shared layout, while `TextCommands`, `SunoCommands`, and `PresetsCommands` own their section-specific UI and dependencies.
+
 ### 11. Тесты
 - Vastly expand Vitest coverage according to the requirements, including basic commands, tokens, single-undo removals, hydration, StrictMode, hotkey ignoring, regex via `Preset.data`, History, Favorites, Suno parsing, and comprehensive data import/export validation (valid, corrupted, rollback).
 - Fix `editor.test.tsx` selection test to simulate real user events.

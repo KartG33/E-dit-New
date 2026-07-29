@@ -36,8 +36,8 @@
   * Метод `EditDatabase.addHistory` является единым источником логики сохранения версий, защиты от последовательных дубликатов и ограничения до 50 записей на каждый редактор. `useEditor` только вызывает этот метод и обрабатывает ошибку. Временный Undo Stack остаётся независимым от History.
 
 ### 1.5 Слишком сложные или смешанные компоненты
-* **`CommandPanel.tsx` сочетает разметку шапки, вкладки, кнопки и прямые вызовы команд:**
-  * Компонент [src/components/Commands/CommandPanel.tsx](file:///d:/Documents/Antigravity%20Projects/E-dit%20New/src/components/Commands/CommandPanel.tsx) одновременно отвечает за логотип, переключение вкладок, вызов функций текстов, внедрение модального окна `SunoTagsEditor` и рендеринг `PresetsTab`.
+* **`CommandPanel.tsx` разделён на самостоятельные секции:**
+  * Родительский компонент отвечает только за общую шапку, навигацию и выбор активной вкладки. `TextCommands`, `SunoCommands` и `PresetsCommands` независимо содержат разметку и зависимости своих разделов, а `CommandButton` сохраняет общий внешний вид кнопок.
 * **`DataPanel.tsx` отделён от платформенной работы с файлами:**
   * Компонент зависит только от интерфейса `DataFileAdapter`. Выбор, чтение и сохранение файлов реализованы browser-адаптером в `src/lib/platform/dataFileAdapter.ts`; для Tauri или Capacitor его можно заменить без изменения раздела Data.
 
@@ -151,13 +151,18 @@ graph TD
 
 * **Что исправляется:**
   1. Абстракция `DataFileAdapter` и browser-адаптер выделены: выбор, чтение и сохранение файлов изолированы от `DataPanel.tsx`; будущие Tauri/Capacitor-реализации смогут использовать тот же контракт.
-  2. Разделение `CommandPanel.tsx` на более мелкие субкомпоненты по категориям.
+  2. `CommandPanel.tsx` разделён на `TextCommands`, `SunoCommands` и `PresetsCommands`; общая кнопка вынесена в `CommandButton`.
 * **Зачем это нужно:** Подготовка к будущей интеграции с Tauri (Desktop) и Capacitor (Mobile), соблюдение чистоты архитектуры.
 * **Какие файлы затрагиваются:**
   * [NEW] `src/lib/platform/dataFileAdapter.ts`
   * [MODIFY] [src/components/Data/DataPanel.tsx](file:///d:/Documents/Antigravity%20Projects/E-dit%20New/src/components/Data/DataPanel.tsx)
   * [NEW] `tests/dataFileAdapter.test.tsx`
   * [MODIFY] [src/components/Commands/CommandPanel.tsx](file:///d:/Documents/Antigravity%20Projects/E-dit%20New/src/components/Commands/CommandPanel.tsx)
+  * [NEW] `src/components/Commands/TextCommands.tsx`
+  * [NEW] `src/components/Commands/SunoCommands.tsx`
+  * [NEW] `src/components/Commands/PresetsCommands.tsx`
+  * [NEW] `src/components/Commands/CommandButton.tsx`
+  * [NEW] `tests/CommandPanel.test.tsx`
 * **От каких этапов зависит:** Зависит от Этапа 2.
 * **Как проверить результат:** Ручная и автоматизированная проверка работы импорта/экспорта в браузере.
 * **Какой риск имеет изменение:** Низкий.

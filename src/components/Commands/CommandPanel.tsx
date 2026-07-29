@@ -1,10 +1,9 @@
 import { useState } from 'react';
 import { Settings2, Music, Zap, Clock, HardDrive } from 'lucide-react';
-import { clean as sunoClean, space as sunoSpace, upper as sunoUpper, lyrics as sunoLyrics, structure as sunoStructure, trim as sunoTrim } from '../../lib/commands/suno';
-import { spaces, edges, line1, lineX, inline, inlineComma, lower, sentence, removeSpaceBeforePunctuation, addSpaceAfterPunctuation, upper as textUpper } from '../../lib/commands/text';
-import { SunoTagsEditor } from '../SunoTags/SunoTagsEditor';
-import { PresetsTab } from './PresetsTab';
 import type { DrawerTab } from '../Drawer/SlidingDrawer';
+import { PresetsCommands } from './PresetsCommands';
+import { SunoCommands } from './SunoCommands';
+import { TextCommands } from './TextCommands';
 
 interface CommandPanelProps {
   applyCommand: (cmd: (text: string) => string) => void;
@@ -83,51 +82,17 @@ export const CommandPanel = ({ applyCommand, insertText, onOpenDrawer }: Command
       {/* Active Commands Toolbar Row */}
       <div className="flex items-center gap-1.5 overflow-x-auto pt-1 pb-0.5 border-t border-zinc-100 dark:border-zinc-800/80">
         {activeTab === 'standard' && (
-          <div className="flex flex-wrap items-center gap-1.5 w-full">
-            <CommandBtn label="Trim" onClick={() => applyCommand(sunoTrim)} />
-            <CommandBtn label="Spaces" onClick={() => applyCommand(spaces)} />
-            <CommandBtn label="Edges" onClick={() => applyCommand(edges)} />
-            <CommandBtn label="Upper" onClick={() => applyCommand(textUpper)} />
-            <CommandBtn label="Lower" onClick={() => applyCommand(lower)} />
-            <CommandBtn label="Sentence" onClick={() => applyCommand(sentence)} />
-            <CommandBtn label="Line 1" onClick={() => applyCommand(line1)} />
-            <CommandBtn label="Line X" onClick={() => applyCommand(lineX)} />
-            <CommandBtn label="Inline ," onClick={() => applyCommand(inlineComma)} />
-            <CommandBtn label="Inline" onClick={() => applyCommand(inline)} />
-            <CommandBtn label="- Space Punct" onClick={() => applyCommand(removeSpaceBeforePunctuation)} />
-            <CommandBtn label="+ Space Punct" onClick={() => applyCommand(addSpaceAfterPunctuation)} />
-          </div>
+          <TextCommands applyCommand={applyCommand} />
         )}
 
         {activeTab === 'suno' && (
-          <div className="flex flex-wrap items-center gap-1.5 w-full">
-            <CommandBtn label="Suno Clean" onClick={() => applyCommand(sunoClean)} />
-            <CommandBtn label="Suno Space" onClick={() => applyCommand(sunoSpace)} />
-            <CommandBtn label="Suno Upper" onClick={() => applyCommand(sunoUpper)} />
-            <CommandBtn label="Suno Lyrics" onClick={() => applyCommand(sunoLyrics)} />
-            <CommandBtn label="Suno Structure" onClick={() => applyCommand(sunoStructure)} />
-            
-            <div className="border-l border-zinc-200 dark:border-zinc-700 pl-2 ml-1">
-              <SunoTagsEditor onInsert={insertText} />
-            </div>
-          </div>
+          <SunoCommands applyCommand={applyCommand} insertText={insertText} />
         )}
 
         {activeTab === 'presets' && (
-          <div className="w-full">
-            <PresetsTab applyCommand={applyCommand} />
-          </div>
+          <PresetsCommands applyCommand={applyCommand} />
         )}
       </div>
     </header>
   );
 };
-
-const CommandBtn = ({ label, onClick }: { label: string; onClick: () => void }) => (
-  <button 
-    onClick={onClick}
-    className="py-1 px-2.5 text-xs bg-zinc-50 dark:bg-zinc-800/80 hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-blue-950 dark:hover:text-blue-400 border border-zinc-200 dark:border-zinc-700/80 rounded-md transition-colors font-medium text-zinc-700 dark:text-zinc-300 shadow-2xs whitespace-nowrap"
-  >
-    {label}
-  </button>
-);
