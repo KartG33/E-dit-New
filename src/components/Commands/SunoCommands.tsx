@@ -15,14 +15,14 @@ interface SunoCommandsProps {
 }
 
 export const SunoCommands = ({ applyCommand, editorText, insertText }: SunoCommandsProps) => (
-  <div className="flex flex-wrap items-center gap-1.5 w-full">
+  <div className="ui-command-row">
     <CommandButton label="Suno Clean" onClick={() => applyCommand(clean)} />
     <CommandButton label="Suno Space" onClick={() => applyCommand(space)} />
     <CommandButton label="Suno Upper" onClick={() => applyCommand(capitalizeSunoLines)} />
     <CommandButton label="Suno Lyrics" onClick={() => applyCommand(lyrics)} />
     <CommandButton label="Suno Structure" onClick={() => applyCommand(structure)} />
 
-    <div className="border-l border-zinc-200 dark:border-zinc-700 pl-2 ml-1">
+    <div>
       <SunoTagsEditor editorText={editorText} onInsert={insertText} />
     </div>
   </div>

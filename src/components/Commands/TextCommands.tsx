@@ -19,7 +19,7 @@ interface TextCommandsProps {
 }
 
 export const TextCommands = ({ applyCommand }: TextCommandsProps) => (
-  <div className="flex flex-wrap items-center gap-1.5 w-full">
+  <div className="ui-command-row">
     <CommandButton label="Trim" onClick={() => applyCommand(sunoTrim)} />
     <CommandButton label="Spaces" onClick={() => applyCommand(collapseSpaces)} />
     <CommandButton label="Edges" onClick={() => applyCommand(trimLines)} />

@@ -52,23 +52,23 @@ export const DataPanel = ({ fileAdapter = browserDataFileAdapter }: DataPanelPro
   };
 
   return (
-    <div className="flex flex-col gap-2 mt-4 pt-4 border-t border-zinc-200 dark:border-zinc-700">
-      <h3 className="text-xs font-medium text-zinc-500 uppercase tracking-wider mb-1">Data</h3>
-      <div className="flex gap-2">
+    <div className="data-panel">
+      <h3 className="section-eyebrow">Data</h3>
+      <div className="data-actions">
         <button 
           onClick={handleExport}
-          className="flex-1 py-1 px-2 text-xs font-medium bg-white dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-600 rounded hover:bg-zinc-50 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-300 transition-colors"
+          className="data-button"
         >
           Export
         </button>
         <button
           onClick={handleImport}
-          className="flex-1 py-1 px-2 text-xs font-medium bg-white dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-600 rounded hover:bg-zinc-50 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-300 transition-colors text-center cursor-pointer"
+          className="data-button"
         >
           Import
         </button>
       </div>
-      {msg && <div className="text-xs text-blue-500 font-medium mt-1">{msg}</div>}
+      {msg && <div className="status-message">{msg}</div>}
     </div>
   );
 };

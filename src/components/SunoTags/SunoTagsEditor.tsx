@@ -27,19 +27,19 @@ export const SunoTagsEditor = ({ editorText, onInsert }: SunoTagsEditorProps) =>
   };
 
   return (
-    <div className="flex flex-wrap items-start gap-4 mt-4 pt-4 border-t border-zinc-200 dark:border-zinc-700">
-      <section className="flex min-w-44 flex-col gap-2" aria-labelledby="existing-suno-tags-heading">
-        <h3 id="existing-suno-tags-heading" className="text-xs font-medium text-zinc-500 uppercase tracking-wider">
+    <div className="tag-workspace">
+      <section className="tag-section min-w-44" aria-labelledby="existing-suno-tags-heading">
+        <h3 id="existing-suno-tags-heading" className="section-eyebrow">
           Existing Tags
         </h3>
 
         {existingTags.length > 0 ? (
-          <ul className="flex flex-col gap-1 text-xs" aria-live="polite">
+          <ul className="tag-list" aria-live="polite">
             {existingTags.map(({ tag, count }) => (
-              <li key={tag} className="flex items-center justify-between gap-3 text-zinc-700 dark:text-zinc-300">
+              <li key={tag} className="tag-list-item">
                 <span className="break-all">[{tag}]</span>
                 <span
-                  className="min-w-6 rounded-full bg-zinc-100 px-1.5 py-0.5 text-center text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400"
+                  className="tag-count"
                   aria-label={`${count} occurrences`}
                 >
                   {count}
@@ -48,17 +48,17 @@ export const SunoTagsEditor = ({ editorText, onInsert }: SunoTagsEditorProps) =>
             ))}
           </ul>
         ) : (
-          <p className="text-xs text-zinc-400" aria-live="polite">No tags in active editor</p>
+          <p className="empty-state" aria-live="polite">No tags in active editor</p>
         )}
       </section>
 
-      <section className="flex flex-1 flex-col gap-3" aria-labelledby="tag-builder-heading">
-        <h3 id="tag-builder-heading" className="text-xs font-medium text-zinc-500 uppercase tracking-wider">Tag Builder</h3>
+      <section className="tag-section is-builder" aria-labelledby="tag-builder-heading">
+        <h3 id="tag-builder-heading" className="section-eyebrow">Tag Builder</h3>
       
-      <div className="flex items-center gap-2">
-        <label className="text-xs text-zinc-500">Mult:</label>
+      <div className="tag-controls">
+        <label className="field-label">Mult:</label>
         <select 
-          className="bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded text-xs p-1 outline-none text-zinc-700 dark:text-zinc-300"
+          className="field-control"
           value={multiplier} 
           onChange={e => setMultiplier(Number(e.target.value))}
         >
@@ -68,22 +68,22 @@ export const SunoTagsEditor = ({ editorText, onInsert }: SunoTagsEditorProps) =>
           <option value={4}>x4</option>
         </select>
         
-        <label className="text-xs text-zinc-500 ml-2">Num:</label>
+        <label className="field-label ml-2">Num:</label>
         <input 
           type="text" 
           placeholder="e.g. 1" 
-          className="bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded text-xs p-1 w-12 outline-none text-zinc-700 dark:text-zinc-300"
+          className="field-control w-12"
           value={customNum}
           onChange={e => setCustomNum(e.target.value)}
         />
       </div>
 
-      <div className="flex flex-wrap gap-2">
+      <div className="tag-buttons">
         {SUNO_TAGS.map(tag => (
           <button
             key={tag}
             onClick={() => handleInsert(tag)}
-            className="px-2 py-1 text-xs font-medium bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700 rounded hover:border-blue-500 hover:text-blue-600 transition-colors"
+            className="tag-button"
           >
             {tag}
           </button>

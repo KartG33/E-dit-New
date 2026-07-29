@@ -36,6 +36,8 @@ describe('Editor Component', () => {
 
     expect(screen.getByDisplayValue('test text')).toBeDefined();
     expect(screen.getByText('left Editor')).toBeDefined();
+    expect(screen.getByRole('textbox', { name: 'left editor' }).classList.contains('editor-textarea')).toBe(true);
+    expect(screen.getByTestId('editor-stats').classList.contains('editor-stats')).toBe(true);
     
     const undoBtn = screen.getByTitle('Undo (Ctrl+Z)');
     expect((undoBtn as HTMLButtonElement).disabled).toBe(true);

@@ -23,19 +23,19 @@ export const PresetsTab = ({ applyCommand }: PresetsTabProps) => {
 
   if (presets.length === 0) {
     return (
-      <div className="text-xs text-zinc-500 p-2 text-center">
+      <div className="empty-state p-2 text-center">
         No saved presets
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className="preset-list">
       {presets.map((preset) => (
         <button
           key={preset.id ?? preset.name}
           onClick={() => applyCommand((text) => applyPreset(text, preset.data))}
-          className="w-full py-2 px-3 text-sm bg-white dark:bg-zinc-900 hover:bg-zinc-50 dark:hover:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-md shadow-sm transition-colors font-medium text-zinc-700 dark:text-zinc-300 text-left"
+          className="preset-button"
         >
           {preset.name}
         </button>

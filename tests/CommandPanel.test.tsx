@@ -16,6 +16,7 @@ describe('CommandPanel', () => {
 
     expect(screen.getByRole('button', { name: 'Spaces' })).toBeDefined();
     expect(screen.queryByRole('button', { name: 'Suno Clean' })).toBeNull();
+    expect(screen.getByRole('button', { name: 'Text' }).getAttribute('aria-pressed')).toBe('true');
 
     fireEvent.click(screen.getByRole('button', { name: 'Spaces' }));
     expect(applyCommand).toHaveBeenCalledWith(collapseSpaces);
@@ -34,6 +35,7 @@ describe('CommandPanel', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Suno' }));
 
     expect(screen.queryByRole('button', { name: 'Spaces' })).toBeNull();
+    expect(screen.getByRole('button', { name: 'Suno' }).getAttribute('aria-pressed')).toBe('true');
     expect(screen.getByText('Tag Builder')).toBeDefined();
     expect(screen.getByText('[Verse]')).toBeDefined();
     expect(screen.getByLabelText('2 occurrences')).toBeDefined();

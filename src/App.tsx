@@ -44,7 +44,7 @@ const App = () => {
   };
 
   return (
-    <div className="flex flex-col h-screen w-full bg-zinc-100 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 overflow-hidden">
+    <div className="app-shell">
       {/* Top Compact Command Panel */}
       <CommandPanel 
         applyCommand={applyCommand} 
@@ -54,8 +54,8 @@ const App = () => {
       />
       
       {/* Main Dual Editors Area - Split 50/50 width */}
-      <main className="flex-1 flex gap-3 p-3 min-h-0 w-full overflow-hidden">
-        <div className="w-1/2 flex-1 h-full min-w-0">
+      <main className="app-main">
+        <div className="app-editor-pane">
           <Editor 
             id="left"
             {...leftEditor}
@@ -64,7 +64,7 @@ const App = () => {
             hydrated={leftEditor.hydrated}
           />
         </div>
-        <div className="w-1/2 flex-1 h-full min-w-0">
+        <div className="app-editor-pane">
           <Editor 
             id="right"
             {...rightEditor}
