@@ -97,6 +97,35 @@ describe('CommandPanel', () => {
     expect(screen.getAllByRole('listitem')).toHaveLength(26);
   });
 
+  it('keeps the Tags panel over the editor opposite to the active one', () => {
+    const { rerender } = render(
+      <CommandPanel
+        activeEditor="left"
+        applyCommand={vi.fn()}
+        editorText="[Verse]"
+        insertText={vi.fn()}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'Suno' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Tags' }));
+
+    const panel = screen.getByRole('dialog', { name: 'Suno Tags' });
+    expect(panel.classList.contains('is-opposite-left')).toBe(true);
+
+    rerender(
+      <CommandPanel
+        activeEditor="right"
+        applyCommand={vi.fn()}
+        editorText="[Chorus]"
+        insertText={vi.fn()}
+      />,
+    );
+
+    expect(panel.classList.contains('is-opposite-right')).toBe(true);
+    expect(panel.classList.contains('is-opposite-left')).toBe(false);
+  });
+
   it('closes the temporary Tags panel with Escape or when leaving Suno', () => {
     render(<CommandPanel applyCommand={vi.fn()} insertText={vi.fn()} />);
 

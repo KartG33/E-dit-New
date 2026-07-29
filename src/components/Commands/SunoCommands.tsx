@@ -12,11 +12,12 @@ import { CommandButton } from './CommandButton';
 
 interface SunoCommandsProps {
   applyCommand: (command: (text: string) => string) => void;
+  activeEditor: 'left' | 'right';
   editorText: string;
   insertText: (text: string) => void;
 }
 
-export const SunoCommands = ({ applyCommand, editorText, insertText }: SunoCommandsProps) => {
+export const SunoCommands = ({ applyCommand, activeEditor, editorText, insertText }: SunoCommandsProps) => {
   const [tagsOpen, setTagsOpen] = useState(false);
   const tagsPanelId = useId();
 
@@ -54,7 +55,7 @@ export const SunoCommands = ({ applyCommand, editorText, insertText }: SunoComma
       {tagsOpen && (
         <aside
           id={tagsPanelId}
-          className="tags-popover"
+          className={`tags-popover is-opposite-${activeEditor}`}
           role="dialog"
           aria-labelledby={`${tagsPanelId}-title`}
         >
