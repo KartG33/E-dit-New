@@ -28,16 +28,16 @@ export const SunoTagsEditor = ({ editorText, onInsert }: SunoTagsEditorProps) =>
 
   return (
     <div className="tag-workspace">
-      <section className="tag-section min-w-44" aria-labelledby="existing-suno-tags-heading">
+      <section className="tag-section tag-existing" aria-labelledby="existing-suno-tags-heading">
         <h3 id="existing-suno-tags-heading" className="section-eyebrow">
           Existing Tags
         </h3>
 
         {existingTags.length > 0 ? (
-          <ul className="tag-list" aria-live="polite">
+          <ul className="tag-list tag-list-scroll" aria-live="polite">
             {existingTags.map(({ tag, count }) => (
               <li key={tag} className="tag-list-item">
-                <span className="break-all">[{tag}]</span>
+                <span className="tag-list-value" title={`[${tag}]`}>[{tag}]</span>
                 <span
                   className="tag-count"
                   aria-label={`${count} occurrences`}
@@ -56,8 +56,9 @@ export const SunoTagsEditor = ({ editorText, onInsert }: SunoTagsEditorProps) =>
         <h3 id="tag-builder-heading" className="section-eyebrow">Tag Builder</h3>
       
       <div className="tag-controls">
-        <label className="field-label">Mult:</label>
+        <label className="field-label" htmlFor="suno-tag-multiplier">Mult:</label>
         <select 
+          id="suno-tag-multiplier"
           className="field-control"
           value={multiplier} 
           onChange={e => setMultiplier(Number(e.target.value))}
@@ -68,8 +69,9 @@ export const SunoTagsEditor = ({ editorText, onInsert }: SunoTagsEditorProps) =>
           <option value={4}>x4</option>
         </select>
         
-        <label className="field-label ml-2">Num:</label>
+        <label className="field-label" htmlFor="suno-tag-number">Num:</label>
         <input 
+          id="suno-tag-number"
           type="text" 
           placeholder="e.g. 1" 
           className="field-control w-12"

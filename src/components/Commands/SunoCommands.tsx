@@ -1,3 +1,5 @@
+import { useEffect, useId, useState } from 'react';
+import { Tags, X } from 'lucide-react';
 import {
   clean,
   lyrics,
@@ -14,16 +16,62 @@ interface SunoCommandsProps {
   insertText: (text: string) => void;
 }
 
-export const SunoCommands = ({ applyCommand, editorText, insertText }: SunoCommandsProps) => (
-  <div className="ui-command-row">
-    <CommandButton label="Suno Clean" onClick={() => applyCommand(clean)} />
-    <CommandButton label="Suno Space" onClick={() => applyCommand(space)} />
-    <CommandButton label="Suno Upper" onClick={() => applyCommand(capitalizeSunoLines)} />
-    <CommandButton label="Suno Lyrics" onClick={() => applyCommand(lyrics)} />
-    <CommandButton label="Suno Structure" onClick={() => applyCommand(structure)} />
+export const SunoCommands = ({ applyCommand, editorText, insertText }: SunoCommandsProps) => {
+  const [tagsOpen, setTagsOpen] = useState(false);
+  const tagsPanelId = useId();
 
-    <div>
-      <SunoTagsEditor editorText={editorText} onInsert={insertText} />
-    </div>
-  </div>
-);
+  useEffect(() => {
+    if (!tagsOpen) return;
+
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setTagsOpen(false);
+    };
+
+    document.addEventListener('keydown', closeOnEscape);
+    return () => document.removeEventListener('keydown', closeOnEscape);
+  }, [tagsOpen]);
+
+  return (
+    <>
+      <div className="ui-command-row">
+        <CommandButton label="Suno Clean" onClick={() => applyCommand(clean)} />
+        <CommandButton label="Suno Space" onClick={() => applyCommand(space)} />
+        <CommandButton label="Suno Upper" onClick={() => applyCommand(capitalizeSunoLines)} />
+        <CommandButton label="Suno Lyrics" onClick={() => applyCommand(lyrics)} />
+        <CommandButton label="Suno Structure" onClick={() => applyCommand(structure)} />
+        <button
+          type="button"
+          className={`command-button tags-toggle ${tagsOpen ? 'is-active' : ''}`}
+          aria-expanded={tagsOpen}
+          aria-controls={tagsPanelId}
+          onClick={() => setTagsOpen((isOpen) => !isOpen)}
+        >
+          <Tags size={13} />
+          Tags
+        </button>
+      </div>
+
+      {tagsOpen && (
+        <aside
+          id={tagsPanelId}
+          className="tags-popover"
+          role="dialog"
+          aria-labelledby={`${tagsPanelId}-title`}
+        >
+          <div className="tags-popover-header">
+            <h2 id={`${tagsPanelId}-title`} className="tags-popover-title">Suno Tags</h2>
+            <button
+              type="button"
+              className="tags-popover-close"
+              aria-label="Close Tags"
+              onClick={() => setTagsOpen(false)}
+            >
+              <X size={16} />
+            </button>
+          </div>
+          <SunoTagsEditor editorText={editorText} onInsert={insertText} />
+        </aside>
+      )}
+    </>
+  );
+};

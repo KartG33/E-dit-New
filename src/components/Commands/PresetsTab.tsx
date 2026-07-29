@@ -23,7 +23,7 @@ export const PresetsTab = ({ applyCommand }: PresetsTabProps) => {
 
   if (presets.length === 0) {
     return (
-      <div className="empty-state p-2 text-center">
+      <div className="empty-state">
         No saved presets
       </div>
     );
@@ -35,7 +35,7 @@ export const PresetsTab = ({ applyCommand }: PresetsTabProps) => {
         <button
           key={preset.id ?? preset.name}
           onClick={() => applyCommand((text) => applyPreset(text, preset.data))}
-          className="preset-button"
+          className="command-button"
         >
           {preset.name}
         </button>

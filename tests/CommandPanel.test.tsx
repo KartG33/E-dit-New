@@ -22,13 +22,14 @@ describe('CommandPanel', () => {
     expect(applyCommand).toHaveBeenCalledWith(collapseSpaces);
   });
 
-  it('shows live grouped tags from the active editor beside the tag builder', () => {
+  it('opens live grouped tags for the active editor in a temporary panel', () => {
     const applyCommand = vi.fn();
+    const insertText = vi.fn();
     const { rerender } = render(
       <CommandPanel
         applyCommand={applyCommand}
         editorText={'[Verse]\nFirst\n[Chorus]\n[Verse]'}
-        insertText={vi.fn()}
+        insertText={insertText}
       />,
     );
 
@@ -36,23 +37,77 @@ describe('CommandPanel', () => {
 
     expect(screen.queryByRole('button', { name: 'Spaces' })).toBeNull();
     expect(screen.getByRole('button', { name: 'Suno' }).getAttribute('aria-pressed')).toBe('true');
+    expect(screen.getByRole('button', { name: 'Tags' }).getAttribute('aria-expanded')).toBe('false');
+    expect(screen.queryByText('Tag Builder')).toBeNull();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Tags' }));
+
+    expect(screen.getByRole('dialog', { name: 'Suno Tags' })).toBeDefined();
+    expect(screen.getByRole('button', { name: 'Tags' }).getAttribute('aria-expanded')).toBe('true');
     expect(screen.getByText('Tag Builder')).toBeDefined();
     expect(screen.getByText('[Verse]')).toBeDefined();
     expect(screen.getByLabelText('2 occurrences')).toBeDefined();
     expect(screen.getByText('[Chorus]')).toBeDefined();
 
+    fireEvent.change(screen.getByLabelText('Mult:'), { target: { value: '3' } });
+    fireEvent.change(screen.getByLabelText('Num:'), { target: { value: '2' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Chorus' }));
+    expect(insertText).toHaveBeenCalledWith('[Chorus 2 x3]\n');
+
     rerender(
       <CommandPanel
         applyCommand={applyCommand}
         editorText="No tags anymore"
-        insertText={vi.fn()}
+        insertText={insertText}
       />,
     );
     expect(screen.queryByText('[Verse]')).toBeNull();
     expect(screen.getByText('No tags in active editor')).toBeDefined();
 
+    fireEvent.click(screen.getByRole('button', { name: 'Close Tags' }));
+    expect(screen.queryByRole('dialog', { name: 'Suno Tags' })).toBeNull();
+
     fireEvent.click(screen.getByRole('button', { name: 'Suno Clean' }));
     expect(applyCommand).toHaveBeenCalledWith(clean);
+  });
+
+  it('keeps long and numerous tags inside their own scrollable list', () => {
+    const longTag = `Ambient ${'orchestral '.repeat(18)}ending`;
+    const editorText = [
+      '[Short]',
+      `[${longTag}]`,
+      ...Array.from({ length: 24 }, (_, index) => `[Section ${index + 1}]`),
+    ].join('\n');
+
+    render(
+      <CommandPanel
+        applyCommand={vi.fn()}
+        editorText={editorText}
+        insertText={vi.fn()}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'Suno' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Tags' }));
+
+    const list = screen.getByRole('list');
+    expect(list.classList.contains('tag-list-scroll')).toBe(true);
+    expect(screen.getByText('[Short]')).toBeDefined();
+    expect(screen.getByTitle(`[${longTag}]`).classList.contains('tag-list-value')).toBe(true);
+    expect(screen.getAllByRole('listitem')).toHaveLength(26);
+  });
+
+  it('closes the temporary Tags panel with Escape or when leaving Suno', () => {
+    render(<CommandPanel applyCommand={vi.fn()} insertText={vi.fn()} />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Suno' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Tags' }));
+    fireEvent.keyDown(document, { key: 'Escape' });
+    expect(screen.queryByRole('dialog', { name: 'Suno Tags' })).toBeNull();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Tags' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Text' }));
+    expect(screen.queryByRole('dialog', { name: 'Suno Tags' })).toBeNull();
   });
 
   it('renders presets independently and preserves the History/Data actions', async () => {

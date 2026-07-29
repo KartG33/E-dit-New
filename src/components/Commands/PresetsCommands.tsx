@@ -5,7 +5,7 @@ interface PresetsCommandsProps {
 }
 
 export const PresetsCommands = ({ applyCommand }: PresetsCommandsProps) => (
-  <div className="w-full">
+  <div className="ui-command-row">
     <PresetsTab applyCommand={applyCommand} />
   </div>
 );
