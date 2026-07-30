@@ -2,15 +2,15 @@ import { useState } from 'react';
 import { db } from '../../lib/db';
 import { DATA_FILE_VERSION, importDataFile } from '../../lib/data/import';
 import {
-  browserDataFileAdapter,
   type DataFileAdapter,
 } from '../../lib/platform/dataFileAdapter';
+import { defaultDataFileAdapter } from '../../lib/platform/defaultDataFileAdapter';
 
 interface DataPanelProps {
   fileAdapter?: DataFileAdapter;
 }
 
-export const DataPanel = ({ fileAdapter = browserDataFileAdapter }: DataPanelProps) => {
+export const DataPanel = ({ fileAdapter = defaultDataFileAdapter }: DataPanelProps) => {
   const [msg, setMsg] = useState('');
 
   const handleExport = async () => {
@@ -25,11 +25,12 @@ export const DataPanel = ({ fileAdapter = browserDataFileAdapter }: DataPanelPro
         timestamp: Date.now()
       };
       
-      await fileAdapter.saveFile({
+      const result = await fileAdapter.saveFile({
         fileName: `edit-data-${new Date().toISOString().split('T')[0]}.json`,
         contents: JSON.stringify(dataPayload, null, 2),
         mediaType: 'application/json',
       });
+      if (result === 'cancelled') return;
       setMsg('Export successful');
       setTimeout(() => setMsg(''), 3000);
     } catch {

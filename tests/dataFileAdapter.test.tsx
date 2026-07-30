@@ -13,7 +13,7 @@ const selectedFile: SelectedDataFile = { name: 'data.json', handle: {} };
 const createMockAdapter = (): DataFileAdapter => ({
   selectFile: vi.fn().mockResolvedValue(selectedFile),
   readFile: vi.fn(),
-  saveFile: vi.fn().mockResolvedValue(undefined),
+  saveFile: vi.fn().mockResolvedValue('saved'),
 });
 
 describe('DataPanel file adapter boundary', () => {
@@ -71,6 +71,17 @@ describe('DataPanel file adapter boundary', () => {
     await waitFor(() => expect(adapter.selectFile).toHaveBeenCalledOnce());
     expect(adapter.readFile).not.toHaveBeenCalled();
   });
+
+  it('does not report success when desktop save is cancelled', async () => {
+    const adapter = createMockAdapter();
+    vi.mocked(adapter.saveFile).mockResolvedValue('cancelled');
+    render(<DataPanel fileAdapter={adapter} />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Export' }));
+
+    await waitFor(() => expect(adapter.saveFile).toHaveBeenCalledOnce());
+    expect(screen.queryByText('Export successful')).toBeNull();
+  });
 });
 
 describe('BrowserDataFileAdapter', () => {
@@ -91,11 +102,11 @@ describe('BrowserDataFileAdapter', () => {
     });
     const click = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => undefined);
 
-    await adapter.saveFile({
+    await expect(adapter.saveFile({
       fileName: 'data.json',
       contents: '{}',
       mediaType: 'application/json',
-    });
+    })).resolves.toBe('saved');
 
     expect(createObjectURL).toHaveBeenCalledOnce();
     expect(click).toHaveBeenCalledOnce();

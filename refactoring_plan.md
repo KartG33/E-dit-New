@@ -39,7 +39,7 @@
 * **`CommandPanel.tsx` разделён на самостоятельные секции:**
   * [CommandPanel.tsx](src/components/Commands/CommandPanel.tsx) отвечает только за общую шапку, навигацию и выбор активной вкладки. [TextCommands.tsx](src/components/Commands/TextCommands.tsx), [SunoCommands.tsx](src/components/Commands/SunoCommands.tsx) и [PresetsCommands.tsx](src/components/Commands/PresetsCommands.tsx) независимо содержат разметку и зависимости своих разделов, а [CommandButton.tsx](src/components/Commands/CommandButton.tsx) сохраняет общий внешний вид кнопок.
 * **`DataPanel.tsx` отделён от платформенной работы с файлами:**
-  * [DataPanel.tsx](src/components/Data/DataPanel.tsx) зависит только от интерфейса `DataFileAdapter`. Сейчас существует единственная реализация — `BrowserDataFileAdapter` в [dataFileAdapter.ts](src/lib/platform/dataFileAdapter.ts). Адаптеров Tauri и Capacitor в проекте пока нет; позднее их можно добавить без изменения раздела Data.
+  * [DataPanel.tsx](src/components/Data/DataPanel.tsx) зависит только от интерфейса `DataFileAdapter`. Для web используется `BrowserDataFileAdapter`, а для desktop — `TauriDataFileAdapter`. Адаптер Capacitor можно добавить позднее без изменения раздела Data.
 
 ### 1.6 Расхождения между кодом, интерфейсом, тестами, task.md и implementation_plan.md
 * **Пункт 6 Фазы 2 (Favorites & startupTab):**
@@ -48,11 +48,11 @@
   * В базе данных `AppSettings` ([src/lib/db/index.ts](file:///d:/Documents/Antigravity%20Projects/E-dit%20New/src/lib/db/index.ts#L49-L52)) поля `startupTab` и `favoriteCommandIds` добавлены в тип, но UI управления избранным и стартовой вкладкой не реализован.
 * **Пункт 9 Фазы 2 (Data & Platform Layer):**
   * В `implementation_plan.md` требовалась валидация схемы JSON при импорте, обработка ошибок, атомарные транзакции и выделенный сервисный слой `DataFileAdapter`.
-  * Строгая валидация Data v2 и атомарный импорт реализованы в [import.ts](src/lib/data/import.ts), а файловые операции изолированы за `DataFileAdapter`. Реализован только браузерный адаптер.
+  * Строгая валидация Data v2 и атомарный импорт реализованы в [import.ts](src/lib/data/import.ts), а файловые операции изолированы за `DataFileAdapter`. Реализованы браузерный и Tauri-адаптеры.
 
 ### 1.7 Статус ранее незавершённых задач
 * **Пункт 9 Фазы 2 (Data & Platform Layer) выполнен:**
-  * Data v2 валидируется и импортируется атомарно, а `DataFileAdapter` отделяет UI от browser API. Сейчас используется только `BrowserDataFileAdapter`; Tauri/Capacitor остаются будущими интеграциями.
+  * Data v2 валидируется и импортируется атомарно, а `DataFileAdapter` отделяет UI от платформенных API. Реализованы `BrowserDataFileAdapter` и `TauriDataFileAdapter`; Capacitor остаётся будущей интеграцией.
 * **Связано с Пресетами (Пункт 5):**
   * Отмечен выполненным `[x]`, но пресеты не содержат полноценного UI конструктора цепочек (Chain Editor) и Regex Editor для пользователя, а только отображение имеющихся в DB пресетов ([src/components/Commands/PresetsTab.tsx](file:///d:/Documents/Antigravity%20Projects/E-dit%20New/src/components/Commands/PresetsTab.tsx)).
 
@@ -69,7 +69,7 @@
 ### Категория A: Рефакторинг существующего кода
 1. **Удаление устаревших стилей CRA/Vite (`App.css`).** (Важность: Низкая)
 2. **Централизация логики записи History в IndexedDB (`addHistory`).** Выполнено: сохранение, дедупликация и лимит реализованы в слое базы данных. (Важность: Средняя)
-3. **Разделение UI и файловых операций через `DataFileAdapter`.** Выполнено для браузера; нативные реализации ещё не созданы. (Важность: Средняя)
+3. **Разделение UI и файловых операций через `DataFileAdapter`.** Выполнено для браузера и Tauri; мобильная реализация относится к будущей Android-фазе. (Важность: Средняя)
 4. **Унификация наименований команд и UI-элементов.** (Важность: Средняя)
 
 ### Категория B: Реальные ошибки
@@ -147,7 +147,7 @@ graph TD
 ### Этап 3: Декомпозиция UI-компонентов и Платформенный слой
 
 * **Что исправляется:**
-  1. Абстракция `DataFileAdapter` и единственная текущая реализация `BrowserDataFileAdapter` выделены: выбор, чтение и сохранение файлов изолированы от `DataPanel.tsx`. Реализации Tauri/Capacitor отсутствуют и запланированы на будущие фазы.
+  1. Абстракция `DataFileAdapter` отделяет выбор, чтение и сохранение файлов от `DataPanel.tsx`. Реализованы `BrowserDataFileAdapter` и `TauriDataFileAdapter`; реализация Capacitor запланирована на мобильную фазу.
   2. `CommandPanel.tsx` разделён на `TextCommands`, `SunoCommands` и `PresetsCommands`; общая кнопка вынесена в `CommandButton`.
 * **Зачем это нужно:** Подготовка к будущей интеграции с Tauri (Desktop) и Capacitor (Mobile), соблюдение чистоты архитектуры.
 * **Какие файлы затрагиваются:**

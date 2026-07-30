@@ -16,7 +16,7 @@ export interface SaveDataFileOptions {
 export interface DataFileAdapter {
   selectFile(options: SelectDataFileOptions): Promise<SelectedDataFile | null>;
   readFile(file: SelectedDataFile): Promise<string>;
-  saveFile(options: SaveDataFileOptions): Promise<void>;
+  saveFile(options: SaveDataFileOptions): Promise<'saved' | 'cancelled'>;
 }
 
 export class BrowserDataFileAdapter implements DataFileAdapter {
@@ -44,7 +44,7 @@ export class BrowserDataFileAdapter implements DataFileAdapter {
     return file.handle.text();
   }
 
-  async saveFile(options: SaveDataFileOptions): Promise<void> {
+  async saveFile(options: SaveDataFileOptions): Promise<'saved'> {
     const blob = new Blob([options.contents], { type: options.mediaType });
     const url = URL.createObjectURL(blob);
     const anchor = document.createElement('a');
@@ -57,6 +57,7 @@ export class BrowserDataFileAdapter implements DataFileAdapter {
       anchor.remove();
       URL.revokeObjectURL(url);
     }
+    return 'saved';
   }
 }
 
