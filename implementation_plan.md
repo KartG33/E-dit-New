@@ -1,76 +1,92 @@
-# Phase 2 Completion Implementation Plan
+# E-dit — план дальнейшей разработки
 
-## Proposed Changes
+## Текущее состояние
 
-### 1. Текущее состояние редакторов
-- **Constant State**: Do not rely on saved History versions to restore text. Add a typed table/settings entry for permanent editor texts: `editorLeftText: string; editorRightText: string`.
-- **Hydration**: Initialize `useReducer` with a loading state, fetch texts in `useEffect`, dispatch a `HYDRATE` action.
-- **Auto-save block**: Prevent auto-saving until hydration completes. Protect against overwriting saved text with an initial empty string.
-- **Restart Restoration**: Both texts, active editor, and selections must restore cleanly after a restart.
+Основная логика приложения и браузерная версия уже работают:
 
-### 2. История и debounce
-- **No Consecutive Duplicates**: Prevent adding identical states to the Undo Stack. `EditDatabase.addHistory` independently prevents consecutive duplicate History versions and enforces the 50-record limit per editor.
-- **Debounce Timer**: Set `debounceTimer.current = null` after execution.
-- **Cleanup**: Save on unmount *only* if there's a pending change.
-- **React StrictMode**: Defend against creating empty/duplicate records due to double-mounts.
-- **Fake Timers in Tests**: Replace real timeouts with fake timers to test debounce quickly.
-- **Tests for Debounce**: Ensure rapid edits, unmounting before debounce, and remounting are handled.
+- два независимых редактора;
+- автосохранение текста;
+- Undo/Redo отдельно для каждого редактора;
+- сохранённая History;
+- Text- и Suno-команды;
+- пресеты;
+- анализ и удаление специальных символов;
+- просмотр, добавление, переименование и удаление Suno-тегов;
+- экспорт и импорт Data;
+- автоматические тесты.
 
-### 3. Выделение и горячие клавиши
-- **`SET_SELECTION` Action**: Separate action in reducer that doesn't create an undo step.
-- **`onSelect`**: Capture and save actual cursor position on mouse click, keyboard arrows, selection, or post-command tag insert.
-- **Explicit Editor Marker**: Add `data-editor-id` to the main textarea.
-- **Global Hotkeys Scope**: Hotkeys work in the main editor or interface buttons, but MUST be ignored if the active element is an external `input`, `textarea`, `select`, or `contenteditable`.
+Функции Favorites и Startup Tab отложены: для текущего личного сценария они не дают достаточной пользы и усложняют интерфейс.
 
-### 4. Анализ специальных символов
-- **Pure Functions**: Move parsing and deletion logic to pure production functions. The hook only handles debounce.
-- **Single Undo Deletion**: Text updates go through `editor.updateValue`.
-- **Token Registry**: Match exactly: `---`, `...`, ` ``` `, `==`, numbered lists, punctuation, markdown chars.
-- **Longest-match-first**: Ensure `...` doesn't count as three `.` tokens.
-- **Compact Footer**: Both editors show only total characters including whitespace and line count on the right. Detected-token buttons display only the token while preserving remove-all behavior.
-- **Tests**: Add strict counts and removal tests for overlapping tokens.
+## Ближайшая цель
 
-### 5. Пресеты
-- **Command Registry**: `CommandId` values remain stable for stored presets, while internal function names follow the shared vocabulary: `collapseSpaces`, `trimLines`, `sunoTrim`, `toUpperCase`, and `capitalizeSunoLines`.
-- **Chain Presets**: Store only stable `CommandId`. Support repeating and reordering commands. Apply chain as one undo.
-- **Regex Presets**: Create/edit/delete, preview without mutating editor, display concise errors. Check `preset.data.type === 'regex'` and pass `preset.data` to applicator, no `any`.
-- **Import/Schema**: Check for unknown `CommandId`. Add `order` to schema and a Dexie migration.
+Сделать полноценную desktop-версию E-dit для Windows на Tauri, сохранив существующий интерфейс и логику приложения.
 
-### 6. Favorites и startupTab
-- **`AppSettings` Expansion**: Add `favoriteCommandIds`, `startupTab`, permanent editor texts, and `activeEditor`. Provide defaults and migrations.
-- **Favorites logic**: Store unique `CommandId` for built-in favorites. Presets use `isFavorite`.
-- **Favorites Tab**: A combined view of favorite commands and presets.
-- **Startup Tab**: Pin icon in the tab button. Reads `startupTab` on app load.
+## Этап 1. Desktop-оболочка — выполнено
 
-### 7. Suno Tags
-- **Pure Functions**: Parser and transformations independent of React.
-- **Workspace**: Open the tag tools in the pane opposite the active editor without unmounting either editor.
-- **Existing tags**: Show every bracketed tag from the active editor in text order without grouping or occurrence counters.
-- **Editing**: Rename or delete one selected occurrence. Each operation is one Undo step.
-- **Tag Builder**: Insert a predefined or custom tag on its own line. An optional `Num` for predefined section tags accepts positive integers only. Multipliers are not used.
-- **Safety**: Preserve unrelated text and refuse stale or invalid edits.
+Подключить Tauri к текущему React-приложению и открыть E-dit в отдельном окне Windows.
 
-### 8. History
-- **History Live**: History contains saved text versions in Dexie and is shown in the right panel. Use a live-query or custom subscription to auto-update the list. Restore (loads into active), delete single, clear all (with confirmation), separate left/right records, enforce limits. Prevent cross-editor restoration. It is independent from the in-memory Undo Stack used by Undo/Redo.
+Результат этапа:
 
-### 9. Data и платформенный слой
-- **Three-part data persistence**: 
-  1. Creation and runtime validation of data export object.
-  2. Dexie read/write transaction.
-  3. UI trigger via an agnostic `DataFileAdapter`.
-- **Schema & Validation**: Standardized JSON structure. Runtime schema validation (no generic type-casting). Reject missing/invalid fields, bad types, unknown versions.
-- **Atomic Operations**: Perform everything inside `db.transaction('rw')`. Rollback on error. Only update UI state after successful commit.
-- **Implemented for Data v2**: [src/lib/data/import.ts](src/lib/data/import.ts) validates the complete payload before a single transaction replaces settings and presets. The exported version and composition remain unchanged.
-- **No File API in Component**: [DataPanel](src/components/Data/DataPanel.tsx) delegates selection, reading, and saving to the typed `DataFileAdapter` contract.
-- **Current platform support**: Only `BrowserDataFileAdapter` in [dataFileAdapter.ts](src/lib/platform/dataFileAdapter.ts) is implemented. Tauri and Capacitor adapters do not exist yet and belong to future platform phases; they can implement the same contract without changing `DataPanel`.
+- приложение запускается как desktop-программа;
+- текущий интерфейс и функции работают без изменений;
+- доступны команды запуска и сборки desktop-версии.
 
-### 10. Типизация
-- Replace `Setting.value: any` with `unknown` + generic getters.
-- **No `any`**: Strictly enforce zero explicit `any` and `as any` in production code. Add linting rules for explicit any.
+Проверка:
 
-### Command panel composition
-- **Independent sections**: [CommandPanel](src/components/Commands/CommandPanel.tsx) owns navigation and shared layout, while [TextCommands](src/components/Commands/TextCommands.tsx), [SunoCommands](src/components/Commands/SunoCommands.tsx), and [PresetsCommands](src/components/Commands/PresetsCommands.tsx) own their section-specific UI and dependencies.
+- запуск окна приложения;
+- тесты, линтер и обычная web-сборка;
+- тестовая desktop-сборка.
 
-### 11. Тесты
-- Vastly expand Vitest coverage according to the requirements, including basic commands, tokens, single-undo removals, hydration, StrictMode, hotkey ignoring, regex via `Preset.data`, History, Favorites, Suno parsing, and comprehensive data import/export validation (valid, corrupted, rollback).
-- Fix `editor.test.tsx` selection test to simulate real user events.
+## Этап 2. Работа с Data в desktop-версии
+
+Подключить системные окна Windows для выбора места сохранения и открытия Data-файла.
+
+Результат этапа:
+
+- Export предлагает выбрать имя и папку файла;
+- Import открывает системный выбор файла;
+- проверка и безопасное восстановление Data продолжают работать так же, как сейчас.
+
+Проверка:
+
+- экспорт корректного файла;
+- импорт корректного файла;
+- отказ от импорта повреждённого файла;
+- отмена выбора файла без ошибки.
+
+## Этап 3. Подготовка Windows-приложения
+
+Настроить название, иконку, размеры окна и установочный пакет.
+
+Результат этапа:
+
+- приложение отображается в Windows как E-dit;
+- окно имеет подходящий минимальный размер;
+- создаётся установочный файл.
+
+Проверка:
+
+- установка и первый запуск;
+- закрытие и повторное открытие;
+- сохранение текстов и History между запусками.
+
+## Этап 4. Проверка desktop-версии
+
+Проверить основные пользовательские сценарии в установленном приложении.
+
+Проверяются:
+
+- оба редактора и их независимое состояние;
+- Undo/Redo и горячие клавиши;
+- Text- и Suno-команды;
+- Suno Tags;
+- пресеты;
+- History;
+- Data Export/Import;
+- восстановление состояния после перезапуска.
+
+После успешной проверки desktop-версия считается готовой к обычному использованию.
+
+## Следующий крупный этап
+
+Android-версия через Capacitor начинается после стабилизации desktop-версии. Для неё потребуется отдельная мобильная компоновка интерфейса и мобильная реализация работы с Data-файлами, при этом общая логика редактора останется общей.

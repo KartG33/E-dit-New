@@ -5,13 +5,12 @@
   - `[x]` Implement line diff logic in shared business logic
   - `[x]` Implement Dexie.js database schema (versioning, migrations)
   - `[x]` Write Vitest tests (pure functions, regex, unicode, large text, Dexie migrations)
-- `[ ]` Phase 2: Core Editors, Undo Stack, History & State
+- `[x]` Phase 2: Core Editors, Undo Stack, History & State
   - `[x]` 1. Current Editor State (Hydration, constant state, restart restoration)
   - `[x]` 2. Undo Stack & History Debounce (Independent Undo Stack; History persistence, consecutive deduplication, and the per-editor 50-record limit centralized in the database layer)
   - `[x]` 3. Selection & Hotkeys (SET_SELECTION, onSelect tracking, scope isolation)
   - `[x]` 4. Symbol Analyzer (Pure functions, longest-match-first token registry, single undo deletion)
   - `[x]` 5. Presets (Command Registry, Chain & Regex types, execution logic, schema updates)
-  - `[ ]` 6. Favorites & Startup Tab (AppSettings expansion, favorites logic, UI pin/startup)
   - `[x]` 7. Suno Tags (ordered live list, single-occurrence edit/delete, numbered and custom insertion as one Undo step)
   - `[x]` 8. History (Saved text versions in Dexie and the right panel, live query, limit enforcement)
   - `[x]` 9. Data & Platform Layer (Safe Data v2 import, atomic restore, strict validation, and the current browser-only file adapter)
@@ -19,5 +18,9 @@
   - `[x]` 11. Tests (Comprehensive Vitest coverage for all implemented features)
   - `[x]` 12. Command Panel Decomposition (Independent Text, Suno, and Presets sections)
 - `[ ]` Phase 3: Desktop UI & Tauri Integration
+  - `[x]` 1. Minimal Tauri desktop shell
+  - `[ ]` 2. Native Data file dialogs
+  - `[ ]` 3. Windows app metadata, icon and installer
+  - `[ ]` 4. Installed desktop app verification
 - `[ ]` Phase 4: Mobile UI & Capacitor Integration
 - `[ ]` Phase 5: Polish & Performance
