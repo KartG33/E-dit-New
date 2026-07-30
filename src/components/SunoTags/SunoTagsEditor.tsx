@@ -65,7 +65,7 @@ export const SunoTagsEditor = ({ editorText, onInsert, onChangeText }: SunoTagsE
     <div className="tag-workspace">
       <section className="tag-section tag-existing" aria-labelledby="existing-suno-tags-heading">
         <h3 id="existing-suno-tags-heading" className="section-eyebrow">
-          Existing Tags
+          Tags in text
         </h3>
 
         {existingTags.length > 0 ? (
@@ -95,79 +95,87 @@ export const SunoTagsEditor = ({ editorText, onInsert, onChangeText }: SunoTagsE
           <p className="empty-state" aria-live="polite">No tags in active editor</p>
         )}
 
-        {selectedTag && (
-          <div className="tag-edit-controls">
-            <label className="field-label" htmlFor="suno-existing-tag">Edit selected tag</label>
-            <input
-              id="suno-existing-tag"
-              type="text"
-              className="field-control tag-text-input"
-              value={editedTag}
-              onChange={(event) => setEditedTag(event.target.value)}
-            />
-            <div className="tag-edit-actions">
-              <button type="button" className="tag-button" disabled={!editedTagIsValid} onClick={handleSave}>
-                Save
-              </button>
-              <button type="button" className="tag-button is-danger" onClick={handleDelete}>
-                Delete
-              </button>
-            </div>
-          </div>
-        )}
       </section>
 
       <section className="tag-section is-builder" aria-labelledby="tag-builder-heading">
-        <h3 id="tag-builder-heading" className="section-eyebrow">Tag Builder</h3>
-
-        <div className="tag-controls">
-          <label className="field-label" htmlFor="suno-tag-number">Num:</label>
-          <input
-            id="suno-tag-number"
-            type="text"
-            inputMode="numeric"
-            pattern="[1-9][0-9]*"
-            placeholder="e.g. 1"
-            className={`field-control w-12 ${numberIsValid ? '' : 'is-invalid'}`}
-            value={sectionNumber}
-            aria-invalid={!numberIsValid}
-            onChange={(event) => setSectionNumber(event.target.value)}
-          />
+        <div className="tag-edit-panel">
+          <h3 className="section-eyebrow">Selected tag</h3>
+          {selectedTag ? (
+            <div className="tag-edit-controls">
+              <label className="field-label" htmlFor="suno-existing-tag">Tag name</label>
+              <input
+                id="suno-existing-tag"
+                type="text"
+                className="field-control tag-text-input"
+                value={editedTag}
+                onChange={(event) => setEditedTag(event.target.value)}
+              />
+              <div className="tag-edit-actions">
+                <button type="button" className="tag-button is-primary" disabled={!editedTagIsValid} onClick={handleSave}>
+                  Save changes
+                </button>
+                <button type="button" className="tag-button is-danger" onClick={handleDelete}>
+                  Delete
+                </button>
+              </div>
+            </div>
+          ) : (
+            <p className="empty-state">Select a tag from the list to edit it</p>
+          )}
         </div>
 
-        <div className="tag-buttons">
-          {SUNO_TAGS.map((tag) => (
-            <button
-              key={tag}
-              type="button"
-              disabled={!numberIsValid}
-              onClick={() => handleInsertPreset(tag)}
-              className="tag-button"
-            >
-              {tag}
-            </button>
-          ))}
-        </div>
+        <div className="tag-add-panel">
+          <h3 id="tag-builder-heading" className="section-eyebrow">Add tag</h3>
 
-        <div className="tag-custom-controls">
-          <label className="field-label" htmlFor="suno-custom-tag">Custom tag</label>
-          <div className="tag-custom-row">
+          <div className="tag-controls">
+            <label className="field-label" htmlFor="suno-tag-number">Number</label>
             <input
-              id="suno-custom-tag"
+              id="suno-tag-number"
               type="text"
-              className="field-control tag-text-input"
-              placeholder="e.g. Whispered Vocal"
-              value={customTag}
-              onChange={(event) => setCustomTag(event.target.value)}
+              inputMode="numeric"
+              pattern="[1-9][0-9]*"
+              placeholder="e.g. 1"
+              className={`field-control w-12 ${numberIsValid ? '' : 'is-invalid'}`}
+              value={sectionNumber}
+              aria-invalid={!numberIsValid}
+              onChange={(event) => setSectionNumber(event.target.value)}
             />
-            <button
-              type="button"
-              className="tag-button"
-              disabled={!customTagIsValid}
-              onClick={handleInsertCustom}
-            >
-              Add
-            </button>
+          </div>
+
+          <div className="tag-buttons">
+            {SUNO_TAGS.map((tag) => (
+              <button
+                key={tag}
+                type="button"
+                disabled={!numberIsValid}
+                onClick={() => handleInsertPreset(tag)}
+                className="tag-button"
+              >
+                {tag}
+              </button>
+            ))}
+          </div>
+
+          <div className="tag-custom-controls">
+            <label className="field-label" htmlFor="suno-custom-tag">Custom tag</label>
+            <div className="tag-custom-row">
+              <input
+                id="suno-custom-tag"
+                type="text"
+                className="field-control tag-text-input"
+                placeholder="e.g. Whispered Vocal"
+                value={customTag}
+                onChange={(event) => setCustomTag(event.target.value)}
+              />
+              <button
+                type="button"
+                className="tag-button is-primary"
+                disabled={!customTagIsValid}
+                onClick={handleInsertCustom}
+              >
+                Add
+              </button>
+            </div>
           </div>
         </div>
       </section>

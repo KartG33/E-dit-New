@@ -95,10 +95,12 @@ button:disabled {
 }
 
 .app-editor-pane {
+  position: relative;
   width: 50%;
   min-width: 0;
   height: 100%;
   flex: 1;
+  overflow: hidden;
 }
 
 .ui-header {
@@ -422,21 +424,31 @@ button:disabled {
 
 .tag-workspace {
   display: grid;
-  grid-template-columns: minmax(12rem, 0.8fr) minmax(18rem, 1.6fr);
-  align-items: flex-start;
-  gap: var(--space-4);
+  min-height: 0;
+  flex: 1;
+  grid-template-columns: minmax(14rem, 0.9fr) minmax(20rem, 1.35fr);
+  overflow: hidden;
 }
 
 .tag-section {
   display: flex;
   min-width: 0;
+  min-height: 0;
   flex-direction: column;
-  gap: var(--space-2);
+  gap: var(--space-3);
+  padding: var(--space-4);
+}
+
+.tag-existing {
+  border-right: 1px solid var(--border-subtle);
+  background: var(--surface-1);
 }
 
 .tag-section.is-builder {
-  flex: 1;
-  gap: var(--space-3);
+  overflow-y: auto;
+  background: var(--canvas);
+  scrollbar-color: var(--border-strong) transparent;
+  scrollbar-width: thin;
 }
 
 .tag-list {
@@ -450,7 +462,8 @@ button:disabled {
 }
 
 .tag-list-scroll {
-  max-height: 13rem;
+  min-height: 0;
+  flex: 1;
   overflow-y: auto;
   overscroll-behavior: contain;
   padding-right: var(--space-1);
@@ -469,7 +482,7 @@ button:disabled {
   display: flex;
   width: 100%;
   min-width: 0;
-  min-height: 2rem;
+  min-height: 2.5rem;
   align-items: center;
   border: 1px solid transparent;
   border-radius: var(--radius-sm);
@@ -494,12 +507,30 @@ button:disabled {
 }
 
 .tag-edit-controls,
-.tag-custom-controls {
+.tag-custom-controls,
+.tag-add-panel {
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
+}
+
+.tag-edit-panel {
+  display: flex;
+  min-height: 8.5rem;
+  flex-direction: column;
+  gap: var(--space-3);
+  border-bottom: 1px solid var(--border-subtle);
+  padding-bottom: var(--space-4);
+}
+
+.tag-add-panel {
+  gap: var(--space-3);
+  padding-top: var(--space-1);
+}
+
+.tag-custom-controls {
   border-top: 1px solid var(--border-subtle);
-  padding-top: var(--space-3);
+  padding-top: var(--space-4);
 }
 
 .tag-edit-actions,
@@ -518,50 +549,60 @@ button:disabled {
   border-color: var(--danger, #ef4444);
 }
 
-.tags-popover {
+.tags-docked-panel {
   position: absolute;
-  top: calc(100% + var(--space-2));
-  z-index: 30;
-  width: min(46rem, 48vw);
-  max-height: min(28rem, calc(100vh - 7.5rem));
-  overflow-y: auto;
+  inset: 0;
+  z-index: 5;
+  display: flex;
+  min-width: 0;
+  min-height: 0;
+  flex-direction: column;
+  overflow: hidden;
   border: 1px solid var(--border-strong);
   border-radius: var(--radius-lg);
   background: var(--surface-1);
-  padding: var(--space-4);
-  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.48);
+  box-shadow: 0 18px 42px rgba(0, 0, 0, 0.28);
 }
 
 @media (max-width: 1100px) {
   .tag-workspace {
     grid-template-columns: 1fr;
+    overflow-y: auto;
+  }
+
+  .tag-existing {
+    min-height: 16rem;
+    border-right: 0;
+    border-bottom: 1px solid var(--border-subtle);
   }
 }
 
-.tags-popover.is-opposite-left {
-  right: var(--space-3);
-}
-
-.tags-popover.is-opposite-right {
-  left: var(--space-3);
-}
-
-.tags-popover-header {
+.tags-docked-header {
   display: flex;
+  min-height: 4rem;
+  flex: 0 0 4rem;
   align-items: center;
   justify-content: space-between;
   gap: var(--space-3);
-  margin-bottom: var(--space-4);
+  border-bottom: 1px solid var(--border-subtle);
+  background: var(--surface-2);
+  padding: 0 var(--space-4);
 }
 
-.tags-popover-title {
+.tags-docked-title {
   margin: 0;
   color: var(--text-primary);
   font-size: 0.875rem;
   font-weight: 700;
 }
 
-.tags-popover-close {
+.tags-docked-description {
+  margin: 0.2rem 0 0;
+  color: var(--text-muted);
+  font-size: 0.6875rem;
+}
+
+.tags-docked-close {
   display: inline-grid;
   width: 2.75rem;
   height: 2.75rem;
@@ -572,7 +613,7 @@ button:disabled {
   color: var(--text-muted);
 }
 
-.tags-popover-close:hover {
+.tags-docked-close:hover {
   border-color: var(--border-strong);
   color: var(--text-primary);
 }
@@ -622,6 +663,12 @@ button:disabled {
 
 .tag-button:disabled {
   opacity: 0.45;
+}
+
+.tag-button.is-primary {
+  border-color: rgba(101, 168, 255, 0.5);
+  background: var(--accent-soft);
+  color: var(--accent-strong);
 }
 
 .tag-button.is-danger {
@@ -857,16 +904,6 @@ button:disabled {
 
   .ui-header-row {
     gap: var(--space-2);
-  }
-
-  .tags-popover {
-    width: calc(100vw - (2 * var(--space-2)));
-  }
-
-  .tags-popover.is-opposite-left,
-  .tags-popover.is-opposite-right {
-    right: var(--space-2);
-    left: var(--space-2);
   }
 
   .editor-textarea {

@@ -7,14 +7,18 @@ import { TextCommands } from './TextCommands';
 
 interface CommandPanelProps {
   applyCommand: (cmd: (text: string) => string) => void;
-  activeEditor?: 'left' | 'right';
-  editorText?: string;
-  insertTag: (tag: string) => void;
+  tagsOpen?: boolean;
+  onTagsOpenChange?: (isOpen: boolean) => void;
   onOpenDrawer?: (tab: DrawerTab) => void;
 }
 
-export const CommandPanel = ({ applyCommand, activeEditor = 'left', editorText = '', insertTag, onOpenDrawer }: CommandPanelProps) => {
+export const CommandPanel = ({ applyCommand, tagsOpen = false, onTagsOpenChange, onOpenDrawer }: CommandPanelProps) => {
   const [activeTab, setActiveTab] = useState<'standard'|'suno'|'presets'>('standard');
+
+  const selectTab = (tab: 'standard'|'suno'|'presets') => {
+    setActiveTab(tab);
+    if (tab !== 'suno') onTagsOpenChange?.(false);
+  };
 
   return (
     <header className="ui-header">
@@ -28,21 +32,21 @@ export const CommandPanel = ({ applyCommand, activeEditor = 'left', editorText =
 
           <div className="ui-tabs">
             <button 
-              onClick={() => setActiveTab('standard')}
+              onClick={() => selectTab('standard')}
               aria-pressed={activeTab === 'standard'}
               className={`ui-tab ${activeTab === 'standard' ? 'is-active' : ''}`}
             >
               <Settings2 size={13}/> Text
             </button>
             <button 
-              onClick={() => setActiveTab('suno')}
+              onClick={() => selectTab('suno')}
               aria-pressed={activeTab === 'suno'}
               className={`ui-tab ${activeTab === 'suno' ? 'is-active' : ''}`}
             >
               <Music size={13}/> Suno
             </button>
             <button 
-              onClick={() => setActiveTab('presets')}
+              onClick={() => selectTab('presets')}
               aria-pressed={activeTab === 'presets'}
               className={`ui-tab ${activeTab === 'presets' ? 'is-active' : ''}`}
             >
@@ -81,9 +85,8 @@ export const CommandPanel = ({ applyCommand, activeEditor = 'left', editorText =
         {activeTab === 'suno' && (
           <SunoCommands
             applyCommand={applyCommand}
-            activeEditor={activeEditor}
-            editorText={editorText}
-            insertTag={insertTag}
+            tagsOpen={tagsOpen}
+            onTagsOpenChange={(isOpen) => onTagsOpenChange?.(isOpen)}
           />
         )}
 

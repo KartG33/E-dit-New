@@ -44,6 +44,7 @@
 
 ### 7. Suno Tags
 - **Pure Functions**: Parser and transformations independent of React.
+- **Workspace**: Open the tag tools in the pane opposite the active editor without unmounting either editor.
 - **Existing tags**: Show every bracketed tag from the active editor in text order without grouping or occurrence counters.
 - **Editing**: Rename or delete one selected occurrence. Each operation is one Undo step.
 - **Tag Builder**: Insert a predefined or custom tag on its own line. An optional `Num` for predefined section tags accepts positive integers only. Multipliers are not used.

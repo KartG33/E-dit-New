@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Editor } from './components/Editor/Editor';
 import { CommandPanel } from './components/Commands/CommandPanel';
 import { SlidingDrawer } from './components/Drawer/SlidingDrawer';
+import { SunoTagsPanel } from './components/SunoTags/SunoTagsPanel';
 import type { DrawerTab } from './components/Drawer/SlidingDrawer';
 import { useEditor } from './hooks/useEditor';
 import { insertSunoTag } from './lib/commands/suno';
@@ -10,6 +11,7 @@ const App = () => {
   const leftEditor = useEditor('left');
   const rightEditor = useEditor('right');
   const [activeEditor, setActiveEditor] = useState<'left' | 'right'>('left');
+  const [tagsOpen, setTagsOpen] = useState(false);
   
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [drawerTab, setDrawerTab] = useState<DrawerTab>('history');
@@ -50,9 +52,8 @@ const App = () => {
       {/* Top Compact Command Panel */}
       <CommandPanel 
         applyCommand={applyCommand} 
-        activeEditor={activeEditor}
-        editorText={activeEditor === 'left' ? leftEditor.value : rightEditor.value}
-        insertTag={insertTag}
+        tagsOpen={tagsOpen}
+        onTagsOpenChange={setTagsOpen}
         onOpenDrawer={handleOpenDrawer}
       />
       
@@ -66,6 +67,15 @@ const App = () => {
             onFocus={() => setActiveEditor('left')}
             hydrated={leftEditor.hydrated}
           />
+          {tagsOpen && activeEditor === 'right' && (
+            <SunoTagsPanel
+              editorKey="right"
+              editorText={rightEditor.value}
+              onInsert={insertTag}
+              onChangeText={applyCommand}
+              onClose={() => setTagsOpen(false)}
+            />
+          )}
         </div>
         <div className="app-editor-pane">
           <Editor 
@@ -75,6 +85,15 @@ const App = () => {
             onFocus={() => setActiveEditor('right')}
             hydrated={rightEditor.hydrated}
           />
+          {tagsOpen && activeEditor === 'left' && (
+            <SunoTagsPanel
+              editorKey="left"
+              editorText={leftEditor.value}
+              onInsert={insertTag}
+              onChangeText={applyCommand}
+              onClose={() => setTagsOpen(false)}
+            />
+          )}
         </div>
       </main>
 

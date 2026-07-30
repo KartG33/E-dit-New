@@ -10,7 +10,7 @@ Each editor header shows total characters including whitespace and line count. D
 
 ## Suno tags
 
-The Suno section lists every bracketed tag from the active editor in text order. A selected occurrence can be renamed or deleted as one Undo step. The builder inserts predefined or custom tags on their own line and can add a positive section number to predefined section tags.
+The Suno section lists every bracketed tag from the active editor in text order. Tags opens as a full-height workspace in the opposite editor pane, keeping the active text visible. A selected occurrence can be renamed or deleted as one Undo step. The builder inserts predefined or custom tags on their own line and can add a positive section number to predefined section tags.
 
 ## Development
 
