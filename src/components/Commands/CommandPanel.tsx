@@ -9,11 +9,11 @@ interface CommandPanelProps {
   applyCommand: (cmd: (text: string) => string) => void;
   activeEditor?: 'left' | 'right';
   editorText?: string;
-  insertText: (text: string) => void;
+  insertTag: (tag: string) => void;
   onOpenDrawer?: (tab: DrawerTab) => void;
 }
 
-export const CommandPanel = ({ applyCommand, activeEditor = 'left', editorText = '', insertText, onOpenDrawer }: CommandPanelProps) => {
+export const CommandPanel = ({ applyCommand, activeEditor = 'left', editorText = '', insertTag, onOpenDrawer }: CommandPanelProps) => {
   const [activeTab, setActiveTab] = useState<'standard'|'suno'|'presets'>('standard');
 
   return (
@@ -83,7 +83,7 @@ export const CommandPanel = ({ applyCommand, activeEditor = 'left', editorText =
             applyCommand={applyCommand}
             activeEditor={activeEditor}
             editorText={editorText}
-            insertText={insertText}
+            insertTag={insertTag}
           />
         )}
 

@@ -4,6 +4,7 @@ import { CommandPanel } from './components/Commands/CommandPanel';
 import { SlidingDrawer } from './components/Drawer/SlidingDrawer';
 import type { DrawerTab } from './components/Drawer/SlidingDrawer';
 import { useEditor } from './hooks/useEditor';
+import { insertSunoTag } from './lib/commands/suno';
 
 const App = () => {
   const leftEditor = useEditor('left');
@@ -31,16 +32,17 @@ const App = () => {
     editor.updateValue(cmd(editor.value));
   };
 
-  const insertText = (text: string) => {
+  const insertTag = (tag: string) => {
     const editor = activeEditor === 'left' ? leftEditor : rightEditor;
     const start = editor.currentState.selectionStart;
     const end = editor.currentState.selectionEnd;
-    const val = editor.value;
-    const before = val.substring(0, start);
-    const after = val.substring(end);
-    const newVal = before + text + after;
-    const newPos = start + text.length;
-    editor.updateValue(newVal, newPos, newPos, true);
+    const insertion = insertSunoTag(editor.value, start, end, tag);
+    editor.updateValue(
+      insertion.text,
+      insertion.selectionStart,
+      insertion.selectionEnd,
+      true,
+    );
   };
 
   return (
@@ -50,7 +52,7 @@ const App = () => {
         applyCommand={applyCommand} 
         activeEditor={activeEditor}
         editorText={activeEditor === 'left' ? leftEditor.value : rightEditor.value}
-        insertText={insertText} 
+        insertTag={insertTag}
         onOpenDrawer={handleOpenDrawer}
       />
       

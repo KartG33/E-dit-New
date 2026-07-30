@@ -14,10 +14,10 @@ interface SunoCommandsProps {
   applyCommand: (command: (text: string) => string) => void;
   activeEditor: 'left' | 'right';
   editorText: string;
-  insertText: (text: string) => void;
+  insertTag: (tag: string) => void;
 }
 
-export const SunoCommands = ({ applyCommand, activeEditor, editorText, insertText }: SunoCommandsProps) => {
+export const SunoCommands = ({ applyCommand, activeEditor, editorText, insertTag }: SunoCommandsProps) => {
   const [tagsOpen, setTagsOpen] = useState(false);
   const tagsPanelId = useId();
 
@@ -70,7 +70,12 @@ export const SunoCommands = ({ applyCommand, activeEditor, editorText, insertTex
               <X size={16} />
             </button>
           </div>
-          <SunoTagsEditor editorText={editorText} onInsert={insertText} />
+          <SunoTagsEditor
+            key={activeEditor}
+            editorText={editorText}
+            onInsert={insertTag}
+            onChangeText={applyCommand}
+          />
         </aside>
       )}
     </>

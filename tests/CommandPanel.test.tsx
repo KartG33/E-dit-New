@@ -12,7 +12,7 @@ describe('CommandPanel', () => {
 
   it('keeps Text commands as the default independent section', () => {
     const applyCommand = vi.fn();
-    render(<CommandPanel applyCommand={applyCommand} insertText={vi.fn()} />);
+    render(<CommandPanel applyCommand={applyCommand} insertTag={vi.fn()} />);
 
     expect(screen.getByRole('button', { name: 'Spaces' })).toBeDefined();
     expect(screen.queryByRole('button', { name: 'Suno Clean' })).toBeNull();
@@ -22,14 +22,15 @@ describe('CommandPanel', () => {
     expect(applyCommand).toHaveBeenCalledWith(collapseSpaces);
   });
 
-  it('opens live grouped tags for the active editor in a temporary panel', () => {
+  it('shows tags in text order and supports inserting, editing, and deleting them', () => {
     const applyCommand = vi.fn();
-    const insertText = vi.fn();
+    const insertTag = vi.fn();
+    const editorText = '[Verse]\nFirst\n[Chorus]\n[Verse]';
     const { rerender } = render(
       <CommandPanel
         applyCommand={applyCommand}
-        editorText={'[Verse]\nFirst\n[Chorus]\n[Verse]'}
-        insertText={insertText}
+        editorText={editorText}
+        insertTag={insertTag}
       />,
     );
 
@@ -45,20 +46,40 @@ describe('CommandPanel', () => {
     expect(screen.getByRole('dialog', { name: 'Suno Tags' })).toBeDefined();
     expect(screen.getByRole('button', { name: 'Tags' }).getAttribute('aria-expanded')).toBe('true');
     expect(screen.getByText('Tag Builder')).toBeDefined();
-    expect(screen.getByText('[Verse]')).toBeDefined();
-    expect(screen.getByLabelText('2 occurrences')).toBeDefined();
-    expect(screen.getByText('[Chorus]')).toBeDefined();
+    expect(screen.getAllByRole('listitem').map((item) => item.textContent)).toEqual([
+      '[Verse]',
+      '[Chorus]',
+      '[Verse]',
+    ]);
 
-    fireEvent.change(screen.getByLabelText('Mult:'), { target: { value: '3' } });
     fireEvent.change(screen.getByLabelText('Num:'), { target: { value: '2' } });
     fireEvent.click(screen.getByRole('button', { name: 'Chorus' }));
-    expect(insertText).toHaveBeenCalledWith('[Chorus 2 x3]\n');
+    expect(insertTag).toHaveBeenCalledWith('Chorus 2');
+
+    fireEvent.change(screen.getByLabelText('Num:'), { target: { value: 'wrong' } });
+    expect((screen.getByRole('button', { name: 'Chorus' }) as HTMLButtonElement).disabled).toBe(true);
+    fireEvent.change(screen.getByLabelText('Custom tag'), { target: { value: 'Whispered Vocal' } });
+    expect((screen.getByRole('button', { name: 'Add' }) as HTMLButtonElement).disabled).toBe(false);
+    fireEvent.click(screen.getByRole('button', { name: 'Add' }));
+    expect(insertTag).toHaveBeenLastCalledWith('Whispered Vocal');
+    fireEvent.change(screen.getByLabelText('Num:'), { target: { value: '' } });
+
+    fireEvent.click(screen.getByRole('button', { name: 'Edit tag 3: [Verse]' }));
+    fireEvent.change(screen.getByLabelText('Edit selected tag'), { target: { value: 'Bridge' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Save' }));
+    const replaceCommand = applyCommand.mock.calls[0][0] as (text: string) => string;
+    expect(replaceCommand(editorText)).toBe('[Verse]\nFirst\n[Chorus]\n[Bridge]');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Edit tag 1: [Verse]' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Delete' }));
+    const deleteCommand = applyCommand.mock.calls[1][0] as (text: string) => string;
+    expect(deleteCommand(editorText)).toBe('First\n[Chorus]\n[Verse]');
 
     rerender(
       <CommandPanel
         applyCommand={applyCommand}
         editorText="No tags anymore"
-        insertText={insertText}
+        insertTag={insertTag}
       />,
     );
     expect(screen.queryByText('[Verse]')).toBeNull();
@@ -83,7 +104,7 @@ describe('CommandPanel', () => {
       <CommandPanel
         applyCommand={vi.fn()}
         editorText={editorText}
-        insertText={vi.fn()}
+        insertTag={vi.fn()}
       />,
     );
 
@@ -93,7 +114,7 @@ describe('CommandPanel', () => {
     const list = screen.getByRole('list');
     expect(list.classList.contains('tag-list-scroll')).toBe(true);
     expect(screen.getByText('[Short]')).toBeDefined();
-    expect(screen.getByTitle(`[${longTag}]`).classList.contains('tag-list-value')).toBe(true);
+    expect(screen.getByTitle(`[${longTag}]`).classList.contains('tag-list-select')).toBe(true);
     expect(screen.getAllByRole('listitem')).toHaveLength(26);
   });
 
@@ -103,7 +124,7 @@ describe('CommandPanel', () => {
         activeEditor="left"
         applyCommand={vi.fn()}
         editorText="[Verse]"
-        insertText={vi.fn()}
+        insertTag={vi.fn()}
       />,
     );
 
@@ -118,7 +139,7 @@ describe('CommandPanel', () => {
         activeEditor="right"
         applyCommand={vi.fn()}
         editorText="[Chorus]"
-        insertText={vi.fn()}
+        insertTag={vi.fn()}
       />,
     );
 
@@ -127,7 +148,7 @@ describe('CommandPanel', () => {
   });
 
   it('closes the temporary Tags panel with Escape or when leaving Suno', () => {
-    render(<CommandPanel applyCommand={vi.fn()} insertText={vi.fn()} />);
+    render(<CommandPanel applyCommand={vi.fn()} insertTag={vi.fn()} />);
 
     fireEvent.click(screen.getByRole('button', { name: 'Suno' }));
     fireEvent.click(screen.getByRole('button', { name: 'Tags' }));
@@ -152,7 +173,7 @@ describe('CommandPanel', () => {
     render(
       <CommandPanel
         applyCommand={vi.fn()}
-        insertText={vi.fn()}
+        insertTag={vi.fn()}
         onOpenDrawer={onOpenDrawer}
       />,
     );

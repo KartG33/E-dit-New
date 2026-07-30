@@ -44,14 +44,10 @@
 
 ### 7. Suno Tags
 - **Pure Functions**: Parser and transformations independent of React.
-- **Implemented viewing slice**: The Suno panel shows tags from the active editor, grouped by exact trimmed content with occurrence counts in first-appearance order. It reacts directly to editor text changes and keeps the tag builder alongside the list. Existing-tag editing is deferred.
-- **Full Tag Editor**: 
-  - Parse existing text tags: `[structure | style 1 | style 2]`.
-  - Preserve numbers/multipliers.
-  - Group identical tags (count & first appearance order).
-  - Add/rename/remove styles, remove all extra styles keeping structure, mass-update identical tags.
-  - Retain linebreaks. No text mutation on form cancel. Apply changes as one undo step.
-  - No blind variable injection into RegExp.
+- **Existing tags**: Show every bracketed tag from the active editor in text order without grouping or occurrence counters.
+- **Editing**: Rename or delete one selected occurrence. Each operation is one Undo step.
+- **Tag Builder**: Insert a predefined or custom tag on its own line. An optional `Num` for predefined section tags accepts positive integers only. Multipliers are not used.
+- **Safety**: Preserve unrelated text and refuse stale or invalid edits.
 
 ### 8. History
 - **History Live**: History contains saved text versions in Dexie and is shown in the right panel. Use a live-query or custom subscription to auto-update the list. Restore (loads into active), delete single, clear all (with confirmation), separate left/right records, enforce limits. Prevent cross-editor restoration. It is independent from the in-memory Undo Stack used by Undo/Redo.

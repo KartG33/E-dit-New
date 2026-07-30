@@ -2,13 +2,50 @@ import { describe, it, expect } from 'vitest';
 import * as sunoCmds from '../src/lib/commands/suno';
 
 describe('Suno Commands', () => {
-  it('groups tags by exact trimmed content in first-appearance order', () => {
-    expect(sunoCmds.groupSunoTags('[Verse]\nLine\n[ Chorus ]\n[Verse]\n[verse]\n[]')).toEqual([
-      { tag: 'Verse', count: 2 },
-      { tag: 'Chorus', count: 1 },
-      { tag: 'verse', count: 1 },
-    ]);
-    expect(sunoCmds.groupSunoTags('Text without tags')).toEqual([]);
+  it('finds every tag in its text order without grouping repetitions', () => {
+    const text = '[Verse]\nLine\n[ Chorus ]\n[Verse]\n[verse]\n[]';
+    const tags = sunoCmds.findSunoTags(text);
+
+    expect(tags.map(({ tag }) => tag)).toEqual(['Verse', 'Chorus', 'Verse', 'verse']);
+    expect(tags[1]).toEqual({ tag: 'Chorus', raw: '[ Chorus ]', start: 13, end: 23 });
+    expect(sunoCmds.findSunoTags('Text without tags')).toEqual([]);
+  });
+
+  it('builds valid numbered and custom tags without multipliers', () => {
+    expect(sunoCmds.buildSunoTag('Verse', '2')).toBe('[Verse 2]');
+    expect(sunoCmds.buildSunoTag('Whispered Vocal')).toBe('[Whispered Vocal]');
+    expect(sunoCmds.buildSunoTag('Verse', 'wrong')).toBe('');
+    expect(sunoCmds.buildSunoTag('Verse', '0')).toBe('');
+    expect(sunoCmds.buildSunoTag('[Verse]')).toBe('');
+  });
+
+  it('edits and deletes one selected tag occurrence', () => {
+    const text = '[Verse]\nLine\n[Verse]\nEnd';
+    const [firstVerse, secondVerse] = sunoCmds.findSunoTags(text);
+
+    expect(sunoCmds.replaceSunoTag(text, secondVerse, 'Bridge')).toBe('[Verse]\nLine\n[Bridge]\nEnd');
+    expect(sunoCmds.removeSunoTag(text, firstVerse)).toBe('Line\n[Verse]\nEnd');
+
+    const crlfText = 'Line\r\n[Outro]';
+    expect(sunoCmds.removeSunoTag(crlfText, sunoCmds.findSunoTags(crlfText)[0])).toBe('Line');
+  });
+
+  it('inserts a tag on its own line at the current selection', () => {
+    expect(sunoCmds.insertSunoTag('Hello world', 5, 5, 'Chorus')).toEqual({
+      text: 'Hello\n[Chorus]\n world',
+      selectionStart: 15,
+      selectionEnd: 15,
+    });
+    expect(sunoCmds.insertSunoTag('', 0, 0, 'Verse 1')).toEqual({
+      text: '[Verse 1]\n',
+      selectionStart: 10,
+      selectionEnd: 10,
+    });
+    expect(sunoCmds.insertSunoTag('First\r\nSecond', 7, 7, 'Bridge')).toEqual({
+      text: 'First\r\n[Bridge]\r\nSecond',
+      selectionStart: 17,
+      selectionEnd: 17,
+    });
   });
 
   it('Clean', () => {

@@ -6,27 +6,114 @@ const SUNO_STRUCTURAL_TAGS = [
   'fade out', 'fadeout', 'outro'
 ];
 
-export interface GroupedSunoTag {
+export interface SunoTagOccurrence {
   tag: string;
-  count: number;
+  raw: string;
+  start: number;
+  end: number;
 }
 
-export const groupSunoTags = (text: string): GroupedSunoTag[] => {
-  const groups = new Map<string, GroupedSunoTag>();
+export const findSunoTags = (text: string): SunoTagOccurrence[] => {
+  const tags: SunoTagOccurrence[] = [];
 
   for (const match of text.matchAll(/\[([^\]]+)\]/g)) {
     const tag = match[1].trim();
-    if (!tag) continue;
+    if (!tag || match.index === undefined) continue;
 
-    const existing = groups.get(tag);
-    if (existing) {
-      existing.count += 1;
-    } else {
-      groups.set(tag, { tag, count: 1 });
+    tags.push({
+      tag,
+      raw: match[0],
+      start: match.index,
+      end: match.index + match[0].length,
+    });
+  }
+
+  return tags;
+};
+
+export const isValidSunoTag = (tag: string): boolean => {
+  const trimmed = tag.trim();
+  return trimmed.length > 0
+    && !trimmed.includes('[')
+    && !trimmed.includes(']')
+    && !/[\r\n]/.test(trimmed);
+};
+
+export const buildSunoTag = (tag: string, sectionNumber = ''): string => {
+  const trimmedTag = tag.trim();
+  const trimmedNumber = sectionNumber.trim();
+
+  if (!isValidSunoTag(trimmedTag)) return '';
+  if (trimmedNumber && !/^[1-9]\d*$/.test(trimmedNumber)) return '';
+
+  return `[${trimmedTag}${trimmedNumber ? ` ${trimmedNumber}` : ''}]`;
+};
+
+export const replaceSunoTag = (
+  text: string,
+  occurrence: SunoTagOccurrence,
+  nextTag: string,
+): string => {
+  const replacement = buildSunoTag(nextTag);
+  if (!replacement || text.slice(occurrence.start, occurrence.end) !== occurrence.raw) return text;
+  return text.slice(0, occurrence.start) + replacement + text.slice(occurrence.end);
+};
+
+export const removeSunoTag = (text: string, occurrence: SunoTagOccurrence): string => {
+  if (text.slice(occurrence.start, occurrence.end) !== occurrence.raw) return text;
+
+  const lineStart = text.lastIndexOf('\n', occurrence.start - 1) + 1;
+  const nextLineBreak = text.indexOf('\n', occurrence.end);
+  const lineEnd = nextLineBreak === -1 ? text.length : nextLineBreak;
+  const lineWithoutTag = (
+    text.slice(lineStart, occurrence.start) + text.slice(occurrence.end, lineEnd)
+  ).trim();
+
+  if (lineWithoutTag.length === 0) {
+    if (nextLineBreak !== -1) {
+      return text.slice(0, lineStart) + text.slice(nextLineBreak + 1);
+    }
+    if (lineStart > 0) {
+      const previousLineBreakStart = text[lineStart - 2] === '\r' ? lineStart - 2 : lineStart - 1;
+      return text.slice(0, previousLineBreakStart);
     }
   }
 
-  return Array.from(groups.values());
+  return text.slice(0, occurrence.start) + text.slice(occurrence.end);
+};
+
+export interface SunoTagInsertion {
+  text: string;
+  selectionStart: number;
+  selectionEnd: number;
+}
+
+export const insertSunoTag = (
+  text: string,
+  selectionStart: number,
+  selectionEnd: number,
+  tag: string,
+): SunoTagInsertion => {
+  const formattedTag = buildSunoTag(tag);
+  if (!formattedTag) {
+    return { text, selectionStart, selectionEnd };
+  }
+
+  const start = Math.max(0, Math.min(selectionStart, text.length));
+  const end = Math.max(start, Math.min(selectionEnd, text.length));
+  const before = text.slice(0, start);
+  const after = text.slice(end);
+  const newline = text.includes('\r\n') ? '\r\n' : '\n';
+  const prefix = before.length > 0 && !before.endsWith('\n') ? newline : '';
+  const suffix = after.length === 0 || !after.startsWith('\n') ? newline : '';
+  const insertion = `${prefix}${formattedTag}${suffix}`;
+  const nextPosition = start + insertion.length;
+
+  return {
+    text: before + insertion + after,
+    selectionStart: nextPosition,
+    selectionEnd: nextPosition,
+  };
 };
 
 export const clean = (text: string): string => {

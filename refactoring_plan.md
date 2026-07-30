@@ -46,10 +46,6 @@
   * В `task.md` (строка 14) пункт отмечен как невыполненный `[ ]`.
   * В `implementation_plan.md` (секция 6) подробно расписаны требования к избранным командам и закреплению вкладки запуска.
   * В базе данных `AppSettings` ([src/lib/db/index.ts](file:///d:/Documents/Antigravity%20Projects/E-dit%20New/src/lib/db/index.ts#L49-L52)) поля `startupTab` и `favoriteCommandIds` добавлены в тип, но UI управления избранным и стартовой вкладкой не реализован.
-* **Пункт 7 Фазы 2 (Suno Tags Full Editor):**
-  * В `task.md` (строка 15) пункт `[ ] 7. Suno Tags`.
-  * В `implementation_plan.md` требовался полноценный редактор тегов (группировка одинаковых тегов, mass update, редактирование стилей в скобках).
-  * В коде [src/components/SunoTags/SunoTagsEditor.tsx](file:///d:/Documents/Antigravity%20Projects/E-dit%20New/src/components/SunoTags/SunoTagsEditor.tsx) реализован только простой билдер новых тегов (`[Chorus x2]`).
 * **Пункт 9 Фазы 2 (Data & Platform Layer):**
   * В `implementation_plan.md` требовалась валидация схемы JSON при импорте, обработка ошибок, атомарные транзакции и выделенный сервисный слой `DataFileAdapter`.
   * Строгая валидация Data v2 и атомарный импорт реализованы в [import.ts](src/lib/data/import.ts), а файловые операции изолированы за `DataFileAdapter`. Реализован только браузерный адаптер.
@@ -170,14 +166,15 @@ graph TD
 
 ---
 
-### Этап 4: Завершение функции Suno Tags Editor (Фаза 2.7)
+### Этап 4: Завершение функции Suno Tags Editor (Фаза 2.7) — выполнено
 
-* **Что исправляется:** Доработка редактора Suno-тегов в соответствии с требованиями `implementation_plan.md`: парсинг существующих тегов в тексте, их группировка, массовое обновление и редактирование стилей в скобках.
+* **Что исправлено:** Теги показываются в порядке текста; выбранное вхождение можно переименовать или удалить. Билдер вставляет готовые и произвольные теги отдельной строкой, поддерживает только положительный номер секции и не использует множители.
 * **Зачем это нужно:** Выполнение запланированного функционала Фазы 2.
 * **Какие файлы затрагиваются:**
-  * [NEW] `src/lib/suno/parser.ts`
+  * [MODIFY] [src/lib/commands/suno.ts](src/lib/commands/suno.ts)
   * [MODIFY] [src/components/SunoTags/SunoTagsEditor.tsx](file:///d:/Documents/Antigravity%20Projects/E-dit%20New/src/components/SunoTags/SunoTagsEditor.tsx)
-  * [NEW] `tests/sunoParser.test.ts`
+  * [MODIFY] [tests/suno.test.ts](tests/suno.test.ts)
+  * [MODIFY] [tests/CommandPanel.test.tsx](tests/CommandPanel.test.tsx)
   * [MODIFY] [task.md](file:///d:/Documents/Antigravity%20Projects/E-dit%20New/task.md)
 * **От каких этапов зависит:** Зависит от Этапа 1 и 3.
 * **Как проверить результат:** Vitest тесты чистых функций парсера тегов и UI-тесты редактора.
