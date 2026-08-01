@@ -16,6 +16,10 @@ The Suno section lists every bracketed tag from the active editor in text order.
 
 Data export and import use the browser file workflow in the web version and native open/save dialogs in the Tauri desktop version. Both platforms use the same validated Data v2 format and atomic import logic.
 
+## App icons
+
+Platform-ready source assets live in `icons/`. The web build uses the favicon, Apple Touch, standard PWA, and maskable icons from `public/icons/`; the Tauri bundle uses the generated desktop and store assets from `src-tauri/icons/`.
+
 ## Development
 
 Install dependencies:

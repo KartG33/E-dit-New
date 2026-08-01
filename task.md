@@ -20,7 +20,8 @@
 - `[ ]` Phase 3: Desktop UI & Tauri Integration
   - `[x]` 1. Minimal Tauri desktop shell
   - `[x]` 2. Native Data file dialogs
-  - `[ ]` 3. Windows app metadata, icon and installer
-  - `[ ]` 4. Installed desktop app verification
+  - `[x]` 3. Windows app metadata and platform icon set
+  - `[x]` 4. Windows installer
+  - `[ ]` 5. Installed desktop app verification
 - `[ ]` Phase 4: Mobile UI & Capacitor Integration
 - `[ ]` Phase 5: Polish & Performance
