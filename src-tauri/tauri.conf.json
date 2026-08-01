@@ -1,8 +1,8 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
-  "productName": "E-dit",
+  "productName": "E-dit 2",
   "version": "2.0.0",
-  "identifier": "com.kartg33.edit",
+  "identifier": "com.kartg33.edit.v2",
   "build": {
     "frontendDist": "../dist",
     "devUrl": "http://localhost:5173",
@@ -12,7 +12,7 @@
   "app": {
     "windows": [
       {
-        "title": "E-dit",
+        "title": "E-dit 2",
         "width": 1280,
         "height": 800,
         "resizable": true,
