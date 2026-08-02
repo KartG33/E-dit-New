@@ -1,7 +1,8 @@
 import * as textCmds from './text';
 import * as sunoCmds from './suno';
+import { SYMBOL_COMMAND_REGISTRY, type SymbolCommandId } from './symbols';
 
-export const COMMAND_REGISTRY = {
+const BASE_COMMAND_REGISTRY = {
   'text.spaces': textCmds.collapseSpaces,
   'text.edges': textCmds.trimLines,
   'text.upper': textCmds.toUpperCase,
@@ -21,4 +22,10 @@ export const COMMAND_REGISTRY = {
   'suno.trim': sunoCmds.sunoTrim,
 } as const;
 
-export type CommandId = keyof typeof COMMAND_REGISTRY;
+export type BaseCommandId = keyof typeof BASE_COMMAND_REGISTRY;
+export type CommandId = BaseCommandId | SymbolCommandId;
+
+export const COMMAND_REGISTRY: Record<CommandId, (text: string) => string> = {
+  ...BASE_COMMAND_REGISTRY,
+  ...SYMBOL_COMMAND_REGISTRY,
+};

@@ -9,7 +9,7 @@ const validData = () => ({
     {
       id: 10,
       name: 'Imported chain',
-      data: { type: 'chain', commands: ['text.upper', 'text.spaces'] },
+      data: { type: 'chain', commands: ['text.upper', 'text.spaces', 'symbol.remove:###'] },
       isFavorite: true,
       createdAt: 100,
       updatedAt: 200,

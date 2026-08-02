@@ -300,7 +300,7 @@ export const PresetManager = ({ onClose, database = db }: PresetManagerProps) =>
                   <label className="preset-field">
                     <span>Add command</span>
                     <select value={commandToAdd} onChange={event => setCommandToAdd(event.target.value as CommandId)}>
-                      {(['Text', 'Suno'] as const).map(group => (
+                      {(['Text', 'Suno', 'Symbols'] as const).map(group => (
                         <optgroup label={group} key={group}>
                           {PRESET_COMMAND_OPTIONS.filter(option => option.group === group).map(option => (
                             <option value={option.id} key={option.id}>{option.label}</option>

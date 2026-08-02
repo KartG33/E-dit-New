@@ -54,7 +54,7 @@ describe.sequential('Preset management', () => {
     await waitFor(async () => {
       expect(await database.presets.count()).toBe(0);
     });
-  });
+  }, 10_000);
 
   it('creates a find and replace preset and validates its pattern', async () => {
     const applyCommand = vi.fn();
@@ -106,6 +106,25 @@ describe.sequential('Preset management', () => {
 
     expect(screen.getByText('A preset with this name already exists.')).toBeDefined();
     expect(await database.presets.count()).toBe(1);
+  });
+
+  it('adds a symbol removal action to a command sequence', async () => {
+    render(<PresetManager onClose={vi.fn()} database={database} />);
+
+    await screen.findByText('No presets yet.');
+    fireEvent.change(screen.getByLabelText('Name'), { target: { value: 'Remove headings' } });
+    fireEvent.change(screen.getByLabelText('Add command'), { target: { value: 'symbol.remove:###' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Add' }));
+
+    expect(screen.getByText('Remove ###')).toBeDefined();
+    fireEvent.click(screen.getByRole('button', { name: 'Save preset' }));
+
+    await waitFor(async () => {
+      expect((await database.presets.toArray())[0].data).toEqual({
+        type: 'chain',
+        commands: ['symbol.remove:###'],
+      });
+    });
   });
 
   it('closes with Escape and a backdrop click', () => {

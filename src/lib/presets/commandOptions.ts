@@ -1,9 +1,15 @@
 import type { CommandId } from '../commands/registry';
+import {
+  PRESET_SYMBOLS,
+  getSymbolCommandId,
+  getSymbolFromCommandId,
+  isSymbolCommandId,
+} from '../commands/symbols';
 
 export interface PresetCommandOption {
   id: CommandId;
   label: string;
-  group: 'Text' | 'Suno';
+  group: 'Text' | 'Suno' | 'Symbols';
 }
 
 export const PRESET_COMMAND_OPTIONS: readonly PresetCommandOption[] = [
@@ -24,7 +30,14 @@ export const PRESET_COMMAND_OPTIONS: readonly PresetCommandOption[] = [
   { id: 'suno.lyrics', label: 'Suno Lyrics', group: 'Suno' },
   { id: 'suno.structure', label: 'Suno Structure', group: 'Suno' },
   { id: 'suno.trim', label: 'Trim', group: 'Suno' },
+  ...PRESET_SYMBOLS.map(symbol => ({
+    id: getSymbolCommandId(symbol),
+    label: symbol,
+    group: 'Symbols' as const,
+  })),
 ];
 
 export const getPresetCommandLabel = (commandId: CommandId) =>
-  PRESET_COMMAND_OPTIONS.find(option => option.id === commandId)?.label ?? commandId;
+  isSymbolCommandId(commandId)
+    ? `Remove ${getSymbolFromCommandId(commandId)}`
+    : PRESET_COMMAND_OPTIONS.find(option => option.id === commandId)?.label ?? commandId;

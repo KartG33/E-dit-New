@@ -35,6 +35,26 @@ describe('Chain Presets', () => {
     expect(result).toBe(' HELLO WORLD ');
   });
 
+  it('removes selected symbols as ordered chain steps', () => {
+    const preset: ChainPreset = {
+      type: 'chain',
+      commands: ['symbol.remove:###', 'symbol.remove:- [x]', 'text.spaces']
+    };
+
+    expect(applyChainPreset('###  Title\n- [x]  Done\n## Keep', preset))
+      .toBe(' Title\n Done\n## Keep');
+  });
+
+  it('does not split longer symbols when removing a shorter one', () => {
+    const preset: ChainPreset = {
+      type: 'chain',
+      commands: ['symbol.remove:#', 'symbol.remove:!']
+    };
+
+    expect(applyChainPreset('# Remove\n## Keep\n! Remove\n![Keep]', preset))
+      .toBe(' Remove\n## Keep\n Remove\n![Keep]');
+  });
+
   it('throws on unknown CommandId', () => {
     const preset: ChainPreset = {
       type: 'chain',

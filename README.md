@@ -14,7 +14,7 @@ The Suno section lists every bracketed tag from the active editor in text order.
 
 ## Presets
 
-The Presets command tab contains only quick-apply buttons. Preset creation and maintenance opens from the separate Presets action beside History and Data. The manager supports ordered command sequences and find/replace presets, including editing, ordering, validation, and confirmed deletion. Changes appear in the quick-apply toolbar immediately.
+The Presets command tab contains only quick-apply buttons. Preset creation and maintenance opens from the separate Presets action beside History and Data. The manager supports ordered command sequences, symbol-removal steps, and find/replace presets, including editing, ordering, validation, and confirmed deletion. Changes appear in the quick-apply toolbar immediately.
 
 ## Data files
 

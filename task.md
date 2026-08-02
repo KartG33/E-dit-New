@@ -10,7 +10,7 @@
   - `[x]` 2. Undo Stack & History Debounce (Independent Undo Stack; History persistence, consecutive deduplication, and the per-editor 50-record limit centralized in the database layer)
   - `[x]` 3. Selection & Hotkeys (SET_SELECTION, onSelect tracking, scope isolation)
   - `[x]` 4. Symbol Analyzer (Pure functions, longest-match-first token registry, single undo deletion)
-  - `[x]` 5. Presets (quick-apply toolbar plus separate create, edit, order, and delete manager for command sequences and find/replace presets)
+  - `[x]` 5. Presets (quick-apply toolbar plus separate create, edit, order, and delete manager for command sequences, symbol-removal steps, and find/replace presets)
   - `[x]` 7. Suno Tags (ordered live list, single-occurrence edit/delete, numbered and custom insertion as one Undo step)
   - `[x]` 8. History (Saved text versions in Dexie and the right panel, live query, limit enforcement)
   - `[x]` 9. Data & Platform Layer (Safe Data v2 import, atomic restore, strict validation, browser adapter and Tauri adapter)
