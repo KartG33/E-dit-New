@@ -10,13 +10,33 @@ export interface TokenSpec {
 }
 
 const COMPOUND_TOKENS = [
+  { name: '<!--', regexStr: '<!--' },
+  { name: '-->', regexStr: '-->' },
   { name: '```', regexStr: '```' },
+  { name: '- [ ]', regexStr: '- \\[ \\]' },
+  { name: '- [x]', regexStr: '- \\[x\\]' },
+  { name: '- [X]', regexStr: '- \\[X\\]' },
+  { name: '######', regexStr: '######' },
+  { name: '#####', regexStr: '#####' },
+  { name: '####', regexStr: '####' },
+  { name: '###', regexStr: '###' },
+  { name: '##', regexStr: '##' },
   { name: '...', regexStr: '\\.\\.\\.' },
   { name: '---', regexStr: '---' },
+  { name: '***', regexStr: '\\*\\*\\*' },
+  { name: '___', regexStr: '___' },
   { name: '===', regexStr: '===' },
+  { name: ':-:', regexStr: ':-:' },
   { name: '==', regexStr: '==' },
   { name: '**', regexStr: '\\*\\*' },
   { name: '__', regexStr: '__' },
+  { name: '~~', regexStr: '~~' },
+  { name: '>>', regexStr: '>>' },
+  { name: '![', regexStr: '!\\[' },
+  { name: '[^', regexStr: '\\[\\^' },
+  { name: '^[', regexStr: '\\^\\[' },
+  { name: ':-', regexStr: ':-' },
+  { name: '-:', regexStr: '-:' },
 ];
 
 const SINGLE_PUNCTUATION = [

@@ -33,6 +33,28 @@ describe('Symbol Analyzer', () => {
     expect(tokens['_']).toBe(1);
   });
 
+  it('recognizes the extended Markdown token set without splitting compound tokens', () => {
+    const requestedTokens = [
+      '#', '##', '###', '####', '#####', '######', '***', '___', '~~',
+      '-', '---', '+', '>', '>>', '![', '\\', ':-', '-:', ':-:', '[^', '^[',
+      '==', '- [ ]', '- [x]', '- [X]', '<!--', '-->'
+    ];
+    const counts = analyzeSymbols(requestedTokens.join('\n'));
+    const tokens = Object.fromEntries(counts.map(token => [token.token, token.count]));
+
+    for (const token of requestedTokens) {
+      expect(tokens[token], token).toBe(1);
+    }
+  });
+
+  it('removes extended compound tokens as a whole', () => {
+    expect(removeTokenFromText('- [ ] Todo\n- [x] Done\n- [X] Done', '- [ ]'))
+      .toBe(' Todo\n- [x] Done\n- [X] Done');
+    expect(removeTokenFromText('<!-- note -->', '<!--')).toBe(' note -->');
+    expect(removeTokenFromText('###### Heading', '######')).toBe(' Heading');
+    expect(removeTokenFromText(':-: :- -:', ':-:')).toBe(' :- -:');
+  });
+
   it('removes single tokens without destroying compound tokens', () => {
     expect(removeTokenFromText('--- - --', '-')).toBe('---  --');
     expect(removeTokenFromText('** * *', '*')).toBe('**  ');
