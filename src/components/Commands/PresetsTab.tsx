@@ -1,30 +1,19 @@
-import { useEffect, useState } from 'react';
-import { db, type Preset } from '../../lib/db';
 import { applyPreset } from '../../lib/presets/execute';
+import { usePresets } from '../../hooks/usePresets';
+import { db, type EditDatabase } from '../../lib/db';
 
 interface PresetsTabProps {
   applyCommand: (cmd: (text: string) => string) => void;
+  database?: EditDatabase;
 }
 
-export const PresetsTab = ({ applyCommand }: PresetsTabProps) => {
-  const [presets, setPresets] = useState<Preset[]>([]);
-
-  useEffect(() => {
-    let isMounted = true;
-    db.presets.toArray().then((items) => {
-      if (isMounted) {
-        setPresets(items);
-      }
-    });
-    return () => {
-      isMounted = false;
-    };
-  }, []);
+export const PresetsTab = ({ applyCommand, database = db }: PresetsTabProps) => {
+  const { presets, isLoading } = usePresets(database);
 
   if (presets.length === 0) {
     return (
       <div className="empty-state">
-        No saved presets
+        {isLoading ? 'Loading presets...' : 'No saved presets'}
       </div>
     );
   }

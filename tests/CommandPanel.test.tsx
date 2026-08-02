@@ -160,10 +160,12 @@ describe('CommandPanel', () => {
       order: 0,
     });
     const onOpenDrawer = vi.fn();
+    const onOpenPresets = vi.fn();
     render(
       <CommandPanel
         applyCommand={vi.fn()}
         onOpenDrawer={onOpenDrawer}
+        onOpenPresets={onOpenPresets}
       />,
     );
 
@@ -171,8 +173,10 @@ describe('CommandPanel', () => {
     expect(await screen.findByRole('button', { name: 'Saved preset' })).toBeDefined();
 
     fireEvent.click(screen.getByRole('button', { name: 'History' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Manage presets' }));
     fireEvent.click(screen.getByRole('button', { name: 'Data' }));
     expect(onOpenDrawer).toHaveBeenNthCalledWith(1, 'history');
     expect(onOpenDrawer).toHaveBeenNthCalledWith(2, 'data');
+    expect(onOpenPresets).toHaveBeenCalledTimes(1);
   });
 });

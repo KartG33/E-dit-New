@@ -3,6 +3,7 @@ import { Editor } from './components/Editor/Editor';
 import { CommandPanel } from './components/Commands/CommandPanel';
 import { SlidingDrawer } from './components/Drawer/SlidingDrawer';
 import { SunoTagsPanel } from './components/SunoTags/SunoTagsPanel';
+import { PresetManager } from './components/Presets/PresetManager';
 import type { DrawerTab } from './components/Drawer/SlidingDrawer';
 import { useEditor } from './hooks/useEditor';
 import { insertSunoTag } from './lib/commands/suno';
@@ -12,13 +13,22 @@ const App = () => {
   const rightEditor = useEditor('right');
   const [activeEditor, setActiveEditor] = useState<'left' | 'right'>('left');
   const [tagsOpen, setTagsOpen] = useState(false);
+  const [presetManagerOpen, setPresetManagerOpen] = useState(false);
   
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [drawerTab, setDrawerTab] = useState<DrawerTab>('history');
 
   const handleOpenDrawer = (tab: DrawerTab) => {
+    setPresetManagerOpen(false);
+    setTagsOpen(false);
     setDrawerTab(tab);
     setDrawerOpen(true);
+  };
+
+  const handleOpenPresets = () => {
+    setDrawerOpen(false);
+    setTagsOpen(false);
+    setPresetManagerOpen(true);
   };
 
   const applyHistoryVersion = (text: string) => {
@@ -55,6 +65,7 @@ const App = () => {
         tagsOpen={tagsOpen}
         onTagsOpenChange={setTagsOpen}
         onOpenDrawer={handleOpenDrawer}
+        onOpenPresets={handleOpenPresets}
       />
       
       {/* Main Dual Editors Area - Split 50/50 width */}
@@ -105,6 +116,10 @@ const App = () => {
         onTabChange={setDrawerTab}
         applyHistoryVersion={applyHistoryVersion}
       />
+
+      {presetManagerOpen && (
+        <PresetManager onClose={() => setPresetManagerOpen(false)} />
+      )}
     </div>
   );
 };

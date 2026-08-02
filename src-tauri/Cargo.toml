@@ -1,6 +1,6 @@
 [package]
 name = "e-dit"
-version = "2.0.0"
+version = "2.0.1"
 description = "A focused cross-platform text editor"
 authors = ["KartG33"]
 license = ""

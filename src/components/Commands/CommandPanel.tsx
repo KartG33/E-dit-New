@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Settings2, Music, Zap, Clock, HardDrive } from 'lucide-react';
+import { Settings2, Music, Zap, Clock, HardDrive, SlidersHorizontal } from 'lucide-react';
 import type { DrawerTab } from '../Drawer/SlidingDrawer';
 import { PresetsCommands } from './PresetsCommands';
 import { SunoCommands } from './SunoCommands';
@@ -10,9 +10,16 @@ interface CommandPanelProps {
   tagsOpen?: boolean;
   onTagsOpenChange?: (isOpen: boolean) => void;
   onOpenDrawer?: (tab: DrawerTab) => void;
+  onOpenPresets?: () => void;
 }
 
-export const CommandPanel = ({ applyCommand, tagsOpen = false, onTagsOpenChange, onOpenDrawer }: CommandPanelProps) => {
+export const CommandPanel = ({
+  applyCommand,
+  tagsOpen = false,
+  onTagsOpenChange,
+  onOpenDrawer,
+  onOpenPresets,
+}: CommandPanelProps) => {
   const [activeTab, setActiveTab] = useState<'standard'|'suno'|'presets'>('standard');
 
   const selectTab = (tab: 'standard'|'suno'|'presets') => {
@@ -55,7 +62,7 @@ export const CommandPanel = ({ applyCommand, tagsOpen = false, onTagsOpenChange,
           </div>
         </div>
 
-        {/* Right Section: Drawer Toggle Buttons (History & Data) */}
+        {/* Right Section: History, preset management, and Data */}
         <div className="ui-header-actions">
           <button
             onClick={() => onOpenDrawer?.('history')}
@@ -64,6 +71,15 @@ export const CommandPanel = ({ applyCommand, tagsOpen = false, onTagsOpenChange,
           >
             <Clock size={13} className="icon-accent" />
             <span className="hidden sm:inline">History</span>
+          </button>
+          <button
+            onClick={onOpenPresets}
+            className="ui-action"
+            aria-label="Manage presets"
+            title="Manage presets"
+          >
+            <SlidersHorizontal size={13} className="icon-accent" />
+            <span className="hidden sm:inline">Presets</span>
           </button>
           <button
             onClick={() => onOpenDrawer?.('data')}

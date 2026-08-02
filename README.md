@@ -12,6 +12,10 @@ Each editor header shows total characters including whitespace and line count. D
 
 The Suno section lists every bracketed tag from the active editor in text order. Tags opens as a full-height workspace in the opposite editor pane, keeping the active text visible. A selected occurrence can be renamed or deleted as one Undo step. The builder inserts predefined or custom tags on their own line and can add a positive section number to predefined section tags.
 
+## Presets
+
+The Presets command tab contains only quick-apply buttons. Preset creation and maintenance opens from the separate Presets action beside History and Data. The manager supports ordered command sequences and find/replace presets, including editing, ordering, validation, and confirmed deletion. Changes appear in the quick-apply toolbar immediately.
+
 ## Data files
 
 Data export and import use the browser file workflow in the web version and native open/save dialogs in the Tauri desktop version. Both platforms use the same validated Data v2 format and atomic import logic.
