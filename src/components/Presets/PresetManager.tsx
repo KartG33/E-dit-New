@@ -74,7 +74,6 @@ export const PresetManager = ({ onClose, database = db }: PresetManagerProps) =>
   useEffect(() => {
     if (!isLoading && !initialized) {
       if (presets.length > 0) loadPreset(presets[0]);
-      else resetForm();
       setInitialized(true);
     }
   }, [initialized, isLoading, presets]);
