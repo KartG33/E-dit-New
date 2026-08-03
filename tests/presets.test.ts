@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { db, type RegexPreset, type ChainPreset } from '../src/lib/db';
 import { applyRegexPreset, applyChainPreset } from '../src/lib/presets/execute';
+import { PRESET_SYMBOLS, removePresetSymbol } from '../src/lib/commands/symbols';
 
 describe('Regex Presets', () => {
   it('applies a valid regex preset', () => {
@@ -53,6 +54,20 @@ describe('Chain Presets', () => {
 
     expect(applyChainPreset('# Remove\n## Keep\n! Remove\n![Keep]', preset))
       .toBe(' Remove\n## Keep\n Remove\n![Keep]');
+  });
+
+  it('contains the expanded symbol list without duplicates', () => {
+    expect(new Set(PRESET_SYMBOLS).size).toBe(PRESET_SYMBOLS.length);
+    expect(PRESET_SYMBOLS).toEqual(expect.arrayContaining([
+      '*', '**', '_', '__', '~', '`', '```', '~~~', '[', ']', '(', ')', '<', '|', '^', '1.'
+    ]));
+  });
+
+  it('treats 1. as numbered-list removal only at line starts', () => {
+    const text = '1. First\n  2. Second\nVersion 1. stays\n3.Third stays';
+
+    expect(removePresetSymbol(text, '1.'))
+      .toBe('First\n  Second\nVersion 1. stays\n3.Third stays');
   });
 
   it('throws on unknown CommandId', () => {

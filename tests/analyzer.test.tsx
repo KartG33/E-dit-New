@@ -47,6 +47,13 @@ describe('Symbol Analyzer', () => {
     }
   });
 
+  it('recognizes tilde code fences as a compound token', () => {
+    const tokens = Object.fromEntries(analyzeSymbols('~~~\ncode\n~~~ ~').map(token => [token.token, token.count]));
+
+    expect(tokens['~~~']).toBe(2);
+    expect(tokens['~']).toBe(1);
+  });
+
   it('removes extended compound tokens as a whole', () => {
     expect(removeTokenFromText('- [ ] Todo\n- [x] Done\n- [X] Done', '- [ ]'))
       .toBe(' Todo\n- [x] Done\n- [X] Done');

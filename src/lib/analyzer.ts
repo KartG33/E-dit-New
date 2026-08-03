@@ -13,6 +13,7 @@ const COMPOUND_TOKENS = [
   { name: '<!--', regexStr: '<!--' },
   { name: '-->', regexStr: '-->' },
   { name: '```', regexStr: '```' },
+  { name: '~~~', regexStr: '~~~' },
   { name: '- [ ]', regexStr: '- \\[ \\]' },
   { name: '- [x]', regexStr: '- \\[x\\]' },
   { name: '- [X]', regexStr: '- \\[X\\]' },
@@ -51,8 +52,8 @@ export const TOKEN_REGISTRY: TokenSpec[] = [
   })),
   {
     name: 'List (1.)',
-    getRegex: () => /^\s*\d+\.\s/gm,
-    remove: (text: string) => text.replace(/^(\s*)\d+\.\s+/gm, '$1')
+    getRegex: () => /^[ \t]*\d+\.[ \t]+/gm,
+    remove: (text: string) => text.replace(/^([ \t]*)\d+\.[ \t]+/gm, '$1')
   },
   ...SINGLE_PUNCTUATION.map(token => {
     const escaped = token.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');

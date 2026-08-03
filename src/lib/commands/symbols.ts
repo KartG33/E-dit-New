@@ -5,29 +5,45 @@ export const PRESET_SYMBOLS = [
   '####',
   '#####',
   '######',
+  '*',
+  '**',
   '***',
+  '_',
+  '__',
   '___',
+  '~',
   '~~',
   '-',
   '---',
   '+',
+  '1.',
   '>',
   '>>',
+  '`',
+  '```',
+  '~~~',
+  '[',
+  ']',
+  '(',
+  ')',
   '![',
+  '<',
   '\\',
+  '|',
   ':-',
   '-:',
   ':-:',
   '[^',
   '^[',
   '==',
+  '===',
+  '^',
   '- [ ]',
   '- [x]',
   '- [X]',
   '<!--',
   '-->',
   '...',
-  '===',
   '.',
   ',',
   '!',
@@ -55,6 +71,10 @@ const SYMBOLS_LONGEST_FIRST = [...PRESET_SYMBOLS]
   .sort((left, right) => right.length - left.length);
 
 export const removePresetSymbol = (text: string, symbolToRemove: PresetSymbol): string => {
+  if (symbolToRemove === '1.') {
+    return text.replace(/^([ \t]*)\d+\.[ \t]+/gm, '$1');
+  }
+
   let result = '';
   let position = 0;
 
