@@ -895,6 +895,17 @@ button:disabled {
   justify-content: space-between;
 }
 
+.preset-form-heading {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.preset-back-button {
+  display: none;
+}
+
 .preset-form-topline h3 {
   font-size: 0.9375rem;
 }
@@ -1079,6 +1090,7 @@ button:disabled {
 .preset-command-list .preset-command-empty {
   display: grid;
   flex: 1;
+  grid-template-columns: 1fr;
   place-items: center;
   background: transparent;
   color: var(--text-muted);
@@ -1237,8 +1249,10 @@ button:disabled {
 }
 
 .drawer-body {
+  min-height: 0;
   flex: 1;
   overflow-y: auto;
+  overscroll-behavior: contain;
   background: var(--canvas);
   padding: var(--space-4);
 }
@@ -1257,9 +1271,12 @@ button:disabled {
 }
 
 .history-card {
+  width: 100%;
   padding: var(--space-3);
   cursor: pointer;
+  color: inherit;
   font-size: 0.75rem;
+  text-align: left;
   transition: border-color 150ms ease, background-color 150ms ease;
 }
 
@@ -1422,28 +1439,266 @@ button:disabled {
     padding-inline: var(--space-2);
   }
 
+}
+
+@media (max-width: 720px),
+  (max-width: 920px) and (max-height: 520px) and (orientation: landscape) {
+  .preset-manager-backdrop {
+    padding: 0;
+  }
+
   .preset-manager {
-    height: calc(100vh - 1rem);
+    width: 100vw;
+    height: 100dvh;
     min-height: 0;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .preset-manager-header {
+    min-height: 3.5rem;
+    padding: env(safe-area-inset-top) max(var(--space-3), env(safe-area-inset-right)) 0 max(var(--space-3), env(safe-area-inset-left));
+  }
+
+  .preset-manager-header p {
+    display: none;
+  }
+
+  .preset-manager-header h2 {
+    font-size: 1rem;
+  }
+
+  .preset-manager-close-button {
+    width: 3rem;
+    height: 3rem;
+    flex: 0 0 3rem;
+  }
+
+  .preset-manager-close-button svg {
+    width: 1.5rem;
+    height: 1.5rem;
   }
 
   .preset-manager-body {
-    grid-template-columns: 1fr;
-    overflow-y: auto;
+    display: block;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .preset-manager-body.is-mobile-list .preset-manager-editor,
+  .preset-manager-body.is-mobile-editor .preset-manager-list {
+    display: none;
+  }
+
+  .preset-manager-list,
+  .preset-manager-editor {
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    border: 0;
   }
 
   .preset-manager-list {
-    max-height: 12rem;
-    border-right: 0;
-    border-bottom: 1px solid var(--border-subtle);
+    max-height: none;
+    gap: var(--space-3);
+    padding: var(--space-3) max(var(--space-3), env(safe-area-inset-right)) max(var(--space-3), env(safe-area-inset-bottom)) max(var(--space-3), env(safe-area-inset-left));
+  }
+
+  .preset-new-button {
+    width: 100%;
+    min-height: 3rem;
+    font-size: 0.875rem;
+  }
+
+  .preset-manager-list-scroll {
+    gap: var(--space-2);
+    overscroll-behavior: contain;
+  }
+
+  .preset-manager-list-item {
+    min-height: 4.25rem;
+    justify-content: center;
+    padding: var(--space-3) var(--space-4);
+  }
+
+  .preset-manager-list-item span {
+    font-size: 0.875rem;
+  }
+
+  .preset-manager-list-item small,
+  .preset-manager-empty {
+    font-size: 0.75rem;
   }
 
   .preset-manager-editor {
-    overflow: visible;
+    gap: var(--space-4);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scroll-padding-bottom: 6rem;
+    padding: var(--space-3) max(var(--space-3), env(safe-area-inset-right)) max(var(--space-4), env(safe-area-inset-bottom)) max(var(--space-3), env(safe-area-inset-left));
+  }
+
+  .preset-form-topline {
+    min-height: 3rem;
+  }
+
+  .preset-back-button {
+    display: inline-grid;
+    width: 3rem;
+    height: 3rem;
+    flex: 0 0 3rem;
+    place-items: center;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-sm);
+    background: var(--surface-2);
+    color: var(--text-secondary);
+  }
+
+  .preset-field {
+    font-size: 0.8125rem;
+  }
+
+  .preset-field input,
+  .preset-field select,
+  .preset-secondary-button,
+  .preset-primary-button,
+  .preset-delete-button,
+  .preset-icon-action {
+    min-height: 2.75rem;
   }
 
   .preset-kind-options,
   .preset-replace-fields {
     grid-template-columns: 1fr;
+  }
+
+  .preset-kind-options button {
+    min-height: 4.75rem;
+  }
+
+  .preset-add-command {
+    grid-template-columns: 1fr;
+  }
+
+  .preset-secondary-button {
+    width: 100%;
+  }
+
+  .preset-command-list {
+    max-height: none;
+  }
+
+  .preset-command-list li {
+    min-height: 3rem;
+  }
+
+  .preset-command-list li button {
+    width: 2.75rem;
+    height: 2.75rem;
+  }
+
+  .preset-form-footer {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .preset-form-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .preset-form-actions > :only-child {
+    grid-column: 1 / -1;
+  }
+
+  .drawer {
+    inset: 0;
+    width: 100vw;
+    max-width: none;
+    height: 100dvh;
+    border-left: 0;
+    box-shadow: none;
+  }
+
+  .drawer-header {
+    min-height: 3.5rem;
+    padding: env(safe-area-inset-top) max(var(--space-3), env(safe-area-inset-right)) 0 max(var(--space-3), env(safe-area-inset-left));
+  }
+
+  .drawer-title {
+    font-size: 1rem;
+  }
+
+  .drawer-title svg {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+
+  .drawer-close-button {
+    width: 3rem;
+    height: 3rem;
+    flex: 0 0 3rem;
+  }
+
+  .drawer-close-button svg {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+
+  .drawer-tabs {
+    padding: var(--space-2) max(var(--space-3), env(safe-area-inset-right)) var(--space-2) max(var(--space-3), env(safe-area-inset-left));
+  }
+
+  .drawer-tab {
+    min-height: 2.75rem;
+    font-size: 0.875rem;
+  }
+
+  .drawer-tab svg {
+    width: 1rem;
+    height: 1rem;
+  }
+
+  .drawer-body {
+    padding: var(--space-3) max(var(--space-3), env(safe-area-inset-right)) max(var(--space-3), env(safe-area-inset-bottom)) max(var(--space-3), env(safe-area-inset-left));
+  }
+
+  .history-list {
+    gap: var(--space-3);
+  }
+
+  .history-card {
+    min-height: 4.75rem;
+    padding: var(--space-4);
+    font-size: 0.875rem;
+  }
+
+  .history-meta {
+    margin-bottom: var(--space-2);
+    font-size: 0.75rem;
+  }
+
+  .history-preview {
+    font-size: 0.8125rem;
+    line-height: 1.55;
+  }
+
+  .drawer-panel {
+    padding: var(--space-3);
+  }
+
+  .drawer-panel .data-panel {
+    width: 100%;
+  }
+
+  .data-actions {
+    flex-direction: column;
+  }
+
+  .data-button {
+    width: 100%;
+    min-height: 2.75rem;
+    font-size: 0.875rem;
   }
 }

@@ -57,6 +57,11 @@ export const SlidingDrawer = ({
       <div 
         className={`drawer ${isOpen ? 'is-open' : ''}`}
         data-testid="sliding-drawer"
+        role="dialog"
+        aria-modal="true"
+        aria-label="History and Data"
+        aria-hidden={!isOpen}
+        inert={!isOpen}
       >
         {/* Header */}
         <div className="drawer-header">
@@ -69,8 +74,10 @@ export const SlidingDrawer = ({
             </span>
           </div>
           <button 
+            type="button"
             onClick={onClose}
-            className="icon-button"
+            className="icon-button drawer-close-button"
+            aria-label="Close History and Data"
             title="Закрыть"
             data-testid="drawer-close-btn"
           >
@@ -101,7 +108,8 @@ export const SlidingDrawer = ({
           {activeTab === 'history' && (
             <div className="history-list">
               {historyRecords.map(record => (
-                <div 
+                <button
+                  type="button"
                   key={record.id} 
                   className="history-card"
                   onClick={() => {
@@ -119,7 +127,7 @@ export const SlidingDrawer = ({
                   <div className="history-preview">
                     {record.text || <span className="italic">Пустой текст</span>}
                   </div>
-                </div>
+                </button>
               ))}
               {historyRecords.length === 0 && (
                 <div className="drawer-empty">

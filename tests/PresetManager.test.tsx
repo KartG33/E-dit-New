@@ -108,6 +108,32 @@ describe.sequential('Preset management', () => {
     expect(await database.presets.count()).toBe(1);
   });
 
+  it('navigates between the mobile preset list and editor', async () => {
+    await database.presets.add({
+      name: 'Mobile preset',
+      data: { type: 'chain', commands: ['text.spaces'] },
+      isFavorite: false,
+      createdAt: 1,
+      updatedAt: 1,
+      order: 0,
+    });
+    render(<PresetManager onClose={vi.fn()} database={database} />);
+
+    const body = screen.getByTestId('preset-manager-body');
+    expect(body.classList.contains('is-mobile-list')).toBe(true);
+
+    fireEvent.click(await screen.findByRole('button', { name: /Mobile preset/ }));
+    expect(body.classList.contains('is-mobile-editor')).toBe(true);
+    expect(screen.getByLabelText('Name')).toHaveProperty('value', 'Mobile preset');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Back to preset list' }));
+    expect(body.classList.contains('is-mobile-list')).toBe(true);
+
+    fireEvent.click(screen.getByRole('button', { name: 'New preset' }));
+    expect(body.classList.contains('is-mobile-editor')).toBe(true);
+    expect(screen.getByLabelText('Name')).toHaveProperty('value', '');
+  });
+
   it('adds a symbol removal action to a command sequence', async () => {
     render(<PresetManager onClose={vi.fn()} database={database} />);
 

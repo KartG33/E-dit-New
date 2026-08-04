@@ -66,4 +66,44 @@ describe('SlidingDrawer Component', () => {
     fireEvent.click(dataTab);
     expect(onTabChange).toHaveBeenCalledWith('data');
   });
+
+  it('restores a saved version and closes the drawer', async () => {
+    await db.history.add({
+      editorId: 'left',
+      text: 'Restored mobile text',
+      timestamp: Date.now(),
+    });
+    const applyHistoryVersion = vi.fn();
+    const onClose = vi.fn();
+
+    render(
+      <SlidingDrawer
+        isOpen={true}
+        onClose={onClose}
+        activeTab="history"
+        onTabChange={vi.fn()}
+        applyHistoryVersion={applyHistoryVersion}
+      />
+    );
+
+    const version = await screen.findByText('Restored mobile text');
+    fireEvent.click(version);
+
+    expect(applyHistoryVersion).toHaveBeenCalledWith('Restored mobile text');
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  it('keeps the closed drawer out of keyboard navigation', () => {
+    render(
+      <SlidingDrawer
+        isOpen={false}
+        onClose={vi.fn()}
+        activeTab="history"
+        onTabChange={vi.fn()}
+        applyHistoryVersion={vi.fn()}
+      />
+    );
+
+    expect(screen.getByTestId('sliding-drawer').hasAttribute('inert')).toBe(true);
+  });
 });

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { ArrowDown, ArrowUp, Plus, Settings2, Trash2, X } from 'lucide-react';
+import { ArrowDown, ArrowLeft, ArrowUp, Plus, Settings2, Trash2, X } from 'lucide-react';
 import { db, type EditDatabase, type Preset, type PresetData } from '../../lib/db';
 import type { CommandId } from '../../lib/commands/registry';
 import {
@@ -14,6 +14,7 @@ interface PresetManagerProps {
 }
 
 type PresetKind = PresetData['type'];
+type MobilePresetView = 'list' | 'editor';
 
 const defaultCommandId: CommandId = 'text.spaces';
 
@@ -32,6 +33,7 @@ export const PresetManager = ({ onClose, database = db }: PresetManagerProps) =>
   const [error, setError] = useState('');
   const [savedMessage, setSavedMessage] = useState('');
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [mobileView, setMobileView] = useState<MobilePresetView>('list');
 
   const resetForm = () => {
     setEditingId(null);
@@ -46,15 +48,17 @@ export const PresetManager = ({ onClose, database = db }: PresetManagerProps) =>
     setError('');
     setSavedMessage('');
     setConfirmDelete(false);
+    setMobileView('editor');
   };
 
-  const loadPreset = (preset: Preset) => {
+  const loadPreset = (preset: Preset, openEditor = true) => {
     setEditingId(preset.id ?? null);
     setName(preset.name);
     setKind(preset.data.type);
     setError('');
     setSavedMessage('');
     setConfirmDelete(false);
+    if (openEditor) setMobileView('editor');
 
     if (preset.data.type === 'chain') {
       setCommands(preset.data.commands);
@@ -73,7 +77,7 @@ export const PresetManager = ({ onClose, database = db }: PresetManagerProps) =>
 
   useEffect(() => {
     if (!isLoading && !initialized) {
-      if (presets.length > 0) loadPreset(presets[0]);
+      if (presets.length > 0) loadPreset(presets[0], false);
       setInitialized(true);
     }
   }, [initialized, isLoading, presets]);
@@ -163,8 +167,9 @@ export const PresetManager = ({ onClose, database = db }: PresetManagerProps) =>
 
     const remaining = presets.filter(preset => preset.id !== editingId);
     await database.presets.delete(editingId);
-    if (remaining.length > 0) loadPreset(remaining[0]);
+    if (remaining.length > 0) loadPreset(remaining[0], false);
     else resetForm();
+    setMobileView('list');
   };
 
   const movePreset = async (direction: -1 | 1) => {
@@ -210,12 +215,15 @@ export const PresetManager = ({ onClose, database = db }: PresetManagerProps) =>
             <h2 id="preset-manager-title">Presets</h2>
             <p>Create and manage reusable text actions</p>
           </div>
-          <button type="button" className="icon-button" aria-label="Close presets" onClick={onClose}>
+          <button type="button" className="icon-button preset-manager-close-button" aria-label="Close presets" onClick={onClose}>
             <X size={18} />
           </button>
         </header>
 
-        <div className="preset-manager-body">
+        <div
+          className={`preset-manager-body is-mobile-${mobileView}`}
+          data-testid="preset-manager-body"
+        >
           <aside className="preset-manager-list">
             <button type="button" className="preset-new-button" onClick={resetForm}>
               <Plus size={15} /> New preset
@@ -240,7 +248,17 @@ export const PresetManager = ({ onClose, database = db }: PresetManagerProps) =>
 
           <div className="preset-manager-editor">
             <div className="preset-form-topline">
-              <h3>{editingId === null ? 'New preset' : 'Edit preset'}</h3>
+              <div className="preset-form-heading">
+                <button
+                  type="button"
+                  className="preset-back-button"
+                  aria-label="Back to preset list"
+                  onClick={() => setMobileView('list')}
+                >
+                  <ArrowLeft size={18} />
+                </button>
+                <h3>{editingId === null ? 'New preset' : 'Edit preset'}</h3>
+              </div>
               {editingId !== null && (
                 <div className="preset-order-actions" aria-label="Preset order">
                   <button
