@@ -127,6 +127,10 @@ button:disabled {
   align-items: center;
 }
 
+.mobile-editor-switcher {
+  display: none;
+}
+
 .ui-header-row {
   justify-content: space-between;
   gap: var(--space-4);
@@ -1306,21 +1310,112 @@ button:disabled {
 }
 
 @media (max-width: 720px) {
+  .app-shell {
+    height: 100dvh;
+  }
+
   .app-main {
-    gap: var(--space-2);
+    display: block;
+    gap: 0;
     padding: var(--space-2);
   }
 
+  .app-editor-pane {
+    display: none;
+    width: 100%;
+  }
+
+  .app-editor-pane.is-mobile-visible {
+    display: block;
+  }
+
   .ui-header {
+    height: auto;
+    min-height: 7.75rem;
+    flex: 0 0 auto;
+    gap: 0.375rem;
     padding-inline: var(--space-2);
   }
 
   .ui-header-row {
-    gap: var(--space-2);
+    display: grid;
+    grid-template-areas:
+      "brand editor actions"
+      "tabs tabs tabs";
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: 0.375rem var(--space-2);
+  }
+
+  .ui-header-left {
+    display: contents;
+  }
+
+  .brand-lockup {
+    grid-area: brand;
+    border-right: 0;
+    padding-right: 0;
+  }
+
+  .ui-tabs {
+    grid-area: tabs;
+    justify-self: start;
+  }
+
+  .mobile-editor-switcher {
+    display: flex;
+    min-width: 0;
+    grid-area: editor;
+    justify-self: center;
+    gap: 2px;
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    background: var(--canvas);
+    padding: 2px;
+  }
+
+  .mobile-editor-switcher button {
+    min-height: 2.5rem;
+    border: 1px solid transparent;
+    border-radius: calc(var(--radius-md) - 2px);
+    background: transparent;
+    padding: 0.4rem 0.65rem;
+    color: var(--text-muted);
+    font-size: 0.75rem;
+    font-weight: 650;
+    white-space: nowrap;
+  }
+
+  .mobile-editor-switcher button.is-active {
+    border-color: var(--border-subtle);
+    background: var(--surface-2);
+    color: var(--accent-strong);
+  }
+
+  .ui-header-actions {
+    grid-area: actions;
+    justify-self: end;
+  }
+
+  .ui-action {
+    width: 2.5rem;
+    min-height: 2.5rem;
+    padding: 0;
+  }
+
+  .ui-toolbar {
+    height: 2.75rem;
+    min-height: 2.75rem;
+    flex-basis: 2.75rem;
+  }
+
+  .command-button {
+    min-height: 2.5rem;
+    padding-inline: 0.75rem;
   }
 
   .editor-textarea {
     padding: var(--space-4);
+    font-size: 1rem;
   }
 
   .editor-header {

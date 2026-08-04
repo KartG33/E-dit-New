@@ -7,6 +7,8 @@ import { TextCommands } from './TextCommands';
 
 interface CommandPanelProps {
   applyCommand: (cmd: (text: string) => string) => void;
+  activeEditor?: 'left' | 'right';
+  onActiveEditorChange?: (editor: 'left' | 'right') => void;
   tagsOpen?: boolean;
   onTagsOpenChange?: (isOpen: boolean) => void;
   onOpenDrawer?: (tab: DrawerTab) => void;
@@ -15,6 +17,8 @@ interface CommandPanelProps {
 
 export const CommandPanel = ({
   applyCommand,
+  activeEditor = 'left',
+  onActiveEditorChange,
   tagsOpen = false,
   onTagsOpenChange,
   onOpenDrawer,
@@ -60,6 +64,25 @@ export const CommandPanel = ({
               <Zap size={13}/> Presets
             </button>
           </div>
+        </div>
+
+        <div className="mobile-editor-switcher" aria-label="Active editor">
+          <button
+            type="button"
+            className={activeEditor === 'left' ? 'is-active' : ''}
+            aria-pressed={activeEditor === 'left'}
+            onClick={() => onActiveEditorChange?.('left')}
+          >
+            Editor 1
+          </button>
+          <button
+            type="button"
+            className={activeEditor === 'right' ? 'is-active' : ''}
+            aria-pressed={activeEditor === 'right'}
+            onClick={() => onActiveEditorChange?.('right')}
+          >
+            Editor 2
+          </button>
         </div>
 
         {/* Right Section: History, preset management, and Data */}

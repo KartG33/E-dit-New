@@ -22,6 +22,21 @@ describe('CommandPanel', () => {
     expect(applyCommand).toHaveBeenCalledWith(collapseSpaces);
   });
 
+  it('switches the active editor from the mobile control', () => {
+    const onActiveEditorChange = vi.fn();
+    render(
+      <CommandPanel
+        applyCommand={vi.fn()}
+        activeEditor="right"
+        onActiveEditorChange={onActiveEditorChange}
+      />,
+    );
+
+    expect(screen.getByRole('button', { name: 'Editor 2' }).getAttribute('aria-pressed')).toBe('true');
+    fireEvent.click(screen.getByRole('button', { name: 'Editor 1' }));
+    expect(onActiveEditorChange).toHaveBeenCalledWith('left');
+  });
+
   it('controls the Tags workspace from the Suno toolbar and closes it when leaving Suno', () => {
     const onTagsOpenChange = vi.fn();
     const { rerender } = render(

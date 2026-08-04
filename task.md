@@ -17,11 +17,21 @@
   - `[x]` 10. Typing (Remove any, strict type checks, linting)
   - `[x]` 11. Tests (Comprehensive Vitest coverage for all implemented features)
   - `[x]` 12. Command Panel Decomposition (Independent Text, Suno, and Presets sections)
-- `[ ]` Phase 3: Desktop UI & Tauri Integration
+- `[x]` Phase 3: Desktop UI & Tauri Integration
   - `[x]` 1. Minimal Tauri desktop shell
   - `[x]` 2. Native Data file dialogs
   - `[x]` 3. Windows app metadata and platform icon set
   - `[x]` 4. Windows installer
-  - `[ ]` 5. Installed desktop app verification
+  - `[x]` 5. Installed desktop app verification
 - `[ ]` Phase 4: Mobile UI & Capacitor Integration
+  - `[x]` 1. Responsive mobile editor layout
+    - `[x]` Show one editor at a time below 720 px
+    - `[x]` Add Editor 1 / Editor 2 switch without unmounting editor state
+    - `[x]` Keep command and symbol rows horizontally scrollable with touch-sized controls
+    - `[x]` Visual verification at 360, 393, and 412 px
+  - `[ ]` 2. Mobile History, Presets, Data, and Suno Tags panels
+  - `[ ]` 3. Capacitor Android shell
+  - `[ ]` 4. Android Data file adapter
+  - `[ ]` 5. Android keyboard, back button, and lifecycle behavior
+  - `[ ]` 6. Android icons, APK build, and installed-device verification
 - `[ ]` Phase 5: Polish & Performance

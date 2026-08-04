@@ -62,6 +62,8 @@ const App = () => {
       {/* Top Compact Command Panel */}
       <CommandPanel 
         applyCommand={applyCommand} 
+        activeEditor={activeEditor}
+        onActiveEditorChange={setActiveEditor}
         tagsOpen={tagsOpen}
         onTagsOpenChange={setTagsOpen}
         onOpenDrawer={handleOpenDrawer}
@@ -70,7 +72,11 @@ const App = () => {
       
       {/* Main Dual Editors Area - Split 50/50 width */}
       <main className="app-main">
-        <div className="app-editor-pane">
+        <div className={`app-editor-pane ${
+          (!tagsOpen && activeEditor === 'left') || (tagsOpen && activeEditor === 'right')
+            ? 'is-mobile-visible'
+            : ''
+        }`}>
           <Editor 
             id="left"
             {...leftEditor}
@@ -88,7 +94,11 @@ const App = () => {
             />
           )}
         </div>
-        <div className="app-editor-pane">
+        <div className={`app-editor-pane ${
+          (!tagsOpen && activeEditor === 'right') || (tagsOpen && activeEditor === 'left')
+            ? 'is-mobile-visible'
+            : ''
+        }`}>
           <Editor 
             id="right"
             {...rightEditor}
