@@ -42,21 +42,21 @@ export const CommandPanel = ({
           </div>
 
           <div className="ui-tabs">
-            <button 
+            <button
               onClick={() => selectTab('standard')}
               aria-pressed={activeTab === 'standard'}
               className={`ui-tab ${activeTab === 'standard' ? 'is-active' : ''}`}
             >
               <Settings2 size={13}/> Text
             </button>
-            <button 
+            <button
               onClick={() => selectTab('suno')}
               aria-pressed={activeTab === 'suno'}
               className={`ui-tab ${activeTab === 'suno' ? 'is-active' : ''}`}
             >
               <Music size={13}/> Suno
             </button>
-            <button 
+            <button
               onClick={() => selectTab('presets')}
               aria-pressed={activeTab === 'presets'}
               className={`ui-tab ${activeTab === 'presets' ? 'is-active' : ''}`}

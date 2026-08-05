@@ -62,7 +62,7 @@ describe('useEditor Hook Autosave & Hydration', () => {
     let errorFired = false;
     const handler = () => { errorFired = true; };
     window.addEventListener('app-error', handler, { once: true });
-    
+
     const { result } = renderHook(() => useEditor('left'));
     await act(async () => { await vi.runAllTimersAsync(); });
 

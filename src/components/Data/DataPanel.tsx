@@ -17,14 +17,14 @@ export const DataPanel = ({ fileAdapter = defaultDataFileAdapter }: DataPanelPro
     try {
       const presets = await db.presets.toArray();
       const settings = await db.settings.toArray();
-      
+
       const dataPayload = {
         version: DATA_FILE_VERSION,
         presets,
         settings,
         timestamp: Date.now()
       };
-      
+
       const result = await fileAdapter.saveFile({
         fileName: `edit-data-${new Date().toISOString().split('T')[0]}.json`,
         contents: JSON.stringify(dataPayload, null, 2),
@@ -44,7 +44,7 @@ export const DataPanel = ({ fileAdapter = defaultDataFileAdapter }: DataPanelPro
       if (!file) return;
       const text = await fileAdapter.readFile(file);
       await importDataFile(text);
-      
+
       setMsg('Import successful. Reloading...');
       setTimeout(() => window.location.reload(), 1500);
     } catch (error) {
@@ -56,7 +56,7 @@ export const DataPanel = ({ fileAdapter = defaultDataFileAdapter }: DataPanelPro
     <div className="data-panel">
       <h3 className="section-eyebrow">Data</h3>
       <div className="data-actions">
-        <button 
+        <button
           onClick={handleExport}
           className="data-button"
         >

@@ -94,7 +94,7 @@ describe('DB Migration v2 -> v3', () => {
     } as any);
 
     await db.close();
-    
+
     // We can't easily trigger dexie migration in test manually without re-opening with higher version,
     // but we can simulate the upgrade logic:
     let currentOrder = 0;

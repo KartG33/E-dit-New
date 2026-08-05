@@ -14,7 +14,7 @@ const App = () => {
   const [activeEditor, setActiveEditor] = useState<'left' | 'right'>('left');
   const [tagsOpen, setTagsOpen] = useState(false);
   const [presetManagerOpen, setPresetManagerOpen] = useState(false);
-  
+
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [drawerTab, setDrawerTab] = useState<DrawerTab>('history');
 
@@ -96,8 +96,8 @@ const App = () => {
   return (
     <div className="app-shell">
       {/* Top Compact Command Panel */}
-      <CommandPanel 
-        applyCommand={applyCommand} 
+      <CommandPanel
+        applyCommand={applyCommand}
         activeEditor={activeEditor}
         onActiveEditorChange={setActiveEditor}
         tagsOpen={tagsOpen}
@@ -113,7 +113,7 @@ const App = () => {
             ? 'is-mobile-visible'
             : ''
         }`}>
-          <Editor 
+          <Editor
             id="left"
             {...leftEditor}
             isActive={activeEditor === 'left'}
@@ -135,7 +135,7 @@ const App = () => {
             ? 'is-mobile-visible'
             : ''
         }`}>
-          <Editor 
+          <Editor
             id="right"
             {...rightEditor}
             isActive={activeEditor === 'right'}
@@ -155,7 +155,7 @@ const App = () => {
       </main>
 
       {/* Sliding Side Drawer for History, Data */}
-      <SlidingDrawer 
+      <SlidingDrawer
         isOpen={drawerOpen}
         onClose={() => setDrawerOpen(false)}
         activeTab={drawerTab}

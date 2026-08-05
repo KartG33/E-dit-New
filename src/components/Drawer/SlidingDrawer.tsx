@@ -46,7 +46,7 @@ export const SlidingDrawer = ({
     <>
       {/* Backdrop overlay */}
       {isOpen && (
-        <div 
+        <div
           className="drawer-backdrop"
           onClick={onClose}
           data-testid="drawer-backdrop"
@@ -54,7 +54,7 @@ export const SlidingDrawer = ({
       )}
 
       {/* Sliding Drawer Container */}
-      <div 
+      <div
         className={`drawer ${isOpen ? 'is-open' : ''}`}
         data-testid="sliding-drawer"
         role="dialog"
@@ -73,7 +73,7 @@ export const SlidingDrawer = ({
               {activeTab === 'data' && 'Data'}
             </span>
           </div>
-          <button 
+          <button
             type="button"
             onClick={onClose}
             className="icon-button drawer-close-button window-close-button"
@@ -110,7 +110,7 @@ export const SlidingDrawer = ({
               {historyRecords.map(record => (
                 <button
                   type="button"
-                  key={record.id} 
+                  key={record.id}
                   className="history-card"
                   onClick={() => {
                     applyHistoryVersion(record.text);
