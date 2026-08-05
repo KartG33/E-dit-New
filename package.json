@@ -10,9 +10,13 @@
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",
+    "android:sync": "npm run build && cap sync android",
+    "android:open": "cap open android",
     "tauri": "tauri"
   },
   "dependencies": {
+    "@capacitor/android": "^8.5.0",
+    "@capacitor/core": "^8.5.0",
     "@tailwindcss/vite": "^4.3.3",
     "@tauri-apps/api": "^2.11.1",
     "@tauri-apps/plugin-dialog": "^2.7.2",
@@ -27,6 +31,7 @@
     "tailwindcss": "^4.3.3"
   },
   "devDependencies": {
+    "@capacitor/cli": "^8.5.0",
     "@playwright/test": "^1.61.1",
     "@tauri-apps/cli": "^2.11.4",
     "@testing-library/dom": "^10.4.1",

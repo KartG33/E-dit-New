@@ -44,6 +44,20 @@ Run the desktop version:
 npm run tauri dev
 ```
 
+Sync the production web build into the Capacitor Android project:
+
+```text
+npm run android:sync
+```
+
+Open the native project after installing Android Studio 2025.2.1 or newer and an Android SDK. Capacitor 8 Android builds require JDK 21; use the JDK bundled with Android Studio if the system `JAVA_HOME` points to an older Java installation:
+
+```text
+npm run android:open
+```
+
+The Android shell targets API 24 and newer. APK creation and installed-device verification are intentionally deferred to the final Android stage.
+
 Build the web version or Windows application:
 
 ```text
