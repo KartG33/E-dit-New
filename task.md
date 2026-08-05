@@ -33,6 +33,7 @@
     - `[x]` Full-screen History/Data with touch-sized history cards and full-width Data actions
     - `[x]` Separate mobile preset list and editor views with back navigation
     - `[x]` Separate Tags in text and Add tag views for Suno Tags
+    - `[x]` Keep full-screen panels scrollable when the Android software keyboard reduces the visible viewport
     - `[x]` Shared fixed headers, 48 px close controls, internal scrolling, Escape handling, and one-window-at-a-time state
     - `[x]` Visual verification at 360×800, 393×873, 412×915, 800×360, and 1280×800
   - `[ ]` 3. Capacitor Android shell

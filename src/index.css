@@ -31,6 +31,8 @@
   --radius-md: 0.625rem;
   --radius-lg: 0.875rem;
   --shadow-active: 0 0 0 1px var(--accent), 0 12px 30px rgba(0, 0, 0, 0.22);
+  --app-viewport-height: 100dvh;
+  --app-viewport-offset-top: 0px;
 }
 
 * {
@@ -1339,7 +1341,7 @@ button:disabled {
 
 @media (max-width: 720px) {
   .app-shell {
-    height: 100dvh;
+    height: var(--app-viewport-height);
   }
 
   .app-main {
@@ -1470,7 +1472,9 @@ button:disabled {
     inset: 0;
     z-index: 70;
     width: 100vw;
-    height: 100dvh;
+    height: var(--app-viewport-height);
+    top: var(--app-viewport-offset-top);
+    bottom: auto;
     border: 0;
     border-radius: 0;
     box-shadow: none;
@@ -1584,12 +1588,15 @@ button:disabled {
   }
 
   .preset-manager-backdrop {
+    height: var(--app-viewport-height);
+    top: var(--app-viewport-offset-top);
+    bottom: auto;
     padding: 0;
   }
 
   .preset-manager {
     width: 100vw;
-    height: 100dvh;
+    height: 100%;
     min-height: 0;
     border: 0;
     border-radius: 0;
@@ -1745,7 +1752,9 @@ button:disabled {
     inset: 0;
     width: 100vw;
     max-width: none;
-    height: 100dvh;
+    height: var(--app-viewport-height);
+    top: var(--app-viewport-offset-top);
+    bottom: auto;
     border-left: 0;
     box-shadow: none;
   }

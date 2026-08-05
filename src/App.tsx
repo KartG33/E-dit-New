@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Editor } from './components/Editor/Editor';
 import { CommandPanel } from './components/Commands/CommandPanel';
 import { SlidingDrawer } from './components/Drawer/SlidingDrawer';
@@ -17,6 +17,34 @@ const App = () => {
   
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [drawerTab, setDrawerTab] = useState<DrawerTab>('history');
+
+  useEffect(() => {
+    const root = document.documentElement;
+    const viewport = window.visualViewport;
+    const updateViewportSize = () => {
+      root.style.setProperty(
+        '--app-viewport-height',
+        `${viewport?.height ?? window.innerHeight}px`,
+      );
+      root.style.setProperty(
+        '--app-viewport-offset-top',
+        `${viewport?.offsetTop ?? 0}px`,
+      );
+    };
+
+    updateViewportSize();
+    window.addEventListener('resize', updateViewportSize);
+    viewport?.addEventListener('resize', updateViewportSize);
+    viewport?.addEventListener('scroll', updateViewportSize);
+
+    return () => {
+      window.removeEventListener('resize', updateViewportSize);
+      viewport?.removeEventListener('resize', updateViewportSize);
+      viewport?.removeEventListener('scroll', updateViewportSize);
+      root.style.removeProperty('--app-viewport-height');
+      root.style.removeProperty('--app-viewport-offset-top');
+    };
+  }, []);
 
   const handleOpenDrawer = (tab: DrawerTab) => {
     setPresetManagerOpen(false);
