@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
-import { render, screen, cleanup } from '@testing-library/react';
+import { render, screen, cleanup, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Editor } from '../src/components/Editor/Editor';
 import { EditorState } from '../src/hooks/useEditor';
@@ -30,11 +30,16 @@ describe('Editor Component', () => {
         isActive={true}
         onFocus={onFocus}
         onSelect={vi.fn()}
+        hydrated={true}
       />
     );
 
     expect(screen.getByDisplayValue('test text')).toBeDefined();
-    expect(screen.getByText('left Editor')).toBeDefined();
+    expect(screen.queryByText('left Editor')).toBeNull();
+    expect(screen.getByRole('textbox', { name: 'left editor' }).classList.contains('editor-textarea')).toBe(true);
+    const stats = screen.getByTestId('editor-stats');
+    expect(stats.classList.contains('editor-stats')).toBe(true);
+    expect(stats.parentElement?.classList.contains('editor-header')).toBe(true);
     
     const undoBtn = screen.getByTitle('Undo (Ctrl+Z)');
     expect((undoBtn as HTMLButtonElement).disabled).toBe(true);
@@ -43,11 +48,33 @@ describe('Editor Component', () => {
     expect((redoBtn as HTMLButtonElement).disabled).toBe(false);
   });
 
+  it('disables textarea and shows Loading when hydrated is false', () => {
+    render(
+      <Editor
+        id="left"
+        value=""
+        currentState={mockState}
+        updateValue={vi.fn()}
+        undo={vi.fn()}
+        redo={vi.fn()}
+        canUndo={false}
+        canRedo={false}
+        isActive={true}
+        onFocus={vi.fn()}
+        onSelect={vi.fn()}
+        hydrated={false}
+      />
+    );
+
+    const textarea = screen.getByPlaceholderText('Loading...');
+    expect((textarea as HTMLTextAreaElement).disabled).toBe(true);
+  });
+
   it('calls updateValue on typing', async () => {
     const updateValue = vi.fn();
     render(
       <Editor
-        id="main"
+        id="left"
         value=""
         currentState={mockState}
         updateValue={updateValue}
@@ -58,6 +85,7 @@ describe('Editor Component', () => {
         isActive={true}
         onFocus={vi.fn()}
         onSelect={vi.fn()}
+        hydrated={true}
       />
     );
 
@@ -67,12 +95,13 @@ describe('Editor Component', () => {
     expect(updateValue).toHaveBeenCalled();
   });
 
-  it('restores selection range on undo', () => {
+  it('restores selection range on undo after explicit onSelect', async () => {
+    const onSelect = vi.fn();
     const { rerender } = render(
       <Editor
         id="left"
-        value="A"
-        currentState={{ value: 'A', selectionStart: 1, selectionEnd: 1 }}
+        value="ABC"
+        currentState={{ value: 'ABC', selectionStart: 1, selectionEnd: 2 }}
         updateValue={vi.fn()}
         undo={vi.fn()}
         redo={vi.fn()}
@@ -80,13 +109,19 @@ describe('Editor Component', () => {
         canRedo={false}
         isActive={true}
         onFocus={vi.fn()}
-        onSelect={vi.fn()}
+        onSelect={onSelect}
+        hydrated={true}
       />
     );
 
     const textarea = screen.getByRole('textbox') as HTMLTextAreaElement;
     
-    // Simulate undo action
+    fireEvent.select(textarea, { target: { selectionStart: 1, selectionEnd: 2 } });
+    expect(onSelect).toHaveBeenCalledWith(1, 2);
+
+    const undoBtn = screen.getByTitle('Undo (Ctrl+Z)');
+    await userEvent.click(undoBtn);
+
     rerender(
       <Editor
         id="left"
@@ -99,12 +134,153 @@ describe('Editor Component', () => {
         canRedo={true}
         isActive={true}
         onFocus={vi.fn()}
-        onSelect={vi.fn()}
+        onSelect={onSelect}
+        hydrated={true}
       />
     );
     
-    // Selection should be restored to 0,0 via useEffect
     expect(textarea.selectionStart).toBe(0);
     expect(textarea.selectionEnd).toBe(0);
+  });
+
+  it('triggers Undo / Redo hotkeys only when editor is active', () => {
+    const undo = vi.fn();
+    const redo = vi.fn();
+
+    render(
+      <Editor
+        id="left"
+        value="ABC"
+        currentState={{ value: 'ABC', selectionStart: 0, selectionEnd: 0 }}
+        updateValue={vi.fn()}
+        undo={undo}
+        redo={redo}
+        canUndo={true}
+        canRedo={true}
+        isActive={true}
+        onFocus={vi.fn()}
+        onSelect={vi.fn()}
+        hydrated={true}
+      />
+    );
+
+    const textarea = screen.getByRole('textbox');
+
+    fireEvent.keyDown(textarea, { key: 'z', ctrlKey: true });
+    expect(undo).toHaveBeenCalledTimes(1);
+
+    fireEvent.keyDown(textarea, { key: 'y', ctrlKey: true });
+    expect(redo).toHaveBeenCalledTimes(1);
+
+    fireEvent.keyDown(textarea, { key: 'z', ctrlKey: true, shiftKey: true });
+    expect(redo).toHaveBeenCalledTimes(2);
+  });
+
+  it('hotkey acts on active editor and does not act on inactive editor', () => {
+    const leftUndo = vi.fn();
+    const rightUndo = vi.fn();
+
+    render(
+      <div>
+        <Editor
+          id="left"
+          value="Left Text"
+          currentState={{ value: 'Left Text', selectionStart: 0, selectionEnd: 0 }}
+          updateValue={vi.fn()}
+          undo={leftUndo}
+          redo={vi.fn()}
+          canUndo={true}
+          canRedo={false}
+          isActive={true}
+          onFocus={vi.fn()}
+          onSelect={vi.fn()}
+          hydrated={true}
+        />
+        <Editor
+          id="right"
+          value="Right Text"
+          currentState={{ value: 'Right Text', selectionStart: 0, selectionEnd: 0 }}
+          updateValue={vi.fn()}
+          undo={rightUndo}
+          redo={vi.fn()}
+          canUndo={true}
+          canRedo={false}
+          isActive={false}
+          onFocus={vi.fn()}
+          onSelect={vi.fn()}
+          hydrated={true}
+        />
+      </div>
+    );
+
+    const leftTextarea = screen.getByDisplayValue('Left Text');
+
+    fireEvent.keyDown(leftTextarea, { key: 'z', ctrlKey: true });
+    expect(leftUndo).toHaveBeenCalledTimes(1);
+    expect(rightUndo).not.toHaveBeenCalled();
+  });
+
+  it('does not trigger editor hotkeys when typing inside form input or contenteditable', () => {
+    const undo = vi.fn();
+
+    render(
+      <div>
+        <input data-testid="search-input" type="text" />
+        <div data-testid="editable" contentEditable={true} />
+        <Editor
+          id="left"
+          value="ABC"
+          currentState={{ value: 'ABC', selectionStart: 0, selectionEnd: 0 }}
+          updateValue={vi.fn()}
+          undo={undo}
+          redo={vi.fn()}
+          canUndo={true}
+          canRedo={true}
+          isActive={true}
+          onFocus={vi.fn()}
+          onSelect={vi.fn()}
+          hydrated={true}
+        />
+      </div>
+    );
+
+    const input = screen.getByTestId('search-input');
+    fireEvent.keyDown(input, { key: 'z', ctrlKey: true });
+    expect(undo).not.toHaveBeenCalled();
+
+    const editable = screen.getByTestId('editable');
+    fireEvent.keyDown(editable, { key: 'z', ctrlKey: true });
+    expect(undo).not.toHaveBeenCalled();
+  });
+
+  it('triggers hotkeys after clicking a command button outside the textarea', () => {
+    const undo = vi.fn();
+    const redo = vi.fn();
+
+    render(
+      <div>
+        <button data-testid="cmd-btn">Apply Command</button>
+        <Editor
+          id="left"
+          value="ABC"
+          currentState={{ value: 'ABC', selectionStart: 0, selectionEnd: 0 }}
+          updateValue={vi.fn()}
+          undo={undo}
+          redo={redo}
+          canUndo={true}
+          canRedo={true}
+          isActive={true}
+          onFocus={vi.fn()}
+          onSelect={vi.fn()}
+          hydrated={true}
+        />
+      </div>
+    );
+
+    const btn = screen.getByTestId('cmd-btn');
+    fireEvent.click(btn);
+
+    fireEvent.keyDown(btn, { key: 'z', ctrlKey: true });
+    expect(undo).toHaveBeenCalledTimes(1);
   });
 });

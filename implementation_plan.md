@@ -1,73 +1,129 @@
-# Phase 2 Completion Implementation Plan
+# E-dit — план дальнейшей разработки
 
-## Proposed Changes
+## Текущее состояние
 
-### 1. Текущее состояние редакторов
-- **Constant State**: Do not rely on History to restore text. Add a typed table/settings entry for permanent editor texts: `editorLeftText: string; editorRightText: string`.
-- **Hydration**: Initialize `useReducer` with a loading state, fetch texts in `useEffect`, dispatch a `HYDRATE` action.
-- **Auto-save block**: Prevent auto-saving until hydration completes. Protect against overwriting saved text with an initial empty string.
-- **Restart Restoration**: Both texts, active editor, and selections must restore cleanly after a restart.
+Основная логика приложения и браузерная версия уже работают:
 
-### 2. История и debounce
-- **No Consecutive Duplicates**: Prevent adding identical states to undo-history or Dexie.
-- **Debounce Timer**: Set `debounceTimer.current = null` after execution.
-- **Cleanup**: Save on unmount *only* if there's a pending change.
-- **React StrictMode**: Defend against creating empty/duplicate records due to double-mounts.
-- **Fake Timers in Tests**: Replace real timeouts with fake timers to test debounce quickly.
-- **Tests for Debounce**: Ensure rapid edits, unmounting before debounce, and remounting are handled.
+- два независимых редактора;
+- автосохранение текста;
+- Undo/Redo отдельно для каждого редактора;
+- сохранённая History;
+- Text- и Suno-команды;
+- быстрое применение пресетов и отдельное окно их создания, редактирования, сортировки и удаления;
+- анализ и удаление специальных символов;
+- просмотр, добавление, переименование и удаление Suno-тегов;
+- экспорт и импорт Data;
+- автоматические тесты.
 
-### 3. Выделение и горячие клавиши
-- **`SET_SELECTION` Action**: Separate action in reducer that doesn't create an undo step.
-- **`onSelect`**: Capture and save actual cursor position on mouse click, keyboard arrows, selection, or post-command tag insert.
-- **Explicit Editor Marker**: Add `data-editor-id` to the main textarea.
-- **Global Hotkeys Scope**: Hotkeys work in the main editor or interface buttons, but MUST be ignored if the active element is an external `input`, `textarea`, `select`, or `contenteditable`.
+Функции Favorites и Startup Tab отложены: для текущего личного сценария они не дают достаточной пользы и усложняют интерфейс.
 
-### 4. Анализ специальных символов
-- **Pure Functions**: Move parsing and deletion logic to pure production functions. The hook only handles debounce.
-- **Single Undo Deletion**: Text updates go through `editor.updateValue`.
-- **Token Registry**: Match exactly: `---`, `...`, ` ``` `, `==`, numbered lists, punctuation, markdown chars.
-- **Longest-match-first**: Ensure `...` doesn't count as three `.` tokens.
-- **Tests**: Add strict counts and removal tests for overlapping tokens.
+## Ближайшая цель
 
-### 5. Пресеты
-- **Command Registry**: Define `CommandId` and `commandRegistry: Record<CommandId, TextCommand>`.
-- **Chain Presets**: Store only stable `CommandId`. Support repeating and reordering commands. Apply chain as one undo.
-- **Regex Presets**: Create/edit/delete, preview without mutating editor, display concise errors. Check `preset.data.type === 'regex'` and pass `preset.data` to applicator, no `any`.
-- **Import/Schema**: Check for unknown `CommandId`. Add `order` to schema and a Dexie migration.
+Сделать полноценную desktop-версию E-dit для Windows на Tauri, сохранив существующий интерфейс и логику приложения.
 
-### 6. Favorites и startupTab
-- **`AppSettings` Expansion**: Add `favoriteCommandIds`, `startupTab`, permanent editor texts, and `activeEditor`. Provide defaults and migrations.
-- **Favorites logic**: Store unique `CommandId` for built-in favorites. Presets use `isFavorite`.
-- **Favorites Tab**: A combined view of favorite commands and presets.
-- **Startup Tab**: Pin icon in the tab button. Reads `startupTab` on app load.
+## Этап 1. Desktop-оболочка — выполнено
 
-### 7. Suno Tags
-- **Pure Functions**: Parser and transformations independent of React.
-- **Full Tag Editor**: 
-  - Parse existing text tags: `[structure | style 1 | style 2]`.
-  - Preserve numbers/multipliers.
-  - Group identical tags (count & first appearance order).
-  - Add/rename/remove styles, remove all extra styles keeping structure, mass-update identical tags.
-  - Retain linebreaks. No text mutation on form cancel. Apply changes as one undo step.
-  - No blind variable injection into RegExp.
+Подключить Tauri к текущему React-приложению и открыть E-dit в отдельном окне Windows.
 
-### 8. Notes и History
-- **Notes CRUD**: Dexie-backed notes with title, text (from editor), tags, tag filtering.
-- **History Live**: Use a live-query or custom subscription to auto-update list. Restore (loads into active), delete single, clear all (with confirmation), separate left/right records, enforce limits. Prevent cross-editor restoration.
+Результат этапа:
 
-### 9. Backup и платформенный слой
-- **Three-part backup**: 
-  1. Creation and runtime validation of backup object.
-  2. Dexie read/write transaction.
-  3. UI trigger via an agnostic `BackupFileAdapter`.
-- **Schema & Validation**: Standardized JSON structure. Runtime schema validation (no generic type-casting). Reject missing/invalid fields, bad types, unknown versions.
-- **Atomic Operations**: Perform everything inside `db.transaction('rw')`. Rollback on error. Only update UI state after successful commit.
-- **No File API in Component**: Abstracted adapters (temporary browser adapter, mock Windows/Android adapters for testing). No success toasts, only error messages.
+- приложение запускается как desktop-программа;
+- текущий интерфейс и функции работают без изменений;
+- доступны команды запуска и сборки desktop-версии.
 
-### 10. Типизация
-- Replace `Setting.value: any` with `unknown` + generic getters.
-- **No `any`**: Strictly enforce zero explicit `any` and `as any` in production code. Add linting rules for explicit any.
+Проверка:
 
-### 11. Тесты
-- Vastly expand Vitest coverage according to the requirements, including basic commands, tokens, single-undo removals, hydration, StrictMode, hotkey ignoring, regex via `Preset.data`, Notes, History, Favorites, Suno parsing, and comprehensive backup validation (valid, corrupted, rollback).
-- Fix `editor.test.tsx` selection test to simulate real user events.
+- запуск окна приложения;
+- тесты, линтер и обычная web-сборка;
+- тестовая desktop-сборка.
+
+## Этап 2. Работа с Data в desktop-версии — выполнено
+
+Подключить системные окна Windows для выбора места сохранения и открытия Data-файла.
+
+Результат этапа:
+
+- Export предлагает выбрать имя и папку файла;
+- Import открывает системный выбор файла;
+- проверка и безопасное восстановление Data продолжают работать так же, как сейчас.
+
+Проверка:
+
+- экспорт корректного файла;
+- импорт корректного файла;
+- отказ от импорта повреждённого файла;
+- отмена выбора файла без ошибки.
+
+## Этап 3. Подготовка Windows-приложения — выполнено
+
+Настроить название, иконку, размеры окна и установочный пакет.
+
+Результат этапа:
+
+- приложение отображается в Windows как отдельная E-dit 2 и может работать рядом с прежней E-dit;
+- окно имеет подходящий минимальный размер;
+- создаётся установочный файл.
+
+Проверка:
+
+- установка и первый запуск;
+- закрытие и повторное открытие;
+- сохранение текстов и History между запусками.
+
+## Этап 4. Проверка desktop-версии — выполнено
+
+Проверить основные пользовательские сценарии в установленном приложении.
+
+Проверяются:
+
+- оба редактора и их независимое состояние;
+- Undo/Redo и горячие клавиши;
+- Text- и Suno-команды;
+- Suno Tags;
+- пресеты;
+- History;
+- Data Export/Import;
+- восстановление состояния после перезапуска.
+
+После успешной проверки desktop-версия считается готовой к обычному использованию.
+
+## Следующий крупный этап — Android через Capacitor
+
+Android-версия создаётся в этом же проекте. Логика редакторов, команд, пресетов, History и проверки Data остаётся общей для Windows, Android и браузера.
+
+### Мобильный этап 1. Компоновка редактора — выполнено
+
+- на экране до 720 px отображается один редактор;
+- переключатель Editor 1 / Editor 2 меняет видимый редактор без потери его состояния;
+- команды и найденные символы прокручиваются горизонтально;
+- кнопки команд, Undo/Redo и символов имеют удобные сенсорные зоны;
+- desktop-компоновка 50/50 сохраняется;
+- перед переходом дальше интерфейс проверяется на ширине 360, 393 и 412 px.
+
+### Мобильный этап 2. Вспомогательные панели — выполнено
+
+- History и Data открываются на смартфоне на весь экран; список History прокручивается отдельно, восстановление версии закрывает панель, Import и Export занимают доступную ширину;
+- Presets разделён на мобильный список и отдельный экран создания/редактирования с возвратом к списку;
+- Suno Tags разделён на мобильные вкладки `Tags in text` и `Add tag`;
+- окна имеют закреплённую верхнюю строку, одинаковые крупные кнопки закрытия, закрываются через `Escape` и не остаются открытыми одновременно;
+- высота полноэкранных окон синхронизируется с видимой областью браузера, чтобы содержимое оставалось прокручиваемым при открытой экранной клавиатуре;
+- проверены размеры 360×800, 393×873, 412×915, горизонтальная ориентация 800×360 и desktop 1280×800;
+- desktop-компоновка сохранена.
+
+Системная кнопка Android остаётся задачей этапа 5 после подключения Capacitor.
+
+### Мобильный этап 3. Android-оболочка
+
+Подключить Capacitor и Android к существующей Vite-сборке, не изменяя Tauri-версию Windows.
+
+### Мобильный этап 4. Android Data
+
+Добавить мобильный способ выбора, чтения, сохранения и отправки Data-файлов поверх общей проверки формата Data v2.
+
+### Мобильный этап 5. Поведение приложения
+
+Проверить экранную клавиатуру, сворачивание и восстановление приложения, системную кнопку «Назад», ориентацию экрана и сохранение обоих редакторов.
+
+### Мобильный этап 6. Сборка и проверка APK
+
+Подключить подготовленные Android-иконки, собрать APK, установить его на смартфон и повторить основные пользовательские проверки desktop-версии.

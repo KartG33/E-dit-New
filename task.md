@@ -1,22 +1,43 @@
 - `[x]` Phase 1: Pure Logic, Data Models & Unit Tests
   - `[x]` Setup Vite + React + TypeScript + Tailwind
-  - `[x]` Implement pure text command functions (Spaces, Edges, Upper, Lower, etc.)
-  - `[x]` Implement Suno commands (Clean, Space, Upper, Lyrics, Structure, Trim)
+  - `[x]` Implement pure text command functions with unambiguous internal names and stable command IDs/button labels
+  - `[x]` Implement Suno commands with distinct text/Suno transformation names and stable command IDs/button labels
   - `[x]` Implement line diff logic in shared business logic
   - `[x]` Implement Dexie.js database schema (versioning, migrations)
   - `[x]` Write Vitest tests (pure functions, regex, unicode, large text, Dexie migrations)
-- `[ ]` Phase 2: Core Editors, History & State
-  - `[ ]` 1. Current Editor State (Hydration, constant state, restart restoration)
-  - `[ ]` 2. History & Debounce (No consecutive duplicates, debounce timer fixes, strict mode protection)
-  - `[ ]` 3. Selection & Hotkeys (SET_SELECTION, onSelect tracking, scope isolation)
-  - `[ ]` 4. Symbol Analyzer (Pure functions, longest-match-first token registry, single undo deletion)
-  - `[ ]` 5. Presets (Command Registry, Chain & Regex types, execution logic, schema updates)
-  - `[ ]` 6. Favorites & Startup Tab (AppSettings expansion, favorites logic, UI pin/startup)
-  - `[ ]` 7. Suno Tags (Pure parsing functions, grouped identical tags editor, mass update)
-  - `[ ]` 8. Notes & History (Dexie CRUD for notes, Live query history, limit enforcement)
-  - `[ ]` 9. Backup & Platform Layer (Service layer, atomic restore, strict JSON validation, typed adapters)
-  - `[ ]` 10. Typing (Remove any, strict type checks, linting)
-  - `[ ]` 11. Tests (Comprehensive Vitest coverage for all new features, fix selection test)
-- `[ ]` Phase 3: Desktop UI & Tauri Integration
+- `[x]` Phase 2: Core Editors, Undo Stack, History & State
+  - `[x]` 1. Current Editor State (Hydration, constant state, restart restoration)
+  - `[x]` 2. Undo Stack & History Debounce (Independent Undo Stack; History persistence, consecutive deduplication, and the per-editor 50-record limit centralized in the database layer)
+  - `[x]` 3. Selection & Hotkeys (SET_SELECTION, onSelect tracking, scope isolation)
+  - `[x]` 4. Symbol Analyzer (Pure functions, longest-match-first token registry, single undo deletion)
+  - `[x]` 5. Presets (quick-apply toolbar plus separate create, edit, order, and delete manager for command sequences, symbol-removal steps, and find/replace presets)
+  - `[x]` 7. Suno Tags (ordered live list, single-occurrence edit/delete, numbered and custom insertion as one Undo step)
+  - `[x]` 8. History (Saved text versions in Dexie and the right panel, live query, limit enforcement)
+  - `[x]` 9. Data & Platform Layer (Safe Data v2 import, atomic restore, strict validation, browser adapter and Tauri adapter)
+  - `[x]` 10. Typing (Remove any, strict type checks, linting)
+  - `[x]` 11. Tests (Comprehensive Vitest coverage for all implemented features)
+  - `[x]` 12. Command Panel Decomposition (Independent Text, Suno, and Presets sections)
+- `[x]` Phase 3: Desktop UI & Tauri Integration
+  - `[x]` 1. Minimal Tauri desktop shell
+  - `[x]` 2. Native Data file dialogs
+  - `[x]` 3. Windows app metadata and platform icon set
+  - `[x]` 4. Windows installer
+  - `[x]` 5. Installed desktop app verification
 - `[ ]` Phase 4: Mobile UI & Capacitor Integration
+  - `[x]` 1. Responsive mobile editor layout
+    - `[x]` Show one editor at a time below 720 px
+    - `[x]` Add Editor 1 / Editor 2 switch without unmounting editor state
+    - `[x]` Keep command and symbol rows horizontally scrollable with touch-sized controls
+    - `[x]` Visual verification at 360, 393, and 412 px
+  - `[x]` 2. Mobile History, Presets, Data, and Suno Tags panels
+    - `[x]` Full-screen History/Data with touch-sized history cards and full-width Data actions
+    - `[x]` Separate mobile preset list and editor views with back navigation
+    - `[x]` Separate Tags in text and Add tag views for Suno Tags
+    - `[x]` Keep full-screen panels scrollable when the Android software keyboard reduces the visible viewport
+    - `[x]` Shared fixed headers, 48 px close controls, internal scrolling, Escape handling, and one-window-at-a-time state
+    - `[x]` Visual verification at 360×800, 393×873, 412×915, 800×360, and 1280×800
+  - `[ ]` 3. Capacitor Android shell
+  - `[ ]` 4. Android Data file adapter
+  - `[ ]` 5. Android keyboard, back button, and lifecycle behavior
+  - `[ ]` 6. Android icons, APK build, and installed-device verification
 - `[ ]` Phase 5: Polish & Performance

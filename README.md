@@ -1,32 +1,59 @@
-# React + TypeScript + Vite
+# E-dit
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+E-dit is a two-pane text editor with text transformations, presets, history, and Suno-specific tools.
 
-Currently, two official plugins are available:
+## Interface foundation
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+The interface uses a shared dark visual system defined in `src/index.css`. Semantic component classes draw from one set of surface, border, text, accent, spacing, and radius tokens. Editor content uses a 15 px monospace face with a 1.55 line height; controls, headings, metadata, and statistics use distinct compact hierarchy levels while preserving the existing two-pane layout.
 
-## React Compiler
+Each editor header shows total characters including whitespace and line count. Detected special-symbol buttons remain in the footer; clicking one removes every occurrence of that token in a single editor update.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Suno tags
 
-## Expanding the Oxlint configuration
+The Suno section lists every bracketed tag from the active editor in text order. Tags opens as a full-height workspace in the opposite editor pane, keeping the active text visible. A selected occurrence can be renamed or deleted as one Undo step. The builder inserts predefined or custom tags on their own line and can add a positive section number to predefined section tags.
 
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
+## Presets
 
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+The Presets command tab contains only quick-apply buttons. Preset creation and maintenance opens from the separate Presets action beside History and Data. The manager supports ordered command sequences, symbol-removal steps, and find/replace presets, including editing, ordering, validation, and confirmed deletion. Changes appear in the quick-apply toolbar immediately.
+
+## Data files
+
+Data export and import use the browser file workflow in the web version and native open/save dialogs in the Tauri desktop version. Both platforms use the same validated Data v2 format and atomic import logic.
+
+## App icons
+
+Platform-ready source assets live in `icons/`. The web build uses the favicon, Apple Touch, standard PWA, and maskable icons from `public/icons/`; the Tauri bundle uses the generated desktop and store assets from `src-tauri/icons/`.
+
+## Development
+
+Install dependencies:
+
+```text
+npm install
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+Run the web version:
+
+```text
+npm run dev
+```
+
+Run the desktop version:
+
+```text
+npm run tauri dev
+```
+
+Build the web version or Windows application:
+
+```text
+npm run build
+npm run tauri build
+```
+
+Run project checks:
+
+```text
+npm test
+npm run lint
+```

@@ -12,11 +12,13 @@ export const useGlobalHotkeys = (hotkeys: Hotkeys, active: boolean = true) => {
     
     const handleKeyDown = (e: KeyboardEvent) => {
       // Ignore if focus is in an input field (unless it has data-editor-id which is our main editor)
-      const target = e.target as HTMLElement;
+      const target = e.target as HTMLElement | null;
+      const isEditableContent = target ? (target.isContentEditable || target.getAttribute?.('contenteditable') === 'true' || target.getAttribute?.('contenteditable') === '') : false;
       if (
         target &&
+        typeof target.hasAttribute === 'function' &&
         !target.hasAttribute('data-editor-id') &&
-        (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'SELECT' || target.isContentEditable)
+        (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'SELECT' || isEditableContent)
       ) {
         return;
       }

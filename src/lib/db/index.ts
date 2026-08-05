@@ -1,13 +1,7 @@
 import Dexie, { type Table } from 'dexie';
+import type { CommandId } from '../commands/registry';
 
-export interface Note {
-  id?: number;
-  title: string;
-  text: string;
-  tags: string[];
-  createdAt: number;
-  updatedAt: number;
-}
+const MAX_HISTORY_RECORDS_PER_EDITOR = 50;
 
 export interface HistoryRecord {
   id?: number;
@@ -18,7 +12,7 @@ export interface HistoryRecord {
 
 export interface ChainPreset {
   type: 'chain';
-  commands: string[];
+  commands: CommandId[];
 }
 
 export interface RegexPreset {
@@ -37,6 +31,7 @@ export interface Preset {
   isFavorite: boolean;
   createdAt: number;
   updatedAt: number; // Added in v2
+  order?: number; // Added in v3
 }
 
 // typed settings map
@@ -56,7 +51,6 @@ export interface Setting {
 }
 
 export class EditDatabase extends Dexie {
-  notes!: Table<Note, number>;
   history!: Table<HistoryRecord, number>;
   presets!: Table<Preset, number>;
   settings!: Table<Setting, string>;
@@ -68,11 +62,11 @@ export class EditDatabase extends Dexie {
     this.version(1).stores({
       notes: '++id, title, *tags, createdAt, updatedAt',
       history: '++id, editorId, timestamp',
-      presets: '++id, name, isFavorite, createdAt', // no updatedAt in V1 indexing (it doesn't need indexing anyway, but just for the sake of schema)
+      presets: '++id, name, isFavorite, createdAt',
       settings: 'key'
     });
 
-    // Version 2 Schema (Migration example: adding updatedAt to presets if missing)
+    // Version 2 Schema
     this.version(2).stores({
       notes: '++id, title, *tags, createdAt, updatedAt',
       history: '++id, editorId, timestamp',
@@ -85,19 +79,49 @@ export class EditDatabase extends Dexie {
         }
       });
     });
+
+    // Version 3 Schema
+    this.version(3).stores({
+      notes: '++id, title, *tags, createdAt, updatedAt',
+      history: '++id, editorId, timestamp',
+      presets: '++id, name, isFavorite, createdAt, updatedAt, order',
+      settings: 'key'
+    }).upgrade(trans => {
+      let currentOrder = 0;
+      return trans.table('presets').toCollection().modify((preset: Preset) => {
+        if (typeof preset.order !== 'number') {
+          preset.order = currentOrder++;
+        }
+      });
+    });
+
+    // Version 4 Schema
+    this.version(4).stores({
+      notes: null
+    });
   }
 
-  // Method to add to history and enforce the limit per editor (max 50)
-  async addHistory(record: Omit<HistoryRecord, 'id'>, maxRecords: number = 50) {
+  async addHistory(record: Omit<HistoryRecord, 'id'>): Promise<void> {
     await this.transaction('rw', this.history, async () => {
+      const records = await this.history
+        .where('editorId')
+        .equals(record.editorId)
+        .sortBy('timestamp');
+      const latestRecord = records[records.length - 1];
+
+      if (latestRecord?.text === record.text) {
+        return;
+      }
+
       await this.history.add(record);
-      const count = await this.history.where('editorId').equals(record.editorId).count();
-      if (count > maxRecords) {
-        const oldest = await this.history
+      if (records.length + 1 > MAX_HISTORY_RECORDS_PER_EDITOR) {
+        const recordsAfterInsert = await this.history
           .where('editorId')
           .equals(record.editorId)
           .sortBy('timestamp');
-        const toDelete = oldest.slice(0, count - maxRecords).map(r => r.id!);
+        const toDelete = recordsAfterInsert
+          .slice(0, recordsAfterInsert.length - MAX_HISTORY_RECORDS_PER_EDITOR)
+          .map(historyRecord => historyRecord.id!);
         await this.history.bulkDelete(toDelete);
       }
     });

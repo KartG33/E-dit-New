@@ -1,0 +1,53 @@
+{
+  "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
+  "productName": "E-dit 2",
+  "version": "2.0.4",
+  "identifier": "com.kartg33.edit.v2",
+  "build": {
+    "frontendDist": "../dist",
+    "devUrl": "http://localhost:5173",
+    "beforeDevCommand": "npm run dev",
+    "beforeBuildCommand": "npm run build"
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "E-dit 2",
+        "width": 1280,
+        "height": 800,
+        "resizable": true,
+        "fullscreen": false
+      }
+    ],
+    "security": {
+      "csp": {
+        "default-src": "'self' customprotocol: asset:",
+        "connect-src": "ipc: http://ipc.localhost",
+        "font-src": "'self' data:",
+        "img-src": "'self' asset: http://asset.localhost blob: data:",
+        "style-src": "'self' 'unsafe-inline'"
+      },
+      "devCsp": {
+        "default-src": "'self' http://localhost:5173 customprotocol: asset:",
+        "connect-src": "ipc: http://ipc.localhost http://localhost:5173 ws://localhost:5173",
+        "font-src": "'self' data:",
+        "img-src": "'self' asset: http://asset.localhost blob: data:",
+        "style-src": "'self' 'unsafe-inline'"
+      }
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
+    "android": {
+      "debugApplicationIdSuffix": ".debug"
+    }
+  }
+}
