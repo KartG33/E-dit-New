@@ -76,7 +76,7 @@ export const SlidingDrawer = ({
           <button 
             type="button"
             onClick={onClose}
-            className="icon-button drawer-close-button"
+            className="icon-button drawer-close-button window-close-button"
             aria-label="Close History and Data"
             title="Закрыть"
             data-testid="drawer-close-btn"

@@ -20,6 +20,7 @@ interface SunoTagsEditorProps {
 }
 
 export const SunoTagsEditor = ({ editorText, onInsert, onChangeText }: SunoTagsEditorProps) => {
+  const [mobileTab, setMobileTab] = useState<'existing' | 'add'>('existing');
   const [sectionNumber, setSectionNumber] = useState('');
   const [customTag, setCustomTag] = useState('');
   const [selectedTag, setSelectedTag] = useState<SunoTagOccurrence | null>(null);
@@ -62,7 +63,30 @@ export const SunoTagsEditor = ({ editorText, onInsert, onChangeText }: SunoTagsE
   };
 
   return (
-    <div className="tag-workspace">
+    <div className="tag-editor-shell">
+      <div className="tag-mobile-tabs" aria-label="Suno tag views">
+        <button
+          type="button"
+          className={`tag-mobile-tab ${mobileTab === 'existing' ? 'is-active' : ''}`}
+          aria-pressed={mobileTab === 'existing'}
+          onClick={() => setMobileTab('existing')}
+        >
+          Tags in text
+        </button>
+        <button
+          type="button"
+          className={`tag-mobile-tab ${mobileTab === 'add' ? 'is-active' : ''}`}
+          aria-pressed={mobileTab === 'add'}
+          onClick={() => setMobileTab('add')}
+        >
+          Add tag
+        </button>
+      </div>
+
+      <div
+        className={`tag-workspace is-mobile-${mobileTab}`}
+        data-testid="suno-tags-workspace-body"
+      >
       <section className="tag-section tag-existing" aria-labelledby="existing-suno-tags-heading">
         <h3 id="existing-suno-tags-heading" className="section-eyebrow">
           Tags in text
@@ -179,6 +203,7 @@ export const SunoTagsEditor = ({ editorText, onInsert, onChangeText }: SunoTagsE
           </div>
         </div>
       </section>
+      </div>
     </div>
   );
 };

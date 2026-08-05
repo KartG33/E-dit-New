@@ -426,6 +426,17 @@ button:disabled {
   font-size: 0.75rem;
 }
 
+.tag-editor-shell {
+  display: flex;
+  min-height: 0;
+  flex: 1;
+  flex-direction: column;
+}
+
+.tag-mobile-tabs {
+  display: none;
+}
+
 .tag-workspace {
   display: grid;
   min-height: 0;
@@ -1443,6 +1454,135 @@ button:disabled {
 
 @media (max-width: 720px),
   (max-width: 920px) and (max-height: 520px) and (orientation: landscape) {
+  .window-close-button {
+    width: 3rem;
+    height: 3rem;
+    flex: 0 0 3rem;
+  }
+
+  .window-close-button svg {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+
+  .tags-docked-panel {
+    position: fixed;
+    inset: 0;
+    z-index: 70;
+    width: 100vw;
+    height: 100dvh;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .tags-docked-header {
+    min-height: 3.5rem;
+    flex-basis: 3.5rem;
+    padding: env(safe-area-inset-top) max(var(--space-3), env(safe-area-inset-right)) 0 max(var(--space-3), env(safe-area-inset-left));
+  }
+
+  .tags-docked-title {
+    font-size: 1rem;
+  }
+
+  .tags-docked-description {
+    display: none;
+  }
+
+  .tag-mobile-tabs {
+    display: flex;
+    gap: var(--space-1);
+    border-bottom: 1px solid var(--border-subtle);
+    background: var(--canvas);
+    padding: var(--space-2) max(var(--space-3), env(safe-area-inset-right)) var(--space-2) max(var(--space-3), env(safe-area-inset-left));
+  }
+
+  .tag-mobile-tab {
+    display: flex;
+    min-height: 2.75rem;
+    flex: 1;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid transparent;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--text-muted);
+    font-size: 0.875rem;
+    font-weight: 650;
+  }
+
+  .tag-mobile-tab.is-active {
+    border-color: var(--border-subtle);
+    background: var(--surface-2);
+    color: var(--accent-strong);
+  }
+
+  .tag-workspace {
+    display: block;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scroll-padding-bottom: 8rem;
+    background: var(--canvas);
+  }
+
+  .tag-workspace.is-mobile-existing .tag-add-panel,
+  .tag-workspace.is-mobile-add .tag-existing,
+  .tag-workspace.is-mobile-add .tag-edit-panel {
+    display: none;
+  }
+
+  .tag-section {
+    padding: var(--space-3) max(var(--space-3), env(safe-area-inset-right)) max(var(--space-4), env(safe-area-inset-bottom)) max(var(--space-3), env(safe-area-inset-left));
+  }
+
+  .tag-existing {
+    min-height: 0;
+    border-right: 0;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+
+  .tag-list-scroll {
+    max-height: 45dvh;
+    flex: none;
+  }
+
+  .tag-list-select {
+    min-height: 3rem;
+    padding-inline: var(--space-3);
+    font-size: 0.875rem;
+  }
+
+  .tag-section.is-builder {
+    overflow: visible;
+  }
+
+  .tag-workspace.is-mobile-existing .tag-section.is-builder {
+    padding-top: var(--space-4);
+  }
+
+  .tag-edit-panel {
+    min-height: 0;
+  }
+
+  .field-control,
+  .tag-button {
+    min-height: 2.75rem;
+    font-size: 0.875rem;
+  }
+
+  .tag-button {
+    padding-inline: var(--space-3);
+  }
+
+  .tag-edit-actions .tag-button {
+    flex: 1;
+  }
+
+  .tag-custom-row {
+    align-items: stretch;
+  }
+
   .preset-manager-backdrop {
     padding: 0;
   }
@@ -1467,17 +1607,6 @@ button:disabled {
 
   .preset-manager-header h2 {
     font-size: 1rem;
-  }
-
-  .preset-manager-close-button {
-    width: 3rem;
-    height: 3rem;
-    flex: 0 0 3rem;
-  }
-
-  .preset-manager-close-button svg {
-    width: 1.5rem;
-    height: 1.5rem;
   }
 
   .preset-manager-body {
@@ -1633,17 +1762,6 @@ button:disabled {
   .drawer-title svg {
     width: 1.25rem;
     height: 1.25rem;
-  }
-
-  .drawer-close-button {
-    width: 3rem;
-    height: 3rem;
-    flex: 0 0 3rem;
-  }
-
-  .drawer-close-button svg {
-    width: 1.5rem;
-    height: 1.5rem;
   }
 
   .drawer-tabs {

@@ -29,7 +29,12 @@
     - `[x]` Add Editor 1 / Editor 2 switch without unmounting editor state
     - `[x]` Keep command and symbol rows horizontally scrollable with touch-sized controls
     - `[x]` Visual verification at 360, 393, and 412 px
-  - `[ ]` 2. Mobile History, Presets, Data, and Suno Tags panels
+  - `[x]` 2. Mobile History, Presets, Data, and Suno Tags panels
+    - `[x]` Full-screen History/Data with touch-sized history cards and full-width Data actions
+    - `[x]` Separate mobile preset list and editor views with back navigation
+    - `[x]` Separate Tags in text and Add tag views for Suno Tags
+    - `[x]` Shared fixed headers, 48 px close controls, internal scrolling, Escape handling, and one-window-at-a-time state
+    - `[x]` Visual verification at 360×800, 393×873, 412×915, 800×360, and 1280×800
   - `[ ]` 3. Capacitor Android shell
   - `[ ]` 4. Android Data file adapter
   - `[ ]` 5. Android keyboard, back button, and lifecycle behavior

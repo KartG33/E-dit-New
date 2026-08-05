@@ -42,4 +42,27 @@ describe('Mobile editor layout state', () => {
     const tagsPanel = screen.getByRole('dialog', { name: 'Suno Tags' });
     expect(tagsPanel.closest('.app-editor-pane')?.classList.contains('is-mobile-visible')).toBe(true);
   });
+
+  it('keeps only one auxiliary window open at a time', async () => {
+    render(<App />);
+    await waitFor(() => {
+      expect((screen.getByRole('textbox', { name: 'left editor' }) as HTMLTextAreaElement).disabled).toBe(false);
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: 'Manage presets' }));
+    expect(screen.getByRole('dialog', { name: 'Presets' })).toBeDefined();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Suno' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Tags' }));
+    expect(screen.queryByRole('dialog', { name: 'Presets' })).toBeNull();
+    expect(screen.getByRole('dialog', { name: 'Suno Tags' })).toBeDefined();
+
+    fireEvent.click(screen.getByRole('button', { name: 'History' }));
+    expect(screen.queryByRole('dialog', { name: 'Suno Tags' })).toBeNull();
+    expect(screen.getByTestId('sliding-drawer').classList.contains('is-open')).toBe(true);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Manage presets' }));
+    expect(screen.getByTestId('sliding-drawer').classList.contains('is-open')).toBe(false);
+    expect(screen.getByRole('dialog', { name: 'Presets' })).toBeDefined();
+  });
 });

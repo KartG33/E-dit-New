@@ -36,6 +36,7 @@ export const PresetManager = ({ onClose, database = db }: PresetManagerProps) =>
   const [mobileView, setMobileView] = useState<MobilePresetView>('list');
 
   const resetForm = () => {
+    setInitialized(true);
     setEditingId(null);
     setName('');
     setKind('chain');
@@ -58,7 +59,10 @@ export const PresetManager = ({ onClose, database = db }: PresetManagerProps) =>
     setError('');
     setSavedMessage('');
     setConfirmDelete(false);
-    if (openEditor) setMobileView('editor');
+    if (openEditor) {
+      setInitialized(true);
+      setMobileView('editor');
+    }
 
     if (preset.data.type === 'chain') {
       setCommands(preset.data.commands);
@@ -215,7 +219,7 @@ export const PresetManager = ({ onClose, database = db }: PresetManagerProps) =>
             <h2 id="preset-manager-title">Presets</h2>
             <p>Create and manage reusable text actions</p>
           </div>
-          <button type="button" className="icon-button preset-manager-close-button" aria-label="Close presets" onClick={onClose}>
+          <button type="button" className="icon-button preset-manager-close-button window-close-button" aria-label="Close presets" onClick={onClose}>
             <X size={18} />
           </button>
         </header>

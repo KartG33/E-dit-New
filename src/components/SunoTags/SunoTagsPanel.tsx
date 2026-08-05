@@ -40,7 +40,7 @@ export const SunoTagsPanel = ({
         </div>
         <button
           type="button"
-          className="tags-docked-close"
+          className="tags-docked-close window-close-button"
           aria-label="Close Tags"
           onClick={onClose}
         >

@@ -80,7 +80,7 @@ describe('CommandPanel', () => {
     );
 
     expect(screen.getByRole('dialog', { name: 'Suno Tags' })).toBeDefined();
-    expect(screen.getByText('Add tag')).toBeDefined();
+    expect(screen.getByRole('heading', { name: 'Add tag' })).toBeDefined();
     expect(screen.getAllByRole('listitem').map((item) => item.textContent)).toEqual([
       '[Verse]',
       '[Chorus]',
@@ -147,6 +147,27 @@ describe('CommandPanel', () => {
     expect(screen.getByText('[Short]')).toBeDefined();
     expect(screen.getByTitle(`[${longTag}]`).classList.contains('tag-list-select')).toBe(true);
     expect(screen.getAllByRole('listitem')).toHaveLength(26);
+  });
+
+  it('switches between the mobile Suno tag views', () => {
+    render(
+      <SunoTagsPanel
+        editorKey="left"
+        editorText="[Verse]"
+        onInsert={vi.fn()}
+        onChangeText={vi.fn()}
+        onClose={vi.fn()}
+      />,
+    );
+
+    const workspace = screen.getByTestId('suno-tags-workspace-body');
+    expect(workspace.classList.contains('is-mobile-existing')).toBe(true);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Add tag' }));
+    expect(workspace.classList.contains('is-mobile-add')).toBe(true);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Tags in text' }));
+    expect(workspace.classList.contains('is-mobile-existing')).toBe(true);
   });
 
   it('closes the Tags workspace with Escape', () => {

@@ -31,6 +31,14 @@ const App = () => {
     setPresetManagerOpen(true);
   };
 
+  const handleTagsOpenChange = (isOpen: boolean) => {
+    if (isOpen) {
+      setDrawerOpen(false);
+      setPresetManagerOpen(false);
+    }
+    setTagsOpen(isOpen);
+  };
+
   const applyHistoryVersion = (text: string) => {
     if (activeEditor === 'left') {
       leftEditor.updateValue(text);
@@ -65,7 +73,7 @@ const App = () => {
         activeEditor={activeEditor}
         onActiveEditorChange={setActiveEditor}
         tagsOpen={tagsOpen}
-        onTagsOpenChange={setTagsOpen}
+        onTagsOpenChange={handleTagsOpenChange}
         onOpenDrawer={handleOpenDrawer}
         onOpenPresets={handleOpenPresets}
       />
