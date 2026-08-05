@@ -36,7 +36,11 @@
     - `[x]` Keep full-screen panels scrollable when the Android software keyboard reduces the visible viewport
     - `[x]` Shared fixed headers, 48 px close controls, internal scrolling, Escape handling, and one-window-at-a-time state
     - `[x]` Visual verification at 360×800, 393×873, 412×915, 800×360, and 1280×800
-  - `[ ]` 3. Capacitor Android shell
+  - `[x]` 3. Capacitor Android shell
+    - `[x]` Add Capacitor 8 runtime, CLI, and Android platform
+    - `[x]` Reuse the Vite `dist` output without changing the Tauri configuration
+    - `[x]` Add repeatable Android sync and Android Studio commands
+    - `[x]` Verify the generated Gradle project and Android unit test with JDK 21
   - `[ ]` 4. Android Data file adapter
   - `[ ]` 5. Android keyboard, back button, and lifecycle behavior
   - `[ ]` 6. Android icons, APK build, and installed-device verification
