@@ -41,7 +41,11 @@
     - `[x]` Reuse the Vite `dist` output without changing the Tauri configuration
     - `[x]` Add repeatable Android sync and Android Studio commands
     - `[x]` Verify the generated Gradle project and Android unit test with JDK 21
-  - `[ ]` 4. Android Data file adapter
+  - `[x]` 4. Android Data file adapter
+    - `[x]` Use the Android system file picker for Data v2 import
+    - `[x]` Export Data through a temporary cache file and the native save/share sheet
+    - `[x]` Remove temporary export files after the native share flow closes
+    - `[x]` Keep browser and Tauri adapters unchanged through platform selection
   - `[ ]` 5. Android keyboard, back button, and lifecycle behavior
   - `[ ]` 6. Android icons, APK build, and installed-device verification
 - `[ ]` Phase 5: Polish & Performance
