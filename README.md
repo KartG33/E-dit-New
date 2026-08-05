@@ -18,7 +18,7 @@ The Presets command tab contains only quick-apply buttons. Preset creation and m
 
 ## Data files
 
-Data export and import use the browser file workflow in the web version and native open/save dialogs in the Tauri desktop version. Both platforms use the same validated Data v2 format and atomic import logic.
+Data export and import use the browser file workflow in the web version and native open/save dialogs in the Tauri desktop version. On Android, Import opens the system file picker, while Export opens the native save/share sheet using a temporary cache file that is removed afterward. All platforms use the same validated Data v2 format and atomic import logic.
 
 ## App icons
 
