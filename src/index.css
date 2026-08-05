@@ -1675,6 +1675,14 @@ button:disabled {
     padding: var(--space-3) max(var(--space-3), env(safe-area-inset-right)) max(var(--space-4), env(safe-area-inset-bottom)) max(var(--space-3), env(safe-area-inset-left));
   }
 
+  .preset-manager-editor > * {
+    flex-shrink: 0;
+  }
+
+  .preset-config-section {
+    min-height: auto;
+  }
+
   .preset-form-topline {
     min-height: 3rem;
   }
