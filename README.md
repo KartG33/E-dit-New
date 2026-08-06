@@ -20,6 +20,10 @@ The Presets command tab contains only quick-apply buttons. Preset creation and m
 
 Data export and import use the browser file workflow in the web version and native open/save dialogs in the Tauri desktop version. On Android, Import opens the system file picker, while Export opens the native save/share sheet using a temporary cache file that is removed afterward. All platforms use the same validated Data v2 format and atomic import logic.
 
+## Android app behavior
+
+The Android WebView resizes with the software keyboard. The system Back button hides the keyboard first, returns the mobile preset editor to its list, closes an open auxiliary window, or minimizes the app from the main screen. Pending changes in both editors are flushed before the app moves to the background, and viewport measurements refresh when it returns.
+
 ## App icons
 
 Platform-ready source assets live in `icons/`. The web build uses the favicon, Apple Touch, standard PWA, and maskable icons from `public/icons/`; the Tauri bundle uses the generated desktop and store assets from `src-tauri/icons/`.

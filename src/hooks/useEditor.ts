@@ -124,6 +124,18 @@ export const useEditor = (editorId: 'left' | 'right') => {
     }
   }, [editorId]);
 
+  const flushPendingSave = useCallback(async () => {
+    if (!debounceTimer.current) return;
+
+    clearTimeout(debounceTimer.current);
+    debounceTimer.current = null;
+    const text = valueRef.current;
+    await Promise.all([
+      saveCurrentEditorText(text),
+      appendHistoryVersion(text),
+    ]);
+  }, [saveCurrentEditorText, appendHistoryVersion]);
+
   const updateValue = useCallback((newValue: string, selectionStart: number = 0, selectionEnd: number = 0, addToUndoStack: boolean = true) => {
     if (!state.hydrated) {
       return; // Ignored while not hydrated
@@ -141,12 +153,10 @@ export const useEditor = (editorId: 'left' | 'right') => {
         clearTimeout(debounceTimer.current);
       }
       debounceTimer.current = setTimeout(() => {
-        saveCurrentEditorText(newValue);
-        appendHistoryVersion(newValue);
-        debounceTimer.current = null;
+        void flushPendingSave();
       }, AUTOSAVE_DELAY);
     }
-  }, [state.hydrated, saveCurrentEditorText, appendHistoryVersion]);
+  }, [state.hydrated, flushPendingSave]);
 
   // Hydration from settings
   useEffect(() => {
@@ -204,14 +214,9 @@ export const useEditor = (editorId: 'left' | 'right') => {
   // Cleanup on unmount: flush debounced save ONLY if pending
   useEffect(() => {
     return () => {
-      if (debounceTimer.current) {
-        clearTimeout(debounceTimer.current);
-        debounceTimer.current = null;
-        saveCurrentEditorText(valueRef.current);
-        appendHistoryVersion(valueRef.current);
-      }
+      void flushPendingSave();
     };
-  }, [saveCurrentEditorText, appendHistoryVersion]);
+  }, [flushPendingSave]);
 
   return {
     value: state.value,
@@ -221,6 +226,7 @@ export const useEditor = (editorId: 'left' | 'right') => {
     onSelect,
     undo,
     redo,
+    flushPendingSave,
     canUndo,
     canRedo,
   };

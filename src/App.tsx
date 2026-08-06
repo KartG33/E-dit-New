@@ -6,6 +6,7 @@ import { SunoTagsPanel } from './components/SunoTags/SunoTagsPanel';
 import { PresetManager } from './components/Presets/PresetManager';
 import type { DrawerTab } from './components/Drawer/SlidingDrawer';
 import { useEditor } from './hooks/useEditor';
+import { useAndroidAppLifecycle } from './hooks/useAndroidAppLifecycle';
 import { insertSunoTag } from './lib/commands/suno';
 
 const App = () => {
@@ -66,6 +67,21 @@ const App = () => {
     }
     setTagsOpen(isOpen);
   };
+
+  useAndroidAppLifecycle({
+    hasOpenWindow: drawerOpen || tagsOpen || presetManagerOpen,
+    closeOpenWindow: () => {
+      setDrawerOpen(false);
+      setTagsOpen(false);
+      setPresetManagerOpen(false);
+    },
+    flushPendingState: async () => {
+      await Promise.all([
+        leftEditor.flushPendingSave(),
+        rightEditor.flushPendingSave(),
+      ]);
+    },
+  });
 
   const applyHistoryVersion = (text: string) => {
     if (activeEditor === 'left') {
