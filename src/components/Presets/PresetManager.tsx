@@ -7,6 +7,7 @@ import {
   getPresetCommandLabel,
 } from '../../lib/presets/commandOptions';
 import { usePresets } from '../../hooks/usePresets';
+import { ANDROID_BACK_REQUEST_EVENT } from '../../hooks/useAndroidAppLifecycle';
 
 interface PresetManagerProps {
   onClose: () => void;
@@ -93,6 +94,17 @@ export const PresetManager = ({ onClose, database = db }: PresetManagerProps) =>
     document.addEventListener('keydown', closeOnEscape);
     return () => document.removeEventListener('keydown', closeOnEscape);
   }, [onClose]);
+
+  useEffect(() => {
+    const returnToList = (event: Event) => {
+      if (mobileView !== 'editor') return;
+      event.preventDefault();
+      setMobileView('list');
+    };
+
+    window.addEventListener(ANDROID_BACK_REQUEST_EVENT, returnToList);
+    return () => window.removeEventListener(ANDROID_BACK_REQUEST_EVENT, returnToList);
+  }, [mobileView]);
 
   const buildPresetData = (): PresetData | null => {
     if (kind === 'chain') {

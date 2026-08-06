@@ -161,6 +161,20 @@ describe('useEditor Hook Autosave & Hydration', () => {
     expect(historyRecords[0].text).toBe('Unmounting text');
   });
 
+  it('flushes a pending change immediately for native lifecycle events', async () => {
+    const { result } = renderHook(() => useEditor('left'));
+    await act(async () => { await vi.runAllTimersAsync(); });
+
+    act(() => { result.current.updateValue('Backgrounded text'); });
+    await act(async () => { await result.current.flushPendingSave(); });
+
+    expect(await db.getSetting('editorLeftText')).toBe('Backgrounded text');
+    expect(await db.history.where('editorId').equals('left').count()).toBe(1);
+
+    await act(async () => { await vi.advanceTimersByTimeAsync(2000); });
+    expect(await db.history.where('editorId').equals('left').count()).toBe(1);
+  });
+
   it('works properly in StrictMode without creating empty or duplicate entries', async () => {
     const { result } = renderHook(() => useEditor('left'), { wrapper: StrictMode });
     await act(async () => { await vi.runAllTimersAsync(); });

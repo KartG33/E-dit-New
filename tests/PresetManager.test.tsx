@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { PresetManager } from '../src/components/Presets/PresetManager';
+import { ANDROID_BACK_REQUEST_EVENT } from '../src/hooks/useAndroidAppLifecycle';
 import { PresetsTab } from '../src/components/Commands/PresetsTab';
 import { EditDatabase } from '../src/lib/db';
 
@@ -132,6 +133,25 @@ describe.sequential('Preset management', () => {
     fireEvent.click(screen.getByRole('button', { name: 'New preset' }));
     expect(body.classList.contains('is-mobile-editor')).toBe(true);
     expect(screen.getByLabelText('Name')).toHaveProperty('value', '');
+  });
+
+  it('returns to the preset list when the Android back request is handled in the editor', async () => {
+    render(<PresetManager onClose={vi.fn()} database={database} />);
+
+    await screen.findByText('No presets yet.');
+    fireEvent.click(screen.getByRole('button', { name: 'New preset' }));
+    const body = screen.getByTestId('preset-manager-body');
+    expect(body.classList.contains('is-mobile-editor')).toBe(true);
+
+    let handled = false;
+    act(() => {
+      handled = !window.dispatchEvent(new Event(ANDROID_BACK_REQUEST_EVENT, {
+        cancelable: true,
+      }));
+    });
+
+    expect(handled).toBe(true);
+    expect(body.classList.contains('is-mobile-list')).toBe(true);
   });
 
   it('adds a symbol removal action to a command sequence', async () => {
