@@ -23,7 +23,7 @@
   - `[x]` 3. Windows app metadata and platform icon set
   - `[x]` 4. Windows installer
   - `[x]` 5. Installed desktop app verification
-- `[ ]` Phase 4: Mobile UI & Capacitor Integration
+- `[x]` Phase 4: Mobile UI & Capacitor Integration
   - `[x]` 1. Responsive mobile editor layout
     - `[x]` Show one editor at a time below 720 px
     - `[x]` Add Editor 1 / Editor 2 switch without unmounting editor state
@@ -52,5 +52,10 @@
     - `[x]` Flush pending editor saves before backgrounding or minimizing the app
     - `[x]` Refresh viewport measurements after returning to the foreground
     - `[x]` Verify App and Keyboard plugins with web tests, Android sync, Gradle, and Tauri checks
-  - `[ ]` 6. Android icons, APK build, and installed-device verification
+  - `[x]` 6. Android icons, APK build, and installed-device verification
+    - `[x]` Install launcher and adaptive icon resources for every Android density
+    - `[x]` Handle Android edge-to-edge safe areas in portrait and landscape
+    - `[x]` Build and inspect the signed debug APK for version 2.0.4
+    - `[x]` Install the APK on a Redmi Note 13 Pro over wireless ADB
+    - `[x]` Verify keyboard resize, Back, restart persistence, History/Data, Presets, Suno Tags, native Import/Export, and launcher icon on the installed app
 - `[ ]` Phase 5: Polish & Performance
