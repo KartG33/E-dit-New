@@ -22,11 +22,11 @@ Data export and import use the browser file workflow in the web version and nati
 
 ## Android app behavior
 
-The Android WebView resizes with the software keyboard. The system Back button hides the keyboard first, returns the mobile preset editor to its list, closes an open auxiliary window, or minimizes the app from the main screen. Pending changes in both editors are flushed before the app moves to the background, and viewport measurements refresh when it returns.
+The Android WebView resizes with the software keyboard. The system Back button hides the keyboard first, returns the mobile preset editor to its list, closes an open auxiliary window, or minimizes the app from the main screen. Pending changes in both editors are flushed before the app moves to the background, and viewport measurements refresh when it returns. Capacitor SystemBars provides safe-area values so portrait and landscape controls stay clear of Android's edge-to-edge system UI.
 
 ## App icons
 
-Platform-ready source assets live in `icons/`. The web build uses the favicon, Apple Touch, standard PWA, and maskable icons from `public/icons/`; the Tauri bundle uses the generated desktop and store assets from `src-tauri/icons/`.
+Platform-ready source assets live in `icons/`. The web build uses the favicon, Apple Touch, standard PWA, and maskable icons from `public/icons/`; the Tauri bundle uses the generated desktop and store assets from `src-tauri/icons/`; Android uses density-specific launcher and adaptive resources under `android/app/src/main/res/`.
 
 ## Development
 
@@ -60,7 +60,13 @@ Open the native project after installing Android Studio 2025.2.1 or newer and an
 npm run android:open
 ```
 
-The Android shell targets API 24 and newer. APK creation and installed-device verification are intentionally deferred to the final Android stage.
+The Android shell targets API 24 and newer. Build the debug APK with JDK 21 after synchronizing the web assets:
+
+```text
+.\android\gradlew.bat -p android assembleDebug
+```
+
+The APK is written to `android/app/build/outputs/apk/debug/app-debug.apk`.
 
 Build the web version or Windows application:
 

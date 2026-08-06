@@ -5,6 +5,11 @@ const config: CapacitorConfig = {
   appName: 'E-dit 2',
   webDir: 'dist',
   plugins: {
+    SystemBars: {
+      insetsHandling: 'css',
+      style: 'DARK',
+      hidden: false,
+    },
     Keyboard: {
       resizeOnFullScreen: true,
     },
