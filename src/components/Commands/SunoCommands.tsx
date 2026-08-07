@@ -17,11 +17,11 @@ interface SunoCommandsProps {
 export const SunoCommands = ({ applyCommand, tagsOpen, onTagsOpenChange }: SunoCommandsProps) => {
   return (
     <div className="ui-command-row">
-      <CommandButton label="Suno Clean" onClick={() => applyCommand(clean)} />
-      <CommandButton label="Suno Space" onClick={() => applyCommand(space)} />
-      <CommandButton label="Suno Upper" onClick={() => applyCommand(capitalizeSunoLines)} />
-      <CommandButton label="Suno Lyrics" onClick={() => applyCommand(lyrics)} />
-      <CommandButton label="Suno Structure" onClick={() => applyCommand(structure)} />
+      <CommandButton label="Clean" onClick={() => applyCommand(clean)} />
+      <CommandButton label="Space" onClick={() => applyCommand(space)} />
+      <CommandButton label="Upper" onClick={() => applyCommand(capitalizeSunoLines)} />
+      <CommandButton label="Lyrics" onClick={() => applyCommand(lyrics)} />
+      <CommandButton label="Structure" onClick={() => applyCommand(structure)} />
       <button
         type="button"
         className={`command-button tags-toggle ${tagsOpen ? 'is-active' : ''}`}
