@@ -1,5 +1,6 @@
 import { useRef, useEffect } from 'react';
-import { Undo2, Redo2 } from 'lucide-react';
+import { ClipboardPaste, Copy, Redo2, Trash2, Undo2 } from 'lucide-react';
+import { Clipboard } from '@capacitor/clipboard';
 import { useSymbolAnalyzer } from '../../hooks/useSymbolAnalyzer';
 import { useGlobalHotkeys } from '../../hooks/useGlobalHotkeys';
 import type { EditorState } from '../../hooks/useEditor';
@@ -75,6 +76,47 @@ export const Editor = ({
     redo();
   };
 
+  const reportClipboardError = (message: string) => {
+    window.dispatchEvent(new CustomEvent('app-error', { detail: message }));
+  };
+
+  const handleCopy = async () => {
+    try {
+      await Clipboard.write({ string: value, label: 'E-dit editor text' });
+    } catch {
+      reportClipboardError('Failed to copy text');
+    }
+  };
+
+  const handlePaste = async () => {
+    try {
+      const { value: clipboardValue } = await Clipboard.read();
+      if (!clipboardValue) return;
+
+      const selectionStart = textareaRef.current?.selectionStart ?? currentState.selectionStart;
+      const selectionEnd = textareaRef.current?.selectionEnd ?? currentState.selectionEnd;
+      const nextSelection = selectionStart + clipboardValue.length;
+      const nextValue = `${value.slice(0, selectionStart)}${clipboardValue}${value.slice(selectionEnd)}`;
+
+      updateValue(nextValue, nextSelection, nextSelection, true);
+      requestAnimationFrame(() => {
+        textareaRef.current?.setSelectionRange(nextSelection, nextSelection);
+      });
+    } catch {
+      reportClipboardError('Failed to paste text');
+    }
+  };
+
+  const handleClear = () => {
+    updateValue('', 0, 0, true);
+  };
+
+  const preserveEditorFocus = (event: React.PointerEvent<HTMLButtonElement>) => {
+    if (document.activeElement === textareaRef.current) {
+      event.preventDefault();
+    }
+  };
+
   useGlobalHotkeys({
     'Ctrl+Z': () => { if (isActive) handleUndo(); },
     'Ctrl+Shift+Z': () => { if (isActive) handleRedo(); },
@@ -90,14 +132,48 @@ export const Editor = ({
     <div className={`editor-card ${isActive ? 'is-active' : ''}`}>
       <div className="editor-header">
         <div className="editor-stats" data-testid="editor-stats">
-          <span>{stats.characters} chars</span>
+          <span>{stats.characters}<span className="editor-stat-unit"> chars</span></span>
           <span aria-hidden="true">·</span>
-          <span>{stats.lines} lines</span>
+          <span>{stats.lines}<span className="editor-stat-unit"> lines</span></span>
         </div>
         <div className="editor-header-controls">
+          <button
+            type="button"
+            onClick={() => { void handleCopy(); }}
+            onPointerDown={preserveEditorFocus}
+            disabled={!hydrated || value.length === 0}
+            className="icon-button editor-mobile-action"
+            title="Copy all text"
+            aria-label="Copy all text"
+          >
+            <Copy size={18} />
+          </button>
+          <button
+            type="button"
+            onClick={() => { void handlePaste(); }}
+            onPointerDown={preserveEditorFocus}
+            disabled={!hydrated}
+            className="icon-button editor-mobile-action"
+            title="Paste"
+            aria-label="Paste"
+          >
+            <ClipboardPaste size={18} />
+          </button>
+          <button
+            type="button"
+            onClick={handleClear}
+            onPointerDown={preserveEditorFocus}
+            disabled={!hydrated || value.length === 0}
+            className="icon-button editor-mobile-action"
+            title="Clear editor"
+            aria-label="Clear editor"
+          >
+            <Trash2 size={18} />
+          </button>
           <button 
             type="button"
             onClick={handleUndo} 
+            onPointerDown={preserveEditorFocus}
             disabled={!canUndo}
             className="icon-button"
             title="Undo (Ctrl+Z)"
@@ -108,6 +184,7 @@ export const Editor = ({
           <button 
             type="button"
             onClick={handleRedo} 
+            onPointerDown={preserveEditorFocus}
             disabled={!canRedo}
             className="icon-button"
             title="Redo (Ctrl+Y)"

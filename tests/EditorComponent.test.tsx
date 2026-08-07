@@ -3,6 +3,14 @@ import { render, screen, cleanup, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Editor } from '../src/components/Editor/Editor';
 import { EditorState } from '../src/hooks/useEditor';
+import { Clipboard } from '@capacitor/clipboard';
+
+vi.mock('@capacitor/clipboard', () => ({
+  Clipboard: {
+    read: vi.fn(),
+    write: vi.fn(),
+  },
+}));
 
 const mockState: EditorState = { value: '', selectionStart: 0, selectionEnd: 0 };
 
@@ -93,6 +101,85 @@ describe('Editor Component', () => {
     await userEvent.type(textarea, 'a');
     
     expect(updateValue).toHaveBeenCalled();
+  });
+
+  it('copies the complete editor text', async () => {
+    render(
+      <Editor
+        id="left"
+        value="Copy me"
+        currentState={{ value: 'Copy me', selectionStart: 2, selectionEnd: 4 }}
+        updateValue={vi.fn()}
+        undo={vi.fn()}
+        redo={vi.fn()}
+        canUndo={false}
+        canRedo={false}
+        isActive={true}
+        onFocus={vi.fn()}
+        onSelect={vi.fn()}
+        hydrated={true}
+      />
+    );
+
+    await userEvent.click(screen.getByRole('button', { name: 'Copy all text' }));
+
+    expect(Clipboard.write).toHaveBeenCalledWith({
+      string: 'Copy me',
+      label: 'E-dit editor text',
+    });
+  });
+
+  it('pastes clipboard text over the current selection', async () => {
+    vi.mocked(Clipboard.read).mockResolvedValue({ value: 'new', type: 'text/plain' });
+    const updateValue = vi.fn();
+
+    render(
+      <Editor
+        id="left"
+        value="old text"
+        currentState={{ value: 'old text', selectionStart: 0, selectionEnd: 3 }}
+        updateValue={updateValue}
+        undo={vi.fn()}
+        redo={vi.fn()}
+        canUndo={false}
+        canRedo={false}
+        isActive={true}
+        onFocus={vi.fn()}
+        onSelect={vi.fn()}
+        hydrated={true}
+      />
+    );
+
+    const textarea = screen.getByRole('textbox') as HTMLTextAreaElement;
+    textarea.setSelectionRange(0, 3);
+    await userEvent.click(screen.getByRole('button', { name: 'Paste' }));
+
+    expect(updateValue).toHaveBeenCalledWith('new text', 3, 3, true);
+  });
+
+  it('clears the editor through the undoable update path', async () => {
+    const updateValue = vi.fn();
+
+    render(
+      <Editor
+        id="left"
+        value="Remove me"
+        currentState={{ value: 'Remove me', selectionStart: 0, selectionEnd: 0 }}
+        updateValue={updateValue}
+        undo={vi.fn()}
+        redo={vi.fn()}
+        canUndo={false}
+        canRedo={false}
+        isActive={true}
+        onFocus={vi.fn()}
+        onSelect={vi.fn()}
+        hydrated={true}
+      />
+    );
+
+    await userEvent.click(screen.getByRole('button', { name: 'Clear editor' }));
+
+    expect(updateValue).toHaveBeenCalledWith('', 0, 0, true);
   });
 
   it('restores selection range on undo after explicit onSelect', async () => {

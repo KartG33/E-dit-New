@@ -58,4 +58,10 @@
     - `[x]` Build and inspect the signed debug APK for version 2.0.4
     - `[x]` Install the APK on a Redmi Note 13 Pro over wireless ADB
     - `[x]` Verify keyboard resize, Back, restart persistence, History/Data, Presets, Suno Tags, native Import/Export, and launcher icon on the installed app
+  - `[x]` 7. Mobile editor command and clipboard polish
+    - `[x]` Prevent Text and Suno command buttons from being clipped at the bottom edge
+    - `[x]` Use concise Suno command labels that fit the mobile toolbar
+    - `[x]` Add always-visible mobile Copy, Paste, and Clear actions backed by the native Clipboard plugin
+    - `[x]` Keep Clear undoable, paste at the current selection, and preserve the desktop editor header
+    - `[x]` Verify the five mobile editor actions at 360 px and on a Redmi Note 13 Pro
 - `[ ]` Phase 5: Polish & Performance

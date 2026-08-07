@@ -15,7 +15,7 @@ describe('CommandPanel', () => {
     render(<CommandPanel applyCommand={applyCommand} />);
 
     expect(screen.getByRole('button', { name: 'Spaces' })).toBeDefined();
-    expect(screen.queryByRole('button', { name: 'Suno Clean' })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Clean' })).toBeNull();
     expect(screen.getByRole('button', { name: 'Text' }).getAttribute('aria-pressed')).toBe('true');
 
     fireEvent.click(screen.getByRole('button', { name: 'Spaces' }));
@@ -48,6 +48,8 @@ describe('CommandPanel', () => {
     );
 
     fireEvent.click(screen.getByRole('button', { name: 'Suno' }));
+    expect(screen.getByRole('button', { name: 'Clean' })).toBeDefined();
+    expect(screen.getByRole('button', { name: 'Structure' })).toBeDefined();
     fireEvent.click(screen.getByRole('button', { name: 'Tags' }));
     expect(onTagsOpenChange).toHaveBeenLastCalledWith(true);
 
