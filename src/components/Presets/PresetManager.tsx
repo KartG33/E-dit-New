@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import { ArrowDown, ArrowLeft, ArrowUp, Plus, Settings2, Trash2, X } from 'lucide-react';
-import { db, type EditDatabase, type Preset, type PresetData } from '../../lib/db';
+import { ArrowDown, ArrowLeft, ArrowUp, Keyboard, Plus, Settings2, Trash2, X } from 'lucide-react';
+import { db, type EditDatabase, type Preset, type PresetData, type PresetShortcut } from '../../lib/db';
 import type { CommandId } from '../../lib/commands/registry';
 import {
   PRESET_COMMAND_OPTIONS,
@@ -8,6 +8,7 @@ import {
 } from '../../lib/presets/commandOptions';
 import { usePresets } from '../../hooks/usePresets';
 import { ANDROID_BACK_REQUEST_EVENT } from '../../hooks/useAndroidAppLifecycle';
+import { formatShortcut, isModifierCode, shortcutFromEvent, shortcutId, validatePresetShortcut } from '../../lib/hotkeys';
 
 interface PresetManagerProps {
   onClose: () => void;
@@ -35,6 +36,8 @@ export const PresetManager = ({ onClose, database = db }: PresetManagerProps) =>
   const [savedMessage, setSavedMessage] = useState('');
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [mobileView, setMobileView] = useState<MobilePresetView>('list');
+  const [shortcut, setShortcut] = useState<PresetShortcut | undefined>();
+  const [recordingShortcut, setRecordingShortcut] = useState(false);
 
   const resetForm = () => {
     setInitialized(true);
@@ -50,6 +53,8 @@ export const PresetManager = ({ onClose, database = db }: PresetManagerProps) =>
     setError('');
     setSavedMessage('');
     setConfirmDelete(false);
+    setShortcut(undefined);
+    setRecordingShortcut(false);
     setMobileView('editor');
   };
 
@@ -60,6 +65,8 @@ export const PresetManager = ({ onClose, database = db }: PresetManagerProps) =>
     setError('');
     setSavedMessage('');
     setConfirmDelete(false);
+    setShortcut(preset.shortcut);
+    setRecordingShortcut(false);
     if (openEditor) {
       setInitialized(true);
       setMobileView('editor');
@@ -89,11 +96,51 @@ export const PresetManager = ({ onClose, database = db }: PresetManagerProps) =>
 
   useEffect(() => {
     const closeOnEscape = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') onClose();
+      if (event.key === 'Escape' && !recordingShortcut) onClose();
     };
     document.addEventListener('keydown', closeOnEscape);
     return () => document.removeEventListener('keydown', closeOnEscape);
-  }, [onClose]);
+  }, [onClose, recordingShortcut]);
+
+  useEffect(() => {
+    if (!recordingShortcut) return;
+    const captureShortcut = (event: KeyboardEvent) => {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      if (event.key === 'Escape') {
+        setRecordingShortcut(false);
+        return;
+      }
+      if (event.key === 'Backspace' || event.key === 'Delete') {
+        setShortcut(undefined);
+        setRecordingShortcut(false);
+        setError('');
+        return;
+      }
+      if (isModifierCode(event.code)) return;
+
+      const nextShortcut = shortcutFromEvent(event);
+      const validationError = validatePresetShortcut(nextShortcut);
+      if (validationError) {
+        setError(validationError);
+        return;
+      }
+      const conflict = presets.find(preset =>
+        preset.id !== editingId
+        && preset.shortcut
+        && shortcutId(preset.shortcut) === shortcutId(nextShortcut),
+      );
+      if (conflict) {
+        setError(`This shortcut is already assigned to “${conflict.name}”.`);
+        return;
+      }
+      setShortcut(nextShortcut);
+      setRecordingShortcut(false);
+      setError('');
+    };
+    document.addEventListener('keydown', captureShortcut, { capture: true });
+    return () => document.removeEventListener('keydown', captureShortcut, { capture: true });
+  }, [editingId, presets, recordingShortcut]);
 
   useEffect(() => {
     const returnToList = (event: Event) => {
@@ -149,12 +196,29 @@ export const PresetManager = ({ onClose, database = db }: PresetManagerProps) =>
 
     const data = buildPresetData();
     if (!data) return;
+    if (shortcut) {
+      const validationError = validatePresetShortcut(shortcut);
+      if (validationError) {
+        setError(validationError);
+        return;
+      }
+      const conflict = presets.find(preset =>
+        preset.id !== editingId
+        && preset.shortcut
+        && shortcutId(preset.shortcut) === shortcutId(shortcut),
+      );
+      if (conflict) {
+        setError(`This shortcut is already assigned to “${conflict.name}”.`);
+        return;
+      }
+    }
 
     const now = Date.now();
     if (editingId !== null) {
       await database.presets.update(editingId, {
         name: normalizedName,
         data,
+        shortcut,
         updatedAt: now,
       });
     } else {
@@ -166,6 +230,7 @@ export const PresetManager = ({ onClose, database = db }: PresetManagerProps) =>
         createdAt: now,
         updatedAt: now,
         order: nextOrder,
+        shortcut,
       });
       setEditingId(id);
     }
@@ -253,7 +318,10 @@ export const PresetManager = ({ onClose, database = db }: PresetManagerProps) =>
                   onClick={() => loadPreset(preset)}
                 >
                   <span>{preset.name}</span>
-                  <small>{preset.data.type === 'chain' ? 'Command sequence' : 'Find & replace'}</small>
+                  <small>
+                    {preset.data.type === 'chain' ? 'Command sequence' : 'Find & replace'}
+                    {preset.shortcut ? ` · ${formatShortcut(preset.shortcut)}` : ''}
+                  </small>
                 </button>
               ))}
               {!isLoading && presets.length === 0 && (
@@ -303,6 +371,37 @@ export const PresetManager = ({ onClose, database = db }: PresetManagerProps) =>
               <span>Name</span>
               <input value={name} onChange={event => setName(event.target.value)} placeholder="e.g. Clean lyrics" />
             </label>
+
+            <div className="preset-field preset-shortcut-field">
+              <span>Keyboard shortcut <small>Desktop only</small></span>
+              <div>
+                <button
+                  type="button"
+                  className={`preset-secondary-button ${recordingShortcut ? 'is-recording' : ''}`}
+                  onClick={() => {
+                    setRecordingShortcut(true);
+                    setError('');
+                  }}
+                >
+                  <Keyboard size={15} />
+                  {recordingShortcut
+                    ? 'Press shortcut…'
+                    : shortcut ? formatShortcut(shortcut) : 'Assign shortcut'}
+                </button>
+                {shortcut && !recordingShortcut && (
+                  <button
+                    type="button"
+                    className="preset-icon-action"
+                    aria-label="Clear keyboard shortcut"
+                    title="Clear shortcut"
+                    onClick={() => setShortcut(undefined)}
+                  >
+                    <X size={15} />
+                  </button>
+                )}
+              </div>
+              <small>Use Ctrl or Alt. Escape cancels; Delete clears while recording.</small>
+            </div>
 
             <fieldset className="preset-kind-fieldset">
               <legend>Type</legend>

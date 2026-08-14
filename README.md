@@ -16,6 +16,12 @@ The Suno section lists every bracketed tag from the active editor in text order.
 
 The Presets command tab contains only quick-apply buttons. Preset creation and maintenance opens from the separate Presets action beside History and Data. The manager supports ordered command sequences, symbol-removal steps, and find/replace presets, including editing, ordering, validation, and confirmed deletion. Changes appear in the quick-apply toolbar immediately.
 
+On desktop, a preset can also have a physical-key shortcut. Shortcut assignment rejects editor, browser, operating-system, and duplicate combinations; saved bindings are included in Data export/import and run against the active editor as one undoable update.
+
+## Desktop productivity
+
+Desktop mode can switch between the original two-pane layout and one full-width active editor without unmounting or clearing the hidden editor. Use `Ctrl+\\` to change layout, `Alt+1` / `Alt+2` to activate an editor, or open the Keys panel for the complete shortcut list. The selected layout and active editor are restored on restart. Mobile layout remains a one-editor switcher and ignores the desktop-only layout setting.
+
 ## Data files
 
 Data export and import use the browser file workflow in the web version and native open/save dialogs in the Tauri desktop version. On Android, Import opens the system file picker, while Export opens the native save/share sheet using a temporary cache file that is removed afterward. All platforms use the same validated Data v2 format and atomic import logic.
@@ -80,4 +86,5 @@ Run project checks:
 ```text
 npm test
 npm run lint
+npm run test:phase6:e2e
 ```

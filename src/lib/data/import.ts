@@ -4,8 +4,10 @@ import {
   type AppSettings,
   type EditDatabase,
   type Preset,
+  type PresetShortcut,
   type Setting,
 } from '../db';
+import { shortcutId, validatePresetShortcut } from '../hotkeys';
 
 export const DATA_FILE_VERSION = 2;
 
@@ -51,7 +53,7 @@ const validatePreset = (value: unknown, index: number): Preset => {
     throw new DataImportError(`${path} must be an object`);
   }
 
-  assertExactKeys(value, ['id', 'name', 'data', 'isFavorite', 'createdAt', 'updatedAt', 'order'], path);
+  assertExactKeys(value, ['id', 'name', 'data', 'isFavorite', 'createdAt', 'updatedAt', 'order', 'shortcut'], path);
   assertOptionalId(value.id, `${path}.id`);
   if (typeof value.name !== 'string') {
     throw new DataImportError(`${path}.name must be a string`);
@@ -63,6 +65,25 @@ const validatePreset = (value: unknown, index: number): Preset => {
   assertFiniteNumber(value.updatedAt, `${path}.updatedAt`);
   if (value.order !== undefined && (!Number.isInteger(value.order) || (value.order as number) < 0)) {
     throw new DataImportError(`${path}.order must be a non-negative integer`);
+  }
+  if (value.shortcut !== undefined) {
+    if (!isRecord(value.shortcut)) {
+      throw new DataImportError(`${path}.shortcut must be an object`);
+    }
+    assertExactKeys(value.shortcut, ['code', 'ctrl', 'shift', 'alt', 'meta'], `${path}.shortcut`);
+    if (
+      typeof value.shortcut.code !== 'string'
+      || typeof value.shortcut.ctrl !== 'boolean'
+      || typeof value.shortcut.shift !== 'boolean'
+      || typeof value.shortcut.alt !== 'boolean'
+      || typeof value.shortcut.meta !== 'boolean'
+    ) {
+      throw new DataImportError(`${path}.shortcut has invalid fields`);
+    }
+    const shortcutError = validatePresetShortcut(value.shortcut as unknown as PresetShortcut);
+    if (shortcutError) {
+      throw new DataImportError(`${path}.shortcut is invalid: ${shortcutError}`);
+    }
   }
   if (!isRecord(value.data) || (value.data.type !== 'chain' && value.data.type !== 'regex')) {
     throw new DataImportError(`${path}.data must be a chain or regex preset`);
@@ -159,6 +180,10 @@ export const parseDataFile = (text: string): DataFileV2 => {
   const presetIds = presets.flatMap(preset => preset.id === undefined ? [] : [preset.id]);
   if (new Set(presetIds).size !== presetIds.length) {
     throw new DataImportError('presets contain duplicate ids');
+  }
+  const presetShortcutIds = presets.flatMap(preset => preset.shortcut ? [shortcutId(preset.shortcut)] : []);
+  if (new Set(presetShortcutIds).size !== presetShortcutIds.length) {
+    throw new DataImportError('presets contain duplicate keyboard shortcuts');
   }
   const settingKeys = settings.map(setting => setting.key);
   if (new Set(settingKeys).size !== settingKeys.length) {

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Settings2, Music, Zap, Clock, HardDrive, SlidersHorizontal } from 'lucide-react';
+import { Columns2, Settings2, Music, Zap, Clock, HardDrive, Keyboard, PanelTop, SlidersHorizontal } from 'lucide-react';
 import type { DrawerTab } from '../Drawer/SlidingDrawer';
 import { PresetsCommands } from './PresetsCommands';
 import { SunoCommands } from './SunoCommands';
@@ -13,6 +13,9 @@ interface CommandPanelProps {
   onTagsOpenChange?: (isOpen: boolean) => void;
   onOpenDrawer?: (tab: DrawerTab) => void;
   onOpenPresets?: () => void;
+  dualMode?: boolean;
+  onDualModeChange?: (dualMode: boolean) => void;
+  onOpenShortcutHelp?: () => void;
 }
 
 export const CommandPanel = ({
@@ -23,6 +26,9 @@ export const CommandPanel = ({
   onTagsOpenChange,
   onOpenDrawer,
   onOpenPresets,
+  dualMode = true,
+  onDualModeChange,
+  onOpenShortcutHelp,
 }: CommandPanelProps) => {
   const [activeTab, setActiveTab] = useState<'standard'|'suno'|'presets'>('standard');
 
@@ -66,7 +72,7 @@ export const CommandPanel = ({
           </div>
         </div>
 
-        <div className="mobile-editor-switcher" aria-label="Active editor">
+        <div className={`mobile-editor-switcher ${!dualMode ? 'is-desktop-visible' : ''}`} aria-label="Active editor">
           <button
             type="button"
             className={activeEditor === 'left' ? 'is-active' : ''}
@@ -87,6 +93,26 @@ export const CommandPanel = ({
 
         {/* Right Section: History, preset management, and Data */}
         <div className="ui-header-actions">
+          <button
+            type="button"
+            onClick={() => onDualModeChange?.(!dualMode)}
+            className="ui-action desktop-only-action"
+            aria-label={dualMode ? 'Use single editor' : 'Use two editors'}
+            title={`${dualMode ? 'Use single editor' : 'Use two editors'} (Ctrl+\\)`}
+          >
+            {dualMode ? <PanelTop size={13} className="icon-accent" /> : <Columns2 size={13} className="icon-accent" />}
+            <span className="hidden sm:inline">{dualMode ? 'Single' : 'Dual'}</span>
+          </button>
+          <button
+            type="button"
+            onClick={onOpenShortcutHelp}
+            className="ui-action desktop-only-action"
+            aria-label="Keyboard shortcuts"
+            title="Keyboard shortcuts"
+          >
+            <Keyboard size={13} />
+            <span className="hidden sm:inline">Keys</span>
+          </button>
           <button
             onClick={() => onOpenDrawer?.('history')}
             className="ui-action"

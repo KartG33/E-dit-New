@@ -74,3 +74,13 @@
   - `[x]` Выполнить Vitest, lint, production build, Capacitor sync и Gradle assembleDebug
   - `[x]` Установить debug APK и выполнить короткую проверку на Redmi Note 13 Pro
   - `[x]` Создать один итоговый коммит, push, PR, дождаться проверок и объединить
+- `[x]` Phase 6: Desktop Productivity
+  - `[x]` Add a persistent one-editor / two-editor desktop layout without unmounting editor state
+  - `[x]` Add `Ctrl+\\`, `Alt+1`, and `Alt+2` desktop shortcuts
+  - `[x]` Add a desktop keyboard-shortcut reference window
+  - `[x]` Add per-preset physical-key shortcut recording, clearing, conflict checks, and quick-apply labels
+  - `[x]` Run preset shortcuts against the active editor as one Undo step
+  - `[x]` Include optional preset shortcuts in validated Data v2 Import/Export
+  - `[x]` Add unit, integration, and Playwright coverage at 1280x800 and 393x873
+  - `[x]` Run the complete test, lint, build, and desktop checks
+  - `[x]` Create one final commit, push, PR, wait for checks, and merge
