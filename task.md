@@ -64,4 +64,13 @@
     - `[x]` Add always-visible mobile Copy, Paste, and Clear actions backed by the native Clipboard plugin
     - `[x]` Keep Clear undoable, paste at the current selection, and preserve the desktop editor header
     - `[x]` Verify the five mobile editor actions at 360 px and on a Redmi Note 13 Pro
-- `[ ]` Phase 5: Polish & Performance
+- `[x]` Phase 5: Polish & Performance
+  - `[x]` Создать ветку `phase5-polish-performance` от актуального `main` (`764f71b`)
+  - `[x]` Подготовить изолированные in-memory тексты на 10 000, 50 000 и 100 000 символов
+  - `[x]` Измерить Text/Suno-команды, специальные символы, Suno Tags, Undo/Redo, render и autosave
+  - `[x]` Проверить редактор при 360×800, 393×873, 412×915, 800×360 и 1280×800
+  - `[x]` Проверить autosave, History, восстановление и переключение редакторов
+  - `[x]` Исправить подтверждённый дефект позиции курсора после Paste и добавить регрессионный тест
+  - `[x]` Выполнить Vitest, lint, production build, Capacitor sync и Gradle assembleDebug
+  - `[x]` Установить debug APK и выполнить короткую проверку на Redmi Note 13 Pro
+  - `[x]` Создать один итоговый коммит, push, PR, дождаться проверок и объединить
