@@ -109,6 +109,16 @@ button:disabled {
   overflow: hidden;
 }
 
+.app-main.is-single-mode .app-editor-pane {
+  width: 100%;
+}
+
+@media (min-width: 721px) {
+  .app-main.is-single-mode .app-editor-pane.is-single-hidden {
+    display: none;
+  }
+}
+
 .ui-header {
   position: relative;
   z-index: 20;
@@ -135,6 +145,33 @@ button:disabled {
 
 .mobile-editor-switcher {
   display: none;
+}
+
+.mobile-editor-switcher.is-desktop-visible {
+  display: flex;
+  min-width: 0;
+  gap: 2px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--canvas);
+  padding: 2px;
+}
+
+.mobile-editor-switcher.is-desktop-visible button {
+  min-height: 1.875rem;
+  border: 1px solid transparent;
+  border-radius: calc(var(--radius-md) - 2px);
+  background: transparent;
+  padding: 0.3rem 0.65rem;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  font-weight: 650;
+}
+
+.mobile-editor-switcher.is-desktop-visible button.is-active {
+  border-color: var(--border-subtle);
+  background: var(--surface-2);
+  color: var(--accent-strong);
 }
 
 .ui-header-row {
@@ -213,6 +250,111 @@ button:disabled {
 
 .ui-header-actions {
   gap: var(--space-1);
+}
+
+.shortcut-help-backdrop {
+  position: fixed;
+  z-index: 60;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: rgba(0, 0, 0, 0.62);
+  padding: var(--space-4);
+}
+
+.shortcut-help {
+  width: min(32rem, 100%);
+  max-height: min(42rem, calc(100vh - 2rem));
+  overflow: hidden;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-lg);
+  background: var(--surface-1);
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.45);
+}
+
+.shortcut-help-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border-subtle);
+  padding: var(--space-4);
+}
+
+.shortcut-help-header h2,
+.shortcut-help-header p,
+.shortcut-help-content h3 {
+  margin: 0;
+}
+
+.shortcut-help-header h2 {
+  font-size: 1rem;
+}
+
+.shortcut-help-header p {
+  margin-top: 0.2rem;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+}
+
+.shortcut-help-content {
+  max-height: calc(100vh - 8rem);
+  overflow-y: auto;
+  padding: var(--space-4);
+}
+
+.shortcut-help-content h3 {
+  margin-top: var(--space-5);
+  margin-bottom: var(--space-2);
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.shortcut-list {
+  display: grid;
+  gap: var(--space-1);
+  margin: 0;
+}
+
+.shortcut-list > div {
+  display: flex;
+  min-height: 2.5rem;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.shortcut-list dt {
+  color: var(--text-secondary);
+  font-size: 0.8125rem;
+}
+
+.shortcut-list dd {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+}
+
+kbd,
+.preset-shortcut-badge {
+  border: 1px solid var(--border-strong);
+  border-radius: 0.25rem;
+  background: var(--surface-3);
+  padding: 0.16rem 0.35rem;
+  color: var(--text-secondary);
+  font-family: "SFMono-Regular", Consolas, monospace;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.preset-shortcut-badge {
+  margin-left: var(--space-1);
 }
 
 .ui-action,
@@ -973,6 +1115,36 @@ button:disabled {
   font-weight: 400;
 }
 
+.preset-shortcut-field > span {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+}
+
+.preset-shortcut-field > span small {
+  font-weight: 500;
+}
+
+.preset-shortcut-field > div {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.preset-shortcut-field .preset-secondary-button {
+  display: inline-flex;
+  min-width: 11rem;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+}
+
+.preset-shortcut-field .preset-secondary-button.is-recording {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+}
+
 .preset-kind-fieldset {
   margin: 0;
   border: 0;
@@ -1411,6 +1583,14 @@ button:disabled {
     border-radius: var(--radius-md);
     background: var(--canvas);
     padding: 2px;
+  }
+
+  .desktop-only-action {
+    display: none;
+  }
+
+  .preset-shortcut-field {
+    display: none;
   }
 
   .mobile-editor-switcher button {

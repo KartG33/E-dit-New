@@ -14,6 +14,7 @@ const validData = () => ({
       createdAt: 100,
       updatedAt: 200,
       order: 0,
+      shortcut: { code: 'KeyK', ctrl: true, shift: true, alt: false, meta: false },
     },
     {
       id: 11,
@@ -91,6 +92,17 @@ describe('Data v2 import', () => {
         presets: [{ ...validData().presets[1], data: { type: 'regex', pattern: '[', flags: '', replacement: '' } }],
       },
       'presets[0].data contains an invalid regular expression',
+    ],
+    [
+      'duplicate shortcut',
+      {
+        ...validData(),
+        presets: validData().presets.map(preset => ({
+          ...preset,
+          shortcut: { code: 'KeyK', ctrl: true, shift: true, alt: false, meta: false },
+        })),
+      },
+      'presets contain duplicate keyboard shortcuts',
     ],
     [
       'missing presets',

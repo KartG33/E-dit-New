@@ -109,6 +109,36 @@ describe.sequential('Preset management', () => {
     expect(await database.presets.count()).toBe(1);
   });
 
+  it('records a safe desktop shortcut and prevents conflicts', async () => {
+    await database.presets.add({
+      name: 'Existing shortcut',
+      data: { type: 'chain', commands: ['text.lower'] },
+      shortcut: { code: 'KeyK', ctrl: true, shift: true, alt: false, meta: false },
+      isFavorite: false,
+      createdAt: 1,
+      updatedAt: 1,
+      order: 0,
+    });
+    render(<PresetManager onClose={vi.fn()} database={database} />);
+
+    await screen.findByRole('button', { name: /Existing shortcut/ });
+    fireEvent.click(screen.getByRole('button', { name: 'New preset' }));
+    fireEvent.change(screen.getByLabelText('Name'), { target: { value: 'New shortcut' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Add' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Assign shortcut' }));
+    fireEvent.keyDown(document, { key: 'K', code: 'KeyK', ctrlKey: true, shiftKey: true });
+    expect(screen.getByText('This shortcut is already assigned to “Existing shortcut”.')).toBeDefined();
+
+    fireEvent.keyDown(document, { key: 'M', code: 'KeyM', ctrlKey: true, shiftKey: true });
+    await screen.findByRole('button', { name: 'Ctrl + Shift + M' });
+    fireEvent.click(screen.getByRole('button', { name: 'Save preset' }));
+    await waitFor(async () => {
+      expect((await database.presets.where('name').equals('New shortcut').first())?.shortcut).toEqual({
+        code: 'KeyM', ctrl: true, shift: true, alt: false, meta: false,
+      });
+    });
+  });
+
   it('navigates between the mobile preset list and editor', async () => {
     await database.presets.add({
       name: 'Mobile preset',

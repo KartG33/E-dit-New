@@ -1,6 +1,7 @@
 import { applyPreset } from '../../lib/presets/execute';
 import { usePresets } from '../../hooks/usePresets';
 import { db, type EditDatabase } from '../../lib/db';
+import { formatShortcut } from '../../lib/hotkeys';
 
 interface PresetsTabProps {
   applyCommand: (cmd: (text: string) => string) => void;
@@ -25,8 +26,10 @@ export const PresetsTab = ({ applyCommand, database = db }: PresetsTabProps) => 
           key={preset.id ?? preset.name}
           onClick={() => applyCommand((text) => applyPreset(text, preset.data))}
           className="command-button"
+          title={preset.shortcut ? `${preset.name} (${formatShortcut(preset.shortcut)})` : preset.name}
         >
           {preset.name}
+          {preset.shortcut && <kbd className="preset-shortcut-badge">{formatShortcut(preset.shortcut)}</kbd>}
         </button>
       ))}
     </div>

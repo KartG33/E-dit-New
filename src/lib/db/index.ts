@@ -24,6 +24,14 @@ export interface RegexPreset {
 
 export type PresetData = ChainPreset | RegexPreset;
 
+export interface PresetShortcut {
+  code: string;
+  ctrl: boolean;
+  shift: boolean;
+  alt: boolean;
+  meta: boolean;
+}
+
 export interface Preset {
   id?: number;
   name: string;
@@ -32,6 +40,7 @@ export interface Preset {
   createdAt: number;
   updatedAt: number; // Added in v2
   order?: number; // Added in v3
+  shortcut?: PresetShortcut;
 }
 
 // typed settings map
