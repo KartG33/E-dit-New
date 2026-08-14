@@ -1,4 +1,4 @@
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useLayoutEffect } from 'react';
 import { ClipboardPaste, Copy, Redo2, Trash2, Undo2 } from 'lucide-react';
 import { Clipboard } from '@capacitor/clipboard';
 import { useSymbolAnalyzer } from '../../hooks/useSymbolAnalyzer';
@@ -37,7 +37,7 @@ export const Editor = ({
 }: EditorProps) => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const stats = useSymbolAnalyzer(value);
-  const lastAction = useRef<'UNDO' | 'REDO' | 'TYPE'>('TYPE');
+  const lastAction = useRef<'UNDO' | 'REDO' | 'PASTE' | 'TYPE'>('TYPE');
 
   // Focus management
   useEffect(() => {
@@ -47,8 +47,8 @@ export const Editor = ({
   }, [isActive]);
 
   // Restore selection after undo/redo
-  useEffect(() => {
-    if (lastAction.current === 'UNDO' || lastAction.current === 'REDO') {
+  useLayoutEffect(() => {
+    if (lastAction.current === 'UNDO' || lastAction.current === 'REDO' || lastAction.current === 'PASTE') {
       if (textareaRef.current) {
         textareaRef.current.setSelectionRange(currentState.selectionStart, currentState.selectionEnd);
       }
@@ -98,10 +98,8 @@ export const Editor = ({
       const nextSelection = selectionStart + clipboardValue.length;
       const nextValue = `${value.slice(0, selectionStart)}${clipboardValue}${value.slice(selectionEnd)}`;
 
+      lastAction.current = 'PASTE';
       updateValue(nextValue, nextSelection, nextSelection, true);
-      requestAnimationFrame(() => {
-        textareaRef.current?.setSelectionRange(nextSelection, nextSelection);
-      });
     } catch {
       reportClipboardError('Failed to paste text');
     }

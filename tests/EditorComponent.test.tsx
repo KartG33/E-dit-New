@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { Editor } from '../src/components/Editor/Editor';
 import { EditorState } from '../src/hooks/useEditor';
 import { Clipboard } from '@capacitor/clipboard';
+import { useState } from 'react';
 
 vi.mock('@capacitor/clipboard', () => ({
   Clipboard: {
@@ -155,6 +156,51 @@ describe('Editor Component', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Paste' }));
 
     expect(updateValue).toHaveBeenCalledWith('new text', 3, 3, true);
+  });
+
+  it('keeps the caret at the end of pasted text after the controlled value updates', async () => {
+    vi.mocked(Clipboard.read).mockResolvedValue({ value: 'new', type: 'text/plain' });
+
+    const StatefulEditor = () => {
+      const [state, setState] = useState<EditorState>({
+        value: 'old text',
+        selectionStart: 0,
+        selectionEnd: 3,
+      });
+
+      return (
+        <Editor
+          id="left"
+          value={state.value}
+          currentState={state}
+          updateValue={(value, selectionStart = 0, selectionEnd = 0) => {
+            setState({ value, selectionStart, selectionEnd });
+          }}
+          undo={vi.fn()}
+          redo={vi.fn()}
+          canUndo={false}
+          canRedo={false}
+          isActive={true}
+          onFocus={vi.fn()}
+          onSelect={(selectionStart, selectionEnd) => {
+            setState(current => ({ ...current, selectionStart, selectionEnd }));
+          }}
+          hydrated={true}
+        />
+      );
+    };
+
+    render(<StatefulEditor />);
+    const textarea = screen.getByRole('textbox') as HTMLTextAreaElement;
+    textarea.focus();
+    textarea.setSelectionRange(0, 3);
+    fireEvent.select(textarea);
+
+    await userEvent.click(screen.getByRole('button', { name: 'Paste' }));
+
+    expect(textarea.value).toBe('new text');
+    expect(textarea.selectionStart).toBe(3);
+    expect(textarea.selectionEnd).toBe(3);
   });
 
   it('clears the editor through the undoable update path', async () => {
