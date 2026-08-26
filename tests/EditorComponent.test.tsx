@@ -57,6 +57,30 @@ describe('Editor Component', () => {
     expect((redoBtn as HTMLButtonElement).disabled).toBe(false);
   });
 
+  it('opens exact text editing from its own header', () => {
+    const onOpenQuickEdit = vi.fn();
+    render(
+      <Editor
+        id="right"
+        value="Editable text"
+        currentState={{ ...mockState, value: 'Editable text' }}
+        updateValue={vi.fn()}
+        undo={vi.fn()}
+        redo={vi.fn()}
+        canUndo={false}
+        canRedo={false}
+        isActive={false}
+        onFocus={vi.fn()}
+        onSelect={vi.fn()}
+        hydrated={true}
+        onOpenQuickEdit={onOpenQuickEdit}
+      />
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'Find and edit right editor' }));
+    expect(onOpenQuickEdit).toHaveBeenCalledTimes(1);
+  });
+
   it('disables textarea and shows Loading when hydrated is false', () => {
     render(
       <Editor

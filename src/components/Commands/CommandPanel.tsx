@@ -1,6 +1,5 @@
 import { useState } from 'react';
-import { Columns2, Settings2, Music, Zap, Clock, HardDrive, Keyboard, PanelTop, SlidersHorizontal } from 'lucide-react';
-import type { DrawerTab } from '../Drawer/SlidingDrawer';
+import { Columns2, Settings2, Music, Zap, Clock, PanelTop, SlidersHorizontal } from 'lucide-react';
 import { PresetsCommands } from './PresetsCommands';
 import { SunoCommands } from './SunoCommands';
 import { TextCommands } from './TextCommands';
@@ -11,11 +10,11 @@ interface CommandPanelProps {
   onActiveEditorChange?: (editor: 'left' | 'right') => void;
   tagsOpen?: boolean;
   onTagsOpenChange?: (isOpen: boolean) => void;
-  onOpenDrawer?: (tab: DrawerTab) => void;
+  onOpenHistory?: () => void;
   onOpenPresets?: () => void;
   dualMode?: boolean;
   onDualModeChange?: (dualMode: boolean) => void;
-  onOpenShortcutHelp?: () => void;
+  onOpenSettings?: () => void;
 }
 
 export const CommandPanel = ({
@@ -24,11 +23,11 @@ export const CommandPanel = ({
   onActiveEditorChange,
   tagsOpen = false,
   onTagsOpenChange,
-  onOpenDrawer,
+  onOpenHistory,
   onOpenPresets,
   dualMode = true,
   onDualModeChange,
-  onOpenShortcutHelp,
+  onOpenSettings,
 }: CommandPanelProps) => {
   const [activeTab, setActiveTab] = useState<'standard'|'suno'|'presets'>('standard');
 
@@ -91,52 +90,43 @@ export const CommandPanel = ({
           </button>
         </div>
 
-        {/* Right Section: History, preset management, and Data */}
+        {/* Right Section: layout, History, Presets, and Settings */}
         <div className="ui-header-actions">
           <button
             type="button"
             onClick={() => onDualModeChange?.(!dualMode)}
-            className="ui-action desktop-only-action"
+            className="ui-action ui-icon-action"
             aria-label={dualMode ? 'Use single editor' : 'Use two editors'}
             title={`${dualMode ? 'Use single editor' : 'Use two editors'} (Ctrl+\\)`}
           >
-            {dualMode ? <PanelTop size={13} className="icon-accent" /> : <Columns2 size={13} className="icon-accent" />}
-            <span className="hidden sm:inline">{dualMode ? 'Single' : 'Dual'}</span>
+            {dualMode ? <PanelTop size={16} className="icon-accent" /> : <Columns2 size={16} className="icon-accent" />}
           </button>
           <button
             type="button"
-            onClick={onOpenShortcutHelp}
-            className="ui-action desktop-only-action"
-            aria-label="Keyboard shortcuts"
-            title="Keyboard shortcuts"
-          >
-            <Keyboard size={13} />
-            <span className="hidden sm:inline">Keys</span>
-          </button>
-          <button
-            onClick={() => onOpenDrawer?.('history')}
-            className="ui-action"
+            onClick={onOpenHistory}
+            className="ui-action ui-icon-action"
+            aria-label="History"
             title="Открыть историю"
           >
-            <Clock size={13} className="icon-accent" />
-            <span className="hidden sm:inline">History</span>
+            <Clock size={16} className="icon-accent" />
           </button>
           <button
+            type="button"
             onClick={onOpenPresets}
-            className="ui-action"
+            className="ui-action ui-icon-action"
             aria-label="Manage presets"
             title="Manage presets"
           >
-            <SlidersHorizontal size={13} className="icon-accent" />
-            <span className="hidden sm:inline">Presets</span>
+            <SlidersHorizontal size={16} className="icon-accent" />
           </button>
           <button
-            onClick={() => onOpenDrawer?.('data')}
-            className="ui-action"
-            title="Открыть данные"
+            type="button"
+            onClick={onOpenSettings}
+            className="ui-action ui-icon-action"
+            aria-label="Settings"
+            title="Open Settings"
           >
-            <HardDrive size={13} className="icon-success" />
-            <span className="hidden sm:inline">Data</span>
+            <Settings2 size={16} />
           </button>
         </div>
       </div>

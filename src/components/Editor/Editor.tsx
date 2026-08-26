@@ -1,5 +1,5 @@
 import { useRef, useEffect, useLayoutEffect } from 'react';
-import { ClipboardPaste, Copy, Redo2, Trash2, Undo2 } from 'lucide-react';
+import { ClipboardPaste, Copy, Redo2, ReplaceAll, Trash2, Undo2 } from 'lucide-react';
 import { Clipboard } from '@capacitor/clipboard';
 import { useSymbolAnalyzer } from '../../hooks/useSymbolAnalyzer';
 import { useGlobalHotkeys } from '../../hooks/useGlobalHotkeys';
@@ -19,6 +19,7 @@ export interface EditorProps {
   canRedo: boolean;
   currentState: EditorState;
   hydrated: boolean;
+  onOpenQuickEdit?: () => void;
 }
 
 export const Editor = ({
@@ -33,7 +34,8 @@ export const Editor = ({
   canRedo,
   isActive,
   onFocus,
-  hydrated
+  hydrated,
+  onOpenQuickEdit,
 }: EditorProps) => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const stats = useSymbolAnalyzer(value);
@@ -135,6 +137,17 @@ export const Editor = ({
           <span>{stats.lines}<span className="editor-stat-unit"> lines</span></span>
         </div>
         <div className="editor-header-controls">
+          <button
+            type="button"
+            onClick={onOpenQuickEdit}
+            onPointerDown={preserveEditorFocus}
+            disabled={!hydrated || value.length === 0}
+            className="icon-button"
+            title="Find, replace or remove exact text"
+            aria-label={`Find and edit ${id} editor`}
+          >
+            <ReplaceAll size={18} />
+          </button>
           <button
             type="button"
             onClick={() => { void handleCopy(); }}

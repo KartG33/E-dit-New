@@ -20,8 +20,6 @@ describe('SlidingDrawer Component', () => {
       <SlidingDrawer
         isOpen={true}
         onClose={onClose}
-        activeTab="history"
-        onTabChange={vi.fn()}
         applyHistoryVersion={vi.fn()}
       />
     );
@@ -36,8 +34,6 @@ describe('SlidingDrawer Component', () => {
       <SlidingDrawer
         isOpen={false}
         onClose={onClose}
-        activeTab="history"
-        onTabChange={vi.fn()}
         applyHistoryVersion={vi.fn()}
       />
     );
@@ -46,25 +42,18 @@ describe('SlidingDrawer Component', () => {
     expect(onClose).not.toHaveBeenCalled();
   });
 
-  it('renders History and Data tabs without Notes section', () => {
-    const onTabChange = vi.fn();
+  it('contains only History content', () => {
     render(
       <SlidingDrawer
         isOpen={true}
         onClose={vi.fn()}
-        activeTab="history"
-        onTabChange={onTabChange}
         applyHistoryVersion={vi.fn()}
       />
     );
 
-    expect(screen.getByText('History')).toBeDefined();
-    expect(screen.getByText('Data')).toBeDefined();
-    expect(screen.queryByText('Заметки')).toBeNull();
-
-    const dataTab = screen.getByText('Data');
-    fireEvent.click(dataTab);
-    expect(onTabChange).toHaveBeenCalledWith('data');
+    expect(screen.getByRole('dialog', { name: 'History' })).toBeDefined();
+    expect(screen.getByText('История изменений')).toBeDefined();
+    expect(screen.queryByText('Data')).toBeNull();
   });
 
   it('restores a saved version and closes the drawer', async () => {
@@ -80,8 +69,6 @@ describe('SlidingDrawer Component', () => {
       <SlidingDrawer
         isOpen={true}
         onClose={onClose}
-        activeTab="history"
-        onTabChange={vi.fn()}
         applyHistoryVersion={applyHistoryVersion}
       />
     );
@@ -98,8 +85,6 @@ describe('SlidingDrawer Component', () => {
       <SlidingDrawer
         isOpen={false}
         onClose={vi.fn()}
-        activeTab="history"
-        onTabChange={vi.fn()}
         applyHistoryVersion={vi.fn()}
       />
     );

@@ -188,7 +188,7 @@ describe('CommandPanel', () => {
     expect(onClose).toHaveBeenCalledTimes(1);
   });
 
-  it('renders presets independently and preserves the History/Data actions', async () => {
+  it('renders presets independently and exposes four icon-only header actions', async () => {
     await db.presets.add({
       name: 'Saved preset',
       data: { type: 'chain', commands: ['text.upper'] },
@@ -197,13 +197,15 @@ describe('CommandPanel', () => {
       updatedAt: 1,
       order: 0,
     });
-    const onOpenDrawer = vi.fn();
+    const onOpenHistory = vi.fn();
     const onOpenPresets = vi.fn();
+    const onOpenSettings = vi.fn();
     render(
       <CommandPanel
         applyCommand={vi.fn()}
-        onOpenDrawer={onOpenDrawer}
+        onOpenHistory={onOpenHistory}
         onOpenPresets={onOpenPresets}
+        onOpenSettings={onOpenSettings}
       />,
     );
 
@@ -212,9 +214,13 @@ describe('CommandPanel', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'History' }));
     fireEvent.click(screen.getByRole('button', { name: 'Manage presets' }));
-    fireEvent.click(screen.getByRole('button', { name: 'Data' }));
-    expect(onOpenDrawer).toHaveBeenNthCalledWith(1, 'history');
-    expect(onOpenDrawer).toHaveBeenNthCalledWith(2, 'data');
+    fireEvent.click(screen.getByRole('button', { name: 'Settings' }));
+    expect(onOpenHistory).toHaveBeenCalledTimes(1);
     expect(onOpenPresets).toHaveBeenCalledTimes(1);
+    expect(onOpenSettings).toHaveBeenCalledTimes(1);
+
+    const headerActions = document.querySelectorAll('.ui-header-actions .ui-action');
+    expect(headerActions).toHaveLength(4);
+    headerActions.forEach(action => expect(action.querySelector('span')).toBeNull());
   });
 });

@@ -1,24 +1,17 @@
 import { useState, useEffect } from 'react';
-import { Clock, HardDrive, X } from 'lucide-react';
+import { Clock, X } from 'lucide-react';
 import { db } from '../../lib/db';
 import type { HistoryRecord } from '../../lib/db';
-import { DataPanel } from '../Data/DataPanel';
-
-export type DrawerTab = 'history' | 'data';
 
 interface SlidingDrawerProps {
   isOpen: boolean;
   onClose: () => void;
-  activeTab: DrawerTab;
-  onTabChange: (tab: DrawerTab) => void;
   applyHistoryVersion: (text: string) => void;
 }
 
 export const SlidingDrawer = ({
   isOpen,
   onClose,
-  activeTab,
-  onTabChange,
   applyHistoryVersion
 }: SlidingDrawerProps) => {
   const [historyRecords, setHistoryRecords] = useState<HistoryRecord[]>([]);
@@ -35,12 +28,12 @@ export const SlidingDrawer = ({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, onClose]);
 
-  // Refresh history when drawer opens or history tab becomes active
+  // Refresh history when drawer opens
   useEffect(() => {
-    if (isOpen && activeTab === 'history') {
+    if (isOpen) {
       db.history.orderBy('timestamp').reverse().limit(50).toArray().then(setHistoryRecords);
     }
-  }, [isOpen, activeTab]);
+  }, [isOpen]);
 
   return (
     <>
@@ -59,25 +52,21 @@ export const SlidingDrawer = ({
         data-testid="sliding-drawer"
         role="dialog"
         aria-modal="true"
-        aria-label="History and Data"
+        aria-label="History"
         aria-hidden={!isOpen}
         inert={!isOpen}
       >
         {/* Header */}
         <div className="drawer-header">
           <div className="drawer-title">
-            {activeTab === 'history' && <Clock size={16} className="text-blue-500" />}
-            {activeTab === 'data' && <HardDrive size={16} className="text-emerald-500" />}
-            <span>
-              {activeTab === 'history' && 'История изменений'}
-              {activeTab === 'data' && 'Data'}
-            </span>
+            <Clock size={16} className="text-blue-500" />
+            <span>История изменений</span>
           </div>
           <button
             type="button"
             onClick={onClose}
             className="icon-button drawer-close-button window-close-button"
-            aria-label="Close History and Data"
+            aria-label="Close History"
             title="Закрыть"
             data-testid="drawer-close-btn"
           >
@@ -85,28 +74,9 @@ export const SlidingDrawer = ({
           </button>
         </div>
 
-        {/* Drawer Tabs */}
-        <div className="drawer-tabs">
-          <button
-            onClick={() => onTabChange('history')}
-            aria-pressed={activeTab === 'history'}
-            className={`drawer-tab ${activeTab === 'history' ? 'is-active' : ''}`}
-          >
-            <Clock size={13} /> History
-          </button>
-          <button
-            onClick={() => onTabChange('data')}
-            aria-pressed={activeTab === 'data'}
-            className={`drawer-tab ${activeTab === 'data' ? 'is-active' : ''}`}
-          >
-            <HardDrive size={13} /> Data
-          </button>
-        </div>
-
         {/* Content Body */}
         <div className="drawer-body">
-          {activeTab === 'history' && (
-            <div className="history-list">
+          <div className="history-list">
               {historyRecords.map(record => (
                 <button
                   type="button"
@@ -134,14 +104,7 @@ export const SlidingDrawer = ({
                   История пока пуста.
                 </div>
               )}
-            </div>
-          )}
-
-          {activeTab === 'data' && (
-            <div className="drawer-panel">
-              <DataPanel />
-            </div>
-          )}
+          </div>
         </div>
       </div>
     </>

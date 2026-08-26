@@ -4,8 +4,8 @@ import { CommandPanel } from './components/Commands/CommandPanel';
 import { SlidingDrawer } from './components/Drawer/SlidingDrawer';
 import { SunoTagsPanel } from './components/SunoTags/SunoTagsPanel';
 import { PresetManager } from './components/Presets/PresetManager';
-import { ShortcutHelp } from './components/Shortcuts/ShortcutHelp';
-import type { DrawerTab } from './components/Drawer/SlidingDrawer';
+import { SettingsModal } from './components/Settings/SettingsModal';
+import { QuickTextEditModal } from './components/TextEdit/QuickTextEditModal';
 import { useEditor } from './hooks/useEditor';
 import { useAndroidAppLifecycle } from './hooks/useAndroidAppLifecycle';
 import { insertSunoTag } from './lib/commands/suno';
@@ -21,14 +21,14 @@ const App = () => {
   const [activeEditor, setActiveEditor] = useState<'left' | 'right'>('left');
   const [tagsOpen, setTagsOpen] = useState(false);
   const [presetManagerOpen, setPresetManagerOpen] = useState(false);
-  const [shortcutHelpOpen, setShortcutHelpOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [quickEditEditor, setQuickEditEditor] = useState<'left' | 'right' | null>(null);
   const [dualMode, setDualMode] = useState(true);
   const [layoutHydrated, setLayoutHydrated] = useState(false);
   const { presets } = usePresets();
   const isDesktop = useDesktopLayout();
 
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [drawerTab, setDrawerTab] = useState<DrawerTab>('history');
 
   useEffect(() => {
     let mounted = true;
@@ -78,18 +78,19 @@ const App = () => {
     };
   }, []);
 
-  const handleOpenDrawer = (tab: DrawerTab) => {
+  const handleOpenHistory = () => {
     setPresetManagerOpen(false);
     setTagsOpen(false);
-    setShortcutHelpOpen(false);
-    setDrawerTab(tab);
+    setSettingsOpen(false);
+    setQuickEditEditor(null);
     setDrawerOpen(true);
   };
 
   const handleOpenPresets = () => {
     setDrawerOpen(false);
     setTagsOpen(false);
-    setShortcutHelpOpen(false);
+    setSettingsOpen(false);
+    setQuickEditEditor(null);
     setPresetManagerOpen(true);
   };
 
@@ -97,18 +98,20 @@ const App = () => {
     if (isOpen) {
       setDrawerOpen(false);
       setPresetManagerOpen(false);
-      setShortcutHelpOpen(false);
+      setSettingsOpen(false);
+      setQuickEditEditor(null);
     }
     setTagsOpen(isOpen);
   };
 
   useAndroidAppLifecycle({
-    hasOpenWindow: drawerOpen || tagsOpen || presetManagerOpen || shortcutHelpOpen,
+    hasOpenWindow: drawerOpen || tagsOpen || presetManagerOpen || settingsOpen || quickEditEditor !== null,
     closeOpenWindow: () => {
       setDrawerOpen(false);
       setTagsOpen(false);
       setPresetManagerOpen(false);
-      setShortcutHelpOpen(false);
+      setSettingsOpen(false);
+      setQuickEditEditor(null);
     },
     flushPendingState: async () => {
       await Promise.all([
@@ -144,7 +147,7 @@ const App = () => {
   useEffect(() => {
     if (!isDesktop) return;
     const handleDesktopShortcut = (event: KeyboardEvent) => {
-      if (event.repeat || presetManagerOpen || shortcutHelpOpen || drawerOpen || tagsOpen) return;
+      if (event.repeat || presetManagerOpen || settingsOpen || quickEditEditor !== null || drawerOpen || tagsOpen) return;
       const editorTarget = event.target instanceof HTMLElement && event.target.hasAttribute('data-editor-id');
       if (isEditableTarget(event.target) && !editorTarget) return;
 
@@ -171,7 +174,7 @@ const App = () => {
     };
     window.addEventListener('keydown', handleDesktopShortcut, { capture: true });
     return () => window.removeEventListener('keydown', handleDesktopShortcut, { capture: true });
-  }, [applyCommand, changeActiveEditor, changeDualMode, drawerOpen, dualMode, isDesktop, presetManagerOpen, presets, shortcutHelpOpen, tagsOpen]);
+  }, [applyCommand, changeActiveEditor, changeDualMode, drawerOpen, dualMode, isDesktop, presetManagerOpen, presets, quickEditEditor, settingsOpen, tagsOpen]);
 
   const insertTag = (tag: string) => {
     const editor = activeEditor === 'left' ? leftEditor : rightEditor;
@@ -195,15 +198,16 @@ const App = () => {
         onActiveEditorChange={changeActiveEditor}
         tagsOpen={tagsOpen}
         onTagsOpenChange={handleTagsOpenChange}
-        onOpenDrawer={handleOpenDrawer}
+        onOpenHistory={handleOpenHistory}
         onOpenPresets={handleOpenPresets}
         dualMode={dualMode}
         onDualModeChange={changeDualMode}
-        onOpenShortcutHelp={() => {
+        onOpenSettings={() => {
           setDrawerOpen(false);
           setTagsOpen(false);
           setPresetManagerOpen(false);
-          setShortcutHelpOpen(true);
+          setQuickEditEditor(null);
+          setSettingsOpen(true);
         }}
       />
       
@@ -220,6 +224,14 @@ const App = () => {
             isActive={activeEditor === 'left'}
             onFocus={() => changeActiveEditor('left')}
             hydrated={leftEditor.hydrated}
+            onOpenQuickEdit={() => {
+              changeActiveEditor('left');
+              setDrawerOpen(false);
+              setTagsOpen(false);
+              setPresetManagerOpen(false);
+              setSettingsOpen(false);
+              setQuickEditEditor('left');
+            }}
           />
           {tagsOpen && activeEditor === 'right' && (
             <SunoTagsPanel
@@ -242,6 +254,14 @@ const App = () => {
             isActive={activeEditor === 'right'}
             onFocus={() => changeActiveEditor('right')}
             hydrated={rightEditor.hydrated}
+            onOpenQuickEdit={() => {
+              changeActiveEditor('right');
+              setDrawerOpen(false);
+              setTagsOpen(false);
+              setPresetManagerOpen(false);
+              setSettingsOpen(false);
+              setQuickEditEditor('right');
+            }}
           />
           {tagsOpen && activeEditor === 'left' && (
             <SunoTagsPanel
@@ -255,20 +275,29 @@ const App = () => {
         </div>
       </main>
 
-      {/* Sliding Side Drawer for History, Data */}
+      {/* Sliding Side Drawer for History */}
       <SlidingDrawer
         isOpen={drawerOpen}
         onClose={() => setDrawerOpen(false)}
-        activeTab={drawerTab}
-        onTabChange={setDrawerTab}
         applyHistoryVersion={applyHistoryVersion}
       />
 
       {presetManagerOpen && (
         <PresetManager onClose={() => setPresetManagerOpen(false)} />
       )}
-      {shortcutHelpOpen && (
-        <ShortcutHelp presets={presets} onClose={() => setShortcutHelpOpen(false)} />
+      {settingsOpen && (
+        <SettingsModal presets={presets} onClose={() => setSettingsOpen(false)} />
+      )}
+      {quickEditEditor && (
+        <QuickTextEditModal
+          editorId={quickEditEditor}
+          value={quickEditEditor === 'left' ? leftEditor.value : rightEditor.value}
+          onApply={nextValue => {
+            const editor = quickEditEditor === 'left' ? leftEditor : rightEditor;
+            editor.updateValue(nextValue, nextValue.length, nextValue.length, true);
+          }}
+          onClose={() => setQuickEditEditor(null)}
+        />
       )}
     </div>
   );
