@@ -1,13 +1,14 @@
-﻿import { test as base, expect } from '@playwright/test';
+﻿import { test as base, expect, type Page } from '@playwright/test';
 export { expect };
-export const test = base.extend<{ consoleCheck: void }>({
+export const test = base.extend<{ consoleCheck: (page: Page) => void }>({
   consoleCheck: [async ({ context }, use) => {
     const errors: string[] = [];
-    context.on('page', page => {
+    const checkPage = (page: Page) => {
       page.on('pageerror', error => errors.push(error.message));
       page.on('console', message => { if (message.type() === 'error') errors.push(message.text()); });
-    });
-    await use();
+    };
+    context.on('page', checkPage);
+    await use(checkPage);
     expect(errors).toEqual([]);
   }, { auto: true }],
 });

@@ -3,8 +3,8 @@ name = "e-dit"
 version = "2.0.6"
 description = "A focused cross-platform text editor"
 authors = ["KartG33"]
-license = ""
-repository = ""
+repository = "https://github.com/KartG33/E-dit-New"
+publish = false
 edition = "2021"
 rust-version = "1.77.2"
 

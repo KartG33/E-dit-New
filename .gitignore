@@ -12,6 +12,13 @@ dist
 dist-ssr
 *.local
 .env
+.env.*
+!.env.example
+*.jks
+*.keystore
+*.p12
+*.pfx
+*.tsbuildinfo
 tmp/
 temp/
 coverage/

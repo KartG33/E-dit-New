@@ -1,7 +1,8 @@
 import { expect, test } from './fixtures';
 
-test('desktop productivity flow and unchanged mobile layout', async ({ browser }) => {
+test('desktop productivity flow and unchanged mobile layout', async ({ browser, consoleCheck }) => {
   const desktop = await browser.newPage({ viewport: { width: 1280, height: 800 } });
+  consoleCheck(desktop);
   await desktop.goto('/');
   const leftEditor = desktop.getByRole('textbox', { name: 'left editor' });
   await expect(leftEditor).toBeEnabled();
@@ -42,6 +43,7 @@ test('desktop productivity flow and unchanged mobile layout', async ({ browser }
   await desktop.screenshot({ path: 'test-results/phase6-desktop-1280x800.png', fullPage: true });
 
   const mobile = await browser.newPage({ viewport: { width: 393, height: 873 }, isMobile: true });
+  consoleCheck(mobile);
   await mobile.goto('/');
   await expect(mobile.getByRole('textbox', { name: 'left editor' })).toBeEnabled();
   await expect(mobile.getByRole('button', { name: 'Keyboard shortcuts' })).toBeHidden();
