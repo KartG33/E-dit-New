@@ -1,4 +1,6 @@
 - `[x]` Phase 1: Pure Logic, Data Models & Unit Tests
+
+> Архив завершённого этапа. Описывает состояние на момент проверки; актуальные инструкции находятся в [документации](../README.md).
   - `[x]` Setup Vite + React + TypeScript + Tailwind
   - `[x]` Implement pure text command functions with unambiguous internal names and stable command IDs/button labels
   - `[x]` Implement Suno commands with distinct text/Suno transformation names and stable command IDs/button labels

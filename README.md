@@ -1,114 +1,42 @@
-# E-dit
+# E-dit 2
 
-E-dit is a two-pane text editor with text transformations, presets, history, and Suno-specific tools.
+[![CI](https://github.com/KartG33/E-dit-New/actions/workflows/ci.yml/badge.svg)](https://github.com/KartG33/E-dit-New/actions/workflows/ci.yml)
 
-## Interface foundation
+Редактор текста для **Windows, Android и браузера** с двумя независимыми рабочими областями, преобразованиями текста и инструментами для Suno. Тексты, настройки, история и пресеты хранятся локально.
 
-The interface uses a shared dark visual system defined in `src/index.css`. Semantic component classes draw from one set of surface, border, text, accent, spacing, and radius tokens. Editor content uses a 15 px monospace face with a 1.55 line height; controls, headings, metadata, and statistics use distinct compact hierarchy levels while preserving the existing two-pane layout.
+## Возможности
 
-Each editor header shows total characters including whitespace and line count. Detected special-symbol buttons remain in the footer; clicking one removes every occurrence of that token in a single editor update.
+- Один или два редактора, независимые Undo/Redo, автосохранение и восстановление незавершённой записи.
+- Команды обработки текста и составные пресеты из команд, замен и удаления фрагментов.
+- Поиск в тексте и истории, переход к Suno-тегу, копирование в другой редактор.
+- Настраиваемые горячие клавиши с проверкой конфликтов и подсказками при наведении.
+- Импорт и экспорт Data v3; поддержка старых файлов Data v2.
+- Общий интерфейс с компактной компоновкой для небольших экранов.
 
-## Suno tags
+Версия: **2.0.6**. Подробности — в [истории изменений](CHANGELOG.md) и [руководстве по возможностям](docs/usage.md).
 
-The Suno section lists every bracketed tag from the active editor in text order. Tags opens as a full-height workspace in the opposite editor pane, keeping the active text visible. A selected occurrence can be renamed or deleted as one Undo step. The builder inserts predefined or custom tags on their own line and can add a positive section number to predefined section tags.
+## Быстрый запуск
 
-## Presets
+Нужен Node.js 22 LTS (от 22.13) и npm.
 
-The Presets tab applies saved actions. Open **Manage presets** in the header to create or edit them. A preset is an ordered list mixing commands, literal or regular-expression replacements, and removal of several exact fragments. Move steps with the arrows. Applying the entire preset creates one Undo step. **Duplicate preset** makes an independent saved copy with a new name and no assigned shortcut.
-
-Existing command chains and regex presets are migrated automatically without changing their order, identifiers, shortcuts, regex flags, or replacement semantics. Literal replacements treat `$1` as text; regex replacements retain JavaScript capture-group syntax.
-
-## Navigation and search
-
-The layout, active editor, and last Text / Suno / Presets tab are restored on restart. Popup windows close with Escape or a click on the backdrop; a drag starting inside the window does not close it. Closing a popup restores the editor selection and scroll position.
-
-The magnifying glass opens literal text search in the active editor. The counter and arrows navigate matches; Enter goes forward, Shift+Enter goes back, and Aa enables case sensitivity. Searching never changes text or creates an Undo entry. **Find and edit** remains a separate tool for replacements and removals.
-
-Each tag in **Suno → Tags** has a separate **Go to tag** button. It selects that exact occurrence and scrolls it into view; on mobile, it returns to the text. Tags also works with the single-editor desktop layout.
-
-**Copy to other editor** copies the complete source text without switching the active editor. Undo in the destination restores its previous text. History searches the full text of all saved versions, can filter by source editor, and shows dates and times. Clicking a version still restores it immediately into the active editor. Storage remains limited to 50 versions per editor.
-
-## Keyboard shortcuts
-
-Open **Settings → Keys** to search actions, record or clear a binding, or reset an action to its default. Text and Suno commands, presets, editor actions, tabs, and navigation can be assigned. Conflicts with another command or preset are rejected and identified by name. Shortcuts appear only in hover tooltips and shortcut settings, with no permanent badges on command buttons.
-
-Defaults include `Alt+1` / `Alt+2` for editor selection, `Ctrl+\` for one/two editors, `Ctrl+F` for search, `Ctrl+Z` for Undo, and `Ctrl+Y` / `Ctrl+Shift+Z` for Redo. Bindings use physical key codes, so letter shortcuts work in either Latin or Cyrillic layouts. Editing a popup field does not run commands against the main text. Shortcut handling is independent of window width and only operates inside the application; Android external-keyboard behavior has not been verified on a device.
-
-## Data and saving
-
-Data export/import uses browser files in the web version and native open/save dialogs in Tauri. Android Import uses the system file picker; Export uses a temporary file and the native share sheet. Exports use **Data v3**, including composite presets and action shortcuts. **Data v2 imports remain supported**. Invalid steps, unsupported settings and conflicting shortcuts are rejected before the database transaction.
-
-Editor changes are journaled immediately while the normal database save remains debounced. The next launch recovers a pending edit. Export flushes current editor changes; import waits for pending writes, applies the validated file atomically, and reloads editors and settings without a page reload. Save failures remain visible with retry. These protections cannot recover data after browser/app storage is cleared.
-
-## Android app behavior
-
-The WebView resizes with the software keyboard. Back hides the keyboard first, then returns from a nested Settings/preset/tag view, closes an auxiliary window, or minimizes the main screen. Pending editor changes are flushed when the app enters the background. Safe-area and viewport sizing keep the controls clear of Android system UI.
-
-The current improvement cycle is tested in browser mobile layouts and automated lifecycle tests. Device tests and installation on a smartphone are excluded at the user's request; building an APK does not constitute a device test.
-
-## App icons
-
-Platform-ready source assets live in `icons/`. The web build uses the favicon, Apple Touch, standard PWA, and maskable icons from `public/icons/`; the Tauri bundle uses the generated desktop and store assets from `src-tauri/icons/`; Android uses density-specific launcher and adaptive resources under `android/app/src/main/res/`.
-
-## Development
-
-Install dependencies:
-
-```text
-npm install
-```
-
-Run the web version:
-
-```text
+```sh
+git clone https://github.com/KartG33/E-dit-New.git
+cd E-dit-New
+npm ci
 npm run dev
 ```
 
-Run the desktop version:
+Для web-сборки: `npm run build`. Для проверки проекта: `npm run check`.
 
-```text
-npm run tauri dev
-```
+## Документация
 
-Sync the production web build into the Capacitor Android project:
+- [Окружение, тесты и сборки Windows / Android](docs/development.md)
+- [Устройство проекта и хранение данных](docs/architecture.md)
+- [Правила внесения изменений](CONTRIBUTING.md)
+- [Проверка реализации 2.0.6](docs/reports/verification-2.0.6.md)
+- [Аудит репозитория](docs/reports/repository-audit-2026-09-08.md)
+- [Все документы и архив завершённых этапов](docs/README.md)
 
-```text
-npm run android:sync
-```
+GitHub Actions проверяет web-версию, собирает Windows NSIS и Android debug APK. Сборки доступны в артефактах успешного запуска [CI](https://github.com/KartG33/E-dit-New/actions/workflows/ci.yml) в течение 7 дней. Они не заменяют подписанный релиз и проверку установленного приложения.
 
-Open the native project after installing Android Studio 2025.2.1 or newer and an Android SDK. Capacitor 8 Android builds require JDK 21; use the JDK bundled with Android Studio if the system `JAVA_HOME` points to an older Java installation:
-
-```text
-npm run android:open
-```
-
-The Android shell targets API 24 and newer. Build the debug APK with JDK 21 after synchronizing the web assets:
-
-```text
-.\android\gradlew.bat -p android assembleDebug
-```
-
-The APK is written to `android/app/build/outputs/apk/debug/app-debug.apk`.
-
-Build the web version or Windows application:
-
-```text
-npm run build
-npm run tauri build
-```
-
-Run project checks:
-
-```text
-npm test
-npm run lint
-npm run test:phase6:e2e
-```
-
-On Windows under heavy build load, run tests with one thread worker to avoid process-start timeouts:
-
-```text
-npm.cmd test -- --pool=threads --maxWorkers=1
-```
-
-The implementation and verification record for 2.0.6 is in [improvement_verification.md](improvement_verification.md).
+В основе проекта — React, TypeScript, Vite и Dexie; Windows использует Tauri, Android — Capacitor. Исходники и lock-файлы хранятся в Git, локальные сборки и ключи подписи исключены.

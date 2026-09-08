@@ -1,5 +1,7 @@
 # План рефакторинга проекта E-dit
 
+> Архив завершённого этапа. Описывает состояние на момент проверки; актуальные инструкции находятся в [документации](../README.md).
+
 В данном документе представлен детальный технический анализ текущей кодовой базы E-dit, выявленные расхождения с документацией и требованиями, а также пошаговый план проведения рефакторинга.
 
 ---
@@ -8,26 +10,26 @@
 
 ### 1.1 Разные названия одной функции / концепции
 * **Именование команд и функций обрезки пробелов по краям:**
-  * В [text.ts](src/lib/commands/text.ts) общая функция очистки краёв каждой строки называется `trimLines`.
-  * В [suno.ts](src/lib/commands/suno.ts) очистка переносов в блоках Suno называется `sunoTrim`.
+  * В [text.ts](../../src/lib/commands/text.ts) общая функция очистки краёв каждой строки называется `trimLines`.
+  * В [suno.ts](../../src/lib/commands/suno.ts) очистка переносов в блоках Suno называется `sunoTrim`.
   * Стабильные идентификаторы `text.edges` и `suno.trim`, а также подписи кнопок `"Edges"` и `"Trim"`, сохранены для совместимости интерфейса и существующих пресетов.
 * **Вкладка/компонент работы с данными:**
-  * Переименовано из `BackupRestore` в `DataPanel` ([DataPanel.tsx](src/components/Data/DataPanel.tsx)).
-  * В типах навигации называется `data` ([SlidingDrawer.tsx](src/components/Drawer/SlidingDrawer.tsx)).
-  * В UI раздел назван `"Data"`; кнопка открытия находится в [CommandPanel.tsx](src/components/Commands/CommandPanel.tsx), а содержимое — в [DataPanel.tsx](src/components/Data/DataPanel.tsx).
+  * Переименовано из `BackupRestore` в `DataPanel` ([DataPanel.tsx](../../src/components/Data/DataPanel.tsx)).
+  * В типах навигации называется `data` ([SlidingDrawer.tsx](../../src/components/Drawer/SlidingDrawer.tsx)).
+  * В UI раздел назван `"Data"`; кнопка открытия находится в [CommandPanel.tsx](../../src/components/Commands/CommandPanel.tsx), а содержимое — в [DataPanel.tsx](../../src/components/Data/DataPanel.tsx).
 
 ### 1.2 Одинаковые названия у разных функций / сущностей
 * **Разграничение команд изменения регистра:**
-  * В [text.ts](src/lib/commands/text.ts) `toUpperCase(text)` переводит весь текст в верхний регистр.
-  * В [suno.ts](src/lib/commands/suno.ts) `capitalizeSunoLines(text)` переводит в верхний регистр только первую букву каждой текстовой строки и не изменяет теги `[...]`.
-  * Стабильные идентификаторы реестра `text.upper` и `suno.upper` не изменены, но внутренние импорты теперь однозначны в [TextCommands.tsx](src/components/Commands/TextCommands.tsx) и [SunoCommands.tsx](src/components/Commands/SunoCommands.tsx).
+  * В [text.ts](../../src/lib/commands/text.ts) `toUpperCase(text)` переводит весь текст в верхний регистр.
+  * В [suno.ts](../../src/lib/commands/suno.ts) `capitalizeSunoLines(text)` переводит в верхний регистр только первую букву каждой текстовой строки и не изменяет теги `[...]`.
+  * Стабильные идентификаторы реестра `text.upper` и `suno.upper` не изменены, но внутренние импорты теперь однозначны в [TextCommands.tsx](../../src/components/Commands/TextCommands.tsx) и [SunoCommands.tsx](../../src/components/Commands/SunoCommands.tsx).
 * **Разграничение команд работы с пробелами:**
   * `collapseSpaces` в `text.ts` — замена множественных пробелов/табов на 1 пробел.
   * `space` в `suno.ts` — нормализация пустых строк вокруг structural tags `[...]`.
 
 ### 1.3 Устаревший и неиспользуемый код
 * **Файл стилей `App.css`:**
-  * В [src/App.css](file:///d:/Documents/Antigravity%20Projects/E-dit%20New/src/App.css) содержатся базовые стили CRA/Vite по умолчанию (`#root`, `.logo`, `.card`, `@keyframes logo-spin`), которые не используются в приложении (в проекте применяется Tailwind CSS).
+  * В [src/App.css](https://github.com/KartG33/E-dit-New/blob/19d98cc/src/App.css) содержатся базовые стили CRA/Vite по умолчанию (`#root`, `.logo`, `.card`, `@keyframes logo-spin`), которые не используются в приложении (в проекте применяется Tailwind CSS).
 * **Удалённая сущность `Note` в базе данных:**
   * Интерфейс `Note` и свойство `EditDatabase.notes` удалены из актуального кода. Описания схем v1-v3 сохранены для открытия старых баз, а миграция Dexie v4 удаляет таблицу `notes`, сохраняя данные остальных таблиц.
 
@@ -37,30 +39,30 @@
 
 ### 1.5 Слишком сложные или смешанные компоненты
 * **`CommandPanel.tsx` разделён на самостоятельные секции:**
-  * [CommandPanel.tsx](src/components/Commands/CommandPanel.tsx) отвечает только за общую шапку, навигацию и выбор активной вкладки. [TextCommands.tsx](src/components/Commands/TextCommands.tsx), [SunoCommands.tsx](src/components/Commands/SunoCommands.tsx) и [PresetsCommands.tsx](src/components/Commands/PresetsCommands.tsx) независимо содержат разметку и зависимости своих разделов, а [CommandButton.tsx](src/components/Commands/CommandButton.tsx) сохраняет общий внешний вид кнопок.
+  * [CommandPanel.tsx](../../src/components/Commands/CommandPanel.tsx) отвечает только за общую шапку, навигацию и выбор активной вкладки. [TextCommands.tsx](../../src/components/Commands/TextCommands.tsx), [SunoCommands.tsx](../../src/components/Commands/SunoCommands.tsx) и [PresetsCommands.tsx](../../src/components/Commands/PresetsCommands.tsx) независимо содержат разметку и зависимости своих разделов, а [CommandButton.tsx](../../src/components/Commands/CommandButton.tsx) сохраняет общий внешний вид кнопок.
 * **`DataPanel.tsx` отделён от платформенной работы с файлами:**
-  * [DataPanel.tsx](src/components/Data/DataPanel.tsx) зависит только от интерфейса `DataFileAdapter`. Для web используется `BrowserDataFileAdapter`, а для desktop — `TauriDataFileAdapter`. Адаптер Capacitor можно добавить позднее без изменения раздела Data.
+  * [DataPanel.tsx](../../src/components/Data/DataPanel.tsx) зависит только от интерфейса `DataFileAdapter`. Для web используется `BrowserDataFileAdapter`, а для desktop — `TauriDataFileAdapter`. Адаптер Capacitor можно добавить позднее без изменения раздела Data.
 
 ### 1.6 Расхождения между кодом, интерфейсом, тестами, task.md и implementation_plan.md
 * **Пункт 6 Фазы 2 (Favorites & startupTab):**
   * В `task.md` (строка 14) пункт отмечен как невыполненный `[ ]`.
   * В `implementation_plan.md` (секция 6) подробно расписаны требования к избранным командам и закреплению вкладки запуска.
-  * В базе данных `AppSettings` ([src/lib/db/index.ts](file:///d:/Documents/Antigravity%20Projects/E-dit%20New/src/lib/db/index.ts#L49-L52)) поля `startupTab` и `favoriteCommandIds` добавлены в тип, но UI управления избранным и стартовой вкладкой не реализован.
+  * В базе данных `AppSettings` ([src/lib/db/index.ts](../../src/lib/db/index.ts#L49-L52)) поля `startupTab` и `favoriteCommandIds` добавлены в тип, но UI управления избранным и стартовой вкладкой не реализован.
 * **Пункт 9 Фазы 2 (Data & Platform Layer):**
   * В `implementation_plan.md` требовалась валидация схемы JSON при импорте, обработка ошибок, атомарные транзакции и выделенный сервисный слой `DataFileAdapter`.
-  * Строгая валидация Data v2 и атомарный импорт реализованы в [import.ts](src/lib/data/import.ts), а файловые операции изолированы за `DataFileAdapter`. Реализованы браузерный и Tauri-адаптеры.
+  * Строгая валидация Data v2 и атомарный импорт реализованы в [import.ts](../../src/lib/data/import.ts), а файловые операции изолированы за `DataFileAdapter`. Реализованы браузерный и Tauri-адаптеры.
 
 ### 1.7 Статус ранее незавершённых задач
 * **Пункт 9 Фазы 2 (Data & Platform Layer) выполнен:**
   * Data v2 валидируется и импортируется атомарно, а `DataFileAdapter` отделяет UI от платформенных API. Реализованы `BrowserDataFileAdapter` и `TauriDataFileAdapter`; Capacitor остаётся будущей интеграцией.
 * **Связано с Пресетами (Пункт 5):**
-  * Отмечен выполненным `[x]`, но пресеты не содержат полноценного UI конструктора цепочек (Chain Editor) и Regex Editor для пользователя, а только отображение имеющихся в DB пресетов ([src/components/Commands/PresetsTab.tsx](file:///d:/Documents/Antigravity%20Projects/E-dit%20New/src/components/Commands/PresetsTab.tsx)).
+  * Отмечен выполненным `[x]`, но пресеты не содержат полноценного UI конструктора цепочек (Chain Editor) и Regex Editor для пользователя, а только отображение имеющихся в DB пресетов ([src/components/Commands/PresetsTab.tsx](../../src/components/Commands/PresetsTab.tsx)).
 
 ### 1.8 Проблемы с хранением данных и будущими версиями приложения
 * **Безопасная валидация при импорте данных:**
   * Data v2 полностью проверяется до изменения IndexedDB: версия, верхнеуровневая структура, настройки, пресеты, CommandId и regex. Настройки и пресеты заменяются одной транзакцией с rollback при ошибке.
 * **Независимое версионирование экспортируемого файла данных:**
-  * Формат Data сохраняет собственную `version: 2` ([DataPanel.tsx](file:///d:/Documents/Antigravity%20Projects/E-dit%20New/src/components/Data/DataPanel.tsx#L13)), а внутренняя схема Dexie использует v4 для удаления таблицы `notes`. Эти версии относятся к разным форматам, развиваются независимо, и их несовпадение ожидаемо и не является ошибкой.
+  * Формат Data сохраняет собственную `version: 2` ([DataPanel.tsx](../../src/components/Data/DataPanel.tsx#L13)), а внутренняя схема Dexie использует v4 для удаления таблицы `notes`. Эти версии относятся к разным форматам, развиваются независимо, и их несовпадение ожидаемо и не является ошибкой.
 
 ---
 
@@ -114,11 +116,11 @@ graph TD
 * **Зачем это нужно:** Избавление от "мертвого" кода, устранение путаницы в названиях функций и импортах.
 * **Какие файлы затрагиваются:**
   * [DELETE] `src/App.css`
-  * [MODIFY] [src/App.tsx](file:///d:/Documents/Antigravity%20Projects/E-dit%20New/src/App.tsx)
-  * [MODIFY] [src/lib/db/index.ts](file:///d:/Documents/Antigravity%20Projects/E-dit%20New/src/lib/db/index.ts)
-  * [MODIFY] [src/lib/commands/text.ts](src/lib/commands/text.ts)
-  * [MODIFY] [src/lib/commands/suno.ts](src/lib/commands/suno.ts)
-  * [MODIFY] [src/lib/commands/registry.ts](src/lib/commands/registry.ts)
+  * [MODIFY] [src/App.tsx](../../src/App.tsx)
+  * [MODIFY] [src/lib/db/index.ts](../../src/lib/db/index.ts)
+  * [MODIFY] [src/lib/commands/text.ts](../../src/lib/commands/text.ts)
+  * [MODIFY] [src/lib/commands/suno.ts](../../src/lib/commands/suno.ts)
+  * [MODIFY] [src/lib/commands/registry.ts](../../src/lib/commands/registry.ts)
 * **От каких этапов зависит:** Нет зависимостей.
 * **Как проверить результат:** Запуск `npx vitest run` и `npm run build` должен проходить без ошибок типов и тестов.
 * **Какой риск имеет изменение:** Низкий.
@@ -133,11 +135,11 @@ graph TD
   3. Логика записи History централизована в `EditDatabase.addHistory`; `useEditor` делегирует ей сохранение версий, дедупликацию и лимит.
 * **Зачем это нужно:** Предотвращение порчи IndexedDB при импорте некорректных файлов, гарантия целостности данных пользователя.
 * **Какие файлы затрагиваются:**
-  * [MODIFY] [src/lib/db/index.ts](file:///d:/Documents/Antigravity%20Projects/E-dit%20New/src/lib/db/index.ts)
-  * [MODIFY] [src/hooks/useEditor.ts](file:///d:/Documents/Antigravity%20Projects/E-dit%20New/src/hooks/useEditor.ts)
-  * [src/lib/data/import.ts](src/lib/data/import.ts)
-  * [src/components/Data/DataPanel.tsx](src/components/Data/DataPanel.tsx)
-  * [tests/dataImport.test.ts](tests/dataImport.test.ts)
+  * [MODIFY] [src/lib/db/index.ts](../../src/lib/db/index.ts)
+  * [MODIFY] [src/hooks/useEditor.ts](../../src/hooks/useEditor.ts)
+  * [src/lib/data/import.ts](../../src/lib/data/import.ts)
+  * [src/components/Data/DataPanel.tsx](../../src/components/Data/DataPanel.tsx)
+  * [tests/dataImport.test.ts](../../tests/dataImport.test.ts)
 * **От каких этапов зависит:** Зависит от Этапа 1.
 * **Как проверить результат:** Новые Vitest тесты с валидным, поврежденным и устаревшим JSON файлом данных.
 * **Какой риск имеет изменение:** Средний (затрагивает операции записи в IndexedDB).
@@ -151,15 +153,15 @@ graph TD
   2. `CommandPanel.tsx` разделён на `TextCommands`, `SunoCommands` и `PresetsCommands`; общая кнопка вынесена в `CommandButton`.
 * **Зачем это нужно:** Подготовка к будущей интеграции с Tauri (Desktop) и Capacitor (Mobile), соблюдение чистоты архитектуры.
 * **Какие файлы затрагиваются:**
-  * [src/lib/platform/dataFileAdapter.ts](src/lib/platform/dataFileAdapter.ts)
-  * [src/components/Data/DataPanel.tsx](src/components/Data/DataPanel.tsx)
-  * [tests/dataFileAdapter.test.tsx](tests/dataFileAdapter.test.tsx)
-  * [src/components/Commands/CommandPanel.tsx](src/components/Commands/CommandPanel.tsx)
-  * [src/components/Commands/TextCommands.tsx](src/components/Commands/TextCommands.tsx)
-  * [src/components/Commands/SunoCommands.tsx](src/components/Commands/SunoCommands.tsx)
-  * [src/components/Commands/PresetsCommands.tsx](src/components/Commands/PresetsCommands.tsx)
-  * [src/components/Commands/CommandButton.tsx](src/components/Commands/CommandButton.tsx)
-  * [tests/CommandPanel.test.tsx](tests/CommandPanel.test.tsx)
+  * [src/lib/platform/dataFileAdapter.ts](../../src/lib/platform/dataFileAdapter.ts)
+  * [src/components/Data/DataPanel.tsx](../../src/components/Data/DataPanel.tsx)
+  * [tests/dataFileAdapter.test.tsx](../../tests/dataFileAdapter.test.tsx)
+  * [src/components/Commands/CommandPanel.tsx](../../src/components/Commands/CommandPanel.tsx)
+  * [src/components/Commands/TextCommands.tsx](../../src/components/Commands/TextCommands.tsx)
+  * [src/components/Commands/SunoCommands.tsx](../../src/components/Commands/SunoCommands.tsx)
+  * [src/components/Commands/PresetsCommands.tsx](../../src/components/Commands/PresetsCommands.tsx)
+  * [src/components/Commands/CommandButton.tsx](../../src/components/Commands/CommandButton.tsx)
+  * [tests/CommandPanel.test.tsx](../../tests/CommandPanel.test.tsx)
 * **От каких этапов зависит:** Зависит от Этапа 2.
 * **Как проверить результат:** Ручная и автоматизированная проверка работы импорта/экспорта в браузере.
 * **Какой риск имеет изменение:** Низкий.
@@ -171,11 +173,11 @@ graph TD
 * **Что исправлено:** Теги показываются в порядке текста; выбранное вхождение можно переименовать или удалить. Билдер вставляет готовые и произвольные теги отдельной строкой, поддерживает только положительный номер секции и не использует множители.
 * **Зачем это нужно:** Выполнение запланированного функционала Фазы 2.
 * **Какие файлы затрагиваются:**
-  * [MODIFY] [src/lib/commands/suno.ts](src/lib/commands/suno.ts)
-  * [MODIFY] [src/components/SunoTags/SunoTagsEditor.tsx](file:///d:/Documents/Antigravity%20Projects/E-dit%20New/src/components/SunoTags/SunoTagsEditor.tsx)
-  * [MODIFY] [tests/suno.test.ts](tests/suno.test.ts)
-  * [MODIFY] [tests/CommandPanel.test.tsx](tests/CommandPanel.test.tsx)
-  * [MODIFY] [task.md](file:///d:/Documents/Antigravity%20Projects/E-dit%20New/task.md)
+  * [MODIFY] [src/lib/commands/suno.ts](../../src/lib/commands/suno.ts)
+  * [MODIFY] [src/components/SunoTags/SunoTagsEditor.tsx](../../src/components/SunoTags/SunoTagsEditor.tsx)
+  * [MODIFY] [tests/suno.test.ts](../../tests/suno.test.ts)
+  * [MODIFY] [tests/CommandPanel.test.tsx](../../tests/CommandPanel.test.tsx)
+  * [MODIFY] [task.md](task.md)
 * **От каких этапов зависит:** Зависит от Этапа 1 и 3.
 * **Как проверить результат:** Vitest тесты чистых функций парсера тегов и UI-тесты редактора.
 * **Какой риск имеет изменение:** Средний.
@@ -187,11 +189,11 @@ graph TD
 * **Что исправляется:** Реализация UI для добавления команд в Избранное (`favoriteCommandIds`) и возможность выбора/закрепления стартовой вкладки (`startupTab`) при загрузке приложения.
 * **Зачем это нужно:** Закрытие последнего нереализованного пункта Фазы 2.
 * **Какие файлы затрагиваются:**
-  * [MODIFY] [src/components/Commands/CommandPanel.tsx](src/components/Commands/CommandPanel.tsx) — навигация новой вкладки.
-  * [MODIFY] [src/components/Commands/TextCommands.tsx](src/components/Commands/TextCommands.tsx) и [PresetsCommands.tsx](src/components/Commands/PresetsCommands.tsx) — отображение избранного.
-  * [MODIFY] [src/App.tsx](file:///d:/Documents/Antigravity%20Projects/E-dit%20New/src/App.tsx)
+  * [MODIFY] [src/components/Commands/CommandPanel.tsx](../../src/components/Commands/CommandPanel.tsx) — навигация новой вкладки.
+  * [MODIFY] [src/components/Commands/TextCommands.tsx](../../src/components/Commands/TextCommands.tsx) и [PresetsCommands.tsx](../../src/components/Commands/PresetsCommands.tsx) — отображение избранного.
+  * [MODIFY] [src/App.tsx](../../src/App.tsx)
   * [NEW] `tests/favorites.test.ts`
-  * [MODIFY] [task.md](file:///d:/Documents/Antigravity%20Projects/E-dit%20New/task.md)
+  * [MODIFY] [task.md](task.md)
 * **От каких этапов зависит:** Зависит от Этапа 3 и 4.
 * **Как проверить результат:** Проверка сохранения выбранной вкладки в `AppSettings` в IndexedDB и её загрузки при старте приложения.
 * **Какой риск имеет изменение:** Низкий.
