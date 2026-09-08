@@ -8,11 +8,13 @@ import {
   type Setting,
 } from '../db';
 import { shortcutId, validatePresetShortcut } from '../hotkeys';
+import { toSequence, validateSteps } from '../presets/model';
+import { isActionShortcuts, validateAllShortcuts, type ActionShortcuts } from '../actionShortcuts';
 
-export const DATA_FILE_VERSION = 2;
+export const DATA_FILE_VERSION = 3;
 
-export interface DataFileV2 {
-  version: 2;
+export interface DataFileV3 {
+  version: 3;
   presets: Preset[];
   settings: Setting[];
   timestamp: number;
@@ -85,8 +87,8 @@ const validatePreset = (value: unknown, index: number): Preset => {
       throw new DataImportError(`${path}.shortcut is invalid: ${shortcutError}`);
     }
   }
-  if (!isRecord(value.data) || (value.data.type !== 'chain' && value.data.type !== 'regex')) {
-    throw new DataImportError(`${path}.data must be a chain or regex preset`);
+  if (!isRecord(value.data) || !['chain', 'regex', 'sequence'].includes(String(value.data.type))) {
+    throw new DataImportError(`${path}.data must be a chain, regex or sequence preset`);
   }
 
   if (value.data.type === 'chain') {
@@ -95,10 +97,14 @@ const validatePreset = (value: unknown, index: number): Preset => {
       throw new DataImportError(`${path}.data.commands must be an array`);
     }
     for (const [commandIndex, commandId] of value.data.commands.entries()) {
-      if (typeof commandId !== 'string' || !(commandId in COMMAND_REGISTRY)) {
+      if (typeof commandId !== 'string' || !Object.hasOwn(COMMAND_REGISTRY, commandId)) {
         throw new DataImportError(`${path}.data.commands[${commandIndex}] is not a known CommandId`);
       }
     }
+  } else if (value.data.type === 'sequence') {
+    assertExactKeys(value.data, ['type', 'steps'], `${path}.data`);
+    try { validateSteps(value.data.steps); }
+    catch (error) { throw new DataImportError(`${path}.data: ${(error as Error).message}`); }
   } else {
     assertExactKeys(value.data, ['type', 'pattern', 'flags', 'replacement'], `${path}.data`);
     if (
@@ -125,13 +131,15 @@ const settingValidators: {
     value === 'light' || value === 'dark' || value === 'system',
   dualMode: (value): value is boolean => typeof value === 'boolean',
   activeEditor: (value): value is AppSettings['activeEditor'] => value === 'left' || value === 'right',
+  lastTab: (value): value is AppSettings['lastTab'] => value === 'standard' || value === 'suno' || value === 'presets',
+  actionShortcuts: isActionShortcuts,
   startupTab: (value): value is AppSettings['startupTab'] =>
     value === 'Commands' || value === 'Suno' || value === 'Presets' || value === 'Favorites',
   editorLeftText: (value): value is string => typeof value === 'string',
   editorRightText: (value): value is string => typeof value === 'string',
   favoriteCommandIds: (value): value is string[] =>
     Array.isArray(value) && value.every(commandId =>
-      typeof commandId === 'string' && commandId in COMMAND_REGISTRY
+      typeof commandId === 'string' && Object.hasOwn(COMMAND_REGISTRY, commandId)
     ),
 };
 
@@ -141,7 +149,7 @@ const validateSetting = (value: unknown, index: number): Setting => {
     throw new DataImportError(`${path} must be an object`);
   }
   assertExactKeys(value, ['key', 'value'], path);
-  if (typeof value.key !== 'string' || !(value.key in settingValidators)) {
+  if (typeof value.key !== 'string' || !Object.hasOwn(settingValidators, value.key)) {
     throw new DataImportError(`${path}.key is not a supported setting`);
   }
 
@@ -152,7 +160,7 @@ const validateSetting = (value: unknown, index: number): Setting => {
   return { key, value: value.value };
 };
 
-export const parseDataFile = (text: string): DataFileV2 => {
+export const parseDataFile = (text: string): DataFileV3 => {
   let value: unknown;
   try {
     value = JSON.parse(text);
@@ -164,7 +172,7 @@ export const parseDataFile = (text: string): DataFileV2 => {
     throw new DataImportError('Data file must contain an object');
   }
   assertExactKeys(value, ['version', 'presets', 'settings', 'timestamp'], 'Data file');
-  if (value.version !== DATA_FILE_VERSION) {
+  if (value.version !== 2 && value.version !== DATA_FILE_VERSION) {
     throw new DataImportError(`Unsupported Data version: ${String(value.version)}`);
   }
   if (!Array.isArray(value.presets)) {
@@ -176,6 +184,9 @@ export const parseDataFile = (text: string): DataFileV2 => {
   assertFiniteNumber(value.timestamp, 'timestamp');
 
   const presets = value.presets.map(validatePreset);
+  if (value.version === 2 && presets.some(preset => preset.data.type === 'sequence')) {
+    throw new DataImportError('Sequence presets require Data version 3');
+  }
   const settings = value.settings.map(validateSetting);
   const presetIds = presets.flatMap(preset => preset.id === undefined ? [] : [preset.id]);
   if (new Set(presetIds).size !== presetIds.length) {
@@ -189,8 +200,10 @@ export const parseDataFile = (text: string): DataFileV2 => {
   if (new Set(settingKeys).size !== settingKeys.length) {
     throw new DataImportError('settings contain duplicate keys');
   }
+  const conflict = validateAllShortcuts((settings.find(setting => setting.key === 'actionShortcuts')?.value ?? {}) as ActionShortcuts, presets);
+  if (conflict) throw new DataImportError(conflict);
 
-  return { version: 2, presets, settings, timestamp: value.timestamp };
+  return { version: 3, presets: presets.map(preset => ({ ...preset, data: toSequence(preset.data) })), settings, timestamp: value.timestamp };
 };
 
 export const importDataFile = async (

@@ -24,7 +24,7 @@ const waitForExit = child => new Promise((resolve, reject) => {
   child.once('exit', code => resolve(code ?? 1));
 });
 
-const server = spawn(process.execPath, [viteCli, '--host', '127.0.0.1', '--port', '4173'], {
+const server = spawn(process.execPath, [viteCli, 'preview', '--strictPort', '--host', '127.0.0.1', '--port', '4173'], {
   stdio: 'ignore',
   windowsHide: true,
 });

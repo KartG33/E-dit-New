@@ -1,4 +1,6 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { LocateFixed } from 'lucide-react';
+import { ANDROID_BACK_REQUEST_EVENT } from '../../hooks/useAndroidAppLifecycle';
 import {
   buildSunoTag,
   findSunoTags,
@@ -17,9 +19,10 @@ interface SunoTagsEditorProps {
   editorText: string;
   onInsert: (tag: string) => void;
   onChangeText: (command: (text: string) => string) => void;
+  onNavigate?: (occurrence: SunoTagOccurrence) => void;
 }
 
-export const SunoTagsEditor = ({ editorText, onInsert, onChangeText }: SunoTagsEditorProps) => {
+export const SunoTagsEditor = ({ editorText, onInsert, onChangeText, onNavigate }: SunoTagsEditorProps) => {
   const [mobileTab, setMobileTab] = useState<'existing' | 'add'>('existing');
   const [sectionNumber, setSectionNumber] = useState('');
   const [customTag, setCustomTag] = useState('');
@@ -29,6 +32,15 @@ export const SunoTagsEditor = ({ editorText, onInsert, onChangeText }: SunoTagsE
   const numberIsValid = sectionNumber === '' || /^[1-9]\d*$/.test(sectionNumber);
   const customTagIsValid = isValidSunoTag(customTag);
   const editedTagIsValid = isValidSunoTag(editedTag);
+  useEffect(() => {
+    const back = (event: Event) => {
+      if (event.defaultPrevented) return;
+      if (selectedTag) { event.preventDefault(); setSelectedTag(null); }
+      else if (mobileTab === 'add') { event.preventDefault(); setMobileTab('existing'); }
+    };
+    window.addEventListener(ANDROID_BACK_REQUEST_EVENT, back);
+    return () => window.removeEventListener(ANDROID_BACK_REQUEST_EVENT, back);
+  }, [selectedTag, mobileTab]);
 
   const handleInsertPreset = (tag: string) => {
     const formattedTag = buildSunoTag(tag, sectionNumber);
@@ -111,6 +123,7 @@ export const SunoTagsEditor = ({ editorText, onInsert, onChangeText }: SunoTagsE
                   >
                     <span className="tag-list-value">[{occurrence.tag}]</span>
                   </button>
+                  {onNavigate && <button type="button" className="icon-button tag-jump" aria-label={`Go to tag ${index + 1}: [${occurrence.tag}]`} title="Go to this tag in text" onClick={() => onNavigate(occurrence)}><LocateFixed size={17} /></button>}
                 </li>
               );
             })}

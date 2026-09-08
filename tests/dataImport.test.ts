@@ -71,7 +71,7 @@ describe('Data v2 import', () => {
 
   it.each([
     ['invalid JSON', '{', 'File is not valid JSON'],
-    ['unsupported version', { ...validData(), version: 3 }, 'Unsupported Data version: 3'],
+    ['unsupported version', { ...validData(), version: 99 }, 'Unsupported Data version: 99'],
     [
       'invalid setting',
       { ...validData(), settings: [{ key: 'theme', value: 'blue' }] },

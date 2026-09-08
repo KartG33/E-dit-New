@@ -1,3 +1,4 @@
+import { useActions } from '../Shortcuts/ActionContext';
 import { Tags } from 'lucide-react';
 import {
   clean,
@@ -15,18 +16,20 @@ interface SunoCommandsProps {
 }
 
 export const SunoCommands = ({ applyCommand, tagsOpen, onTagsOpenChange }: SunoCommandsProps) => {
+  const { title } = useActions();
   return (
     <div className="ui-command-row">
-      <CommandButton label="Clean" onClick={() => applyCommand(clean)} />
-      <CommandButton label="Space" onClick={() => applyCommand(space)} />
-      <CommandButton label="Upper" onClick={() => applyCommand(capitalizeSunoLines)} />
-      <CommandButton label="Lyrics" onClick={() => applyCommand(lyrics)} />
-      <CommandButton label="Structure" onClick={() => applyCommand(structure)} />
+      <CommandButton label="Clean" actionId="suno.clean" onClick={() => applyCommand(clean)} />
+      <CommandButton label="Space" actionId="suno.space" onClick={() => applyCommand(space)} />
+      <CommandButton label="Upper" actionId="suno.upper" onClick={() => applyCommand(capitalizeSunoLines)} />
+      <CommandButton label="Lyrics" actionId="suno.lyrics" onClick={() => applyCommand(lyrics)} />
+      <CommandButton label="Structure" actionId="suno.structure" onClick={() => applyCommand(structure)} />
       <button
         type="button"
         className={`command-button tags-toggle ${tagsOpen ? 'is-active' : ''}`}
         aria-expanded={tagsOpen}
         aria-controls="suno-tags-workspace"
+        title={title('open.tags', 'Tags')}
         onClick={() => onTagsOpenChange(!tagsOpen)}
       >
         <Tags size={13} />

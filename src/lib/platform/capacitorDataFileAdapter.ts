@@ -41,7 +41,7 @@ export class CapacitorDataFileAdapter implements DataFileAdapter {
 
       await Share.share({
         title: 'E-dit Data export',
-        text: 'E-dit Data v2 backup',
+        text: 'E-dit Data backup',
         files: [file.uri],
         dialogTitle: 'Save or share E-dit Data',
       });

@@ -17,6 +17,20 @@ describe.sequential('Preset management', () => {
     await database.delete();
   });
 
+  it('duplicates a preset with independent steps and no conflicting shortcut', async () => {
+    const id = await database.presets.add({ name: 'Original', data: { type: 'chain', commands: ['text.spaces'] }, shortcut: { code: 'KeyK', ctrl: true, shift: true, alt: false, meta: false }, isFavorite: false, createdAt: 1, updatedAt: 1 });
+    render(<PresetManager database={database} onClose={vi.fn()} />);
+    fireEvent.click(await screen.findByRole('button', { name: /Original/ }));
+    fireEvent.click(screen.getByRole('button', { name: 'Duplicate preset' }));
+    await screen.findByText('Preset copied.');
+    const items = await database.presets.toArray();
+    const copy = items.find(item => item.id !== id)!;
+    expect(copy.name).toBe('Original copy');
+    expect(copy.shortcut).toBeUndefined();
+    expect(copy.data).toEqual({ type: 'sequence', steps: [{ type: 'command', command: 'text.spaces' }] });
+    expect(items.find(item => item.id === id)?.shortcut).toBeDefined();
+  });
+
   it('creates, applies, edits, and deletes a command sequence', async () => {
     const applyCommand = vi.fn();
     render(
@@ -68,13 +82,14 @@ describe.sequential('Preset management', () => {
 
     await screen.findByText('No presets yet.');
     fireEvent.change(screen.getByLabelText('Name'), { target: { value: 'Replace greeting' } });
-    fireEvent.click(screen.getByRole('button', { name: /Find & replace/ }));
-    fireEvent.change(screen.getByLabelText('Find pattern'), { target: { value: '[' } });
+    fireEvent.click(screen.getByRole('button', { name: /Add replacement/ }));
+    fireEvent.click(screen.getByLabelText('Use regular expression 1'));
+    fireEvent.change(screen.getByLabelText('Find text 1'), { target: { value: '[' } });
     fireEvent.click(screen.getByRole('button', { name: 'Save preset' }));
-    expect(screen.getByText('The search pattern is not a valid regular expression.')).toBeDefined();
+    expect(screen.getByText('Step 1: The search pattern is not a valid regular expression.')).toBeDefined();
 
-    fireEvent.change(screen.getByLabelText('Find pattern'), { target: { value: 'hello' } });
-    fireEvent.change(screen.getByLabelText('Replace with'), { target: { value: 'world' } });
+    fireEvent.change(screen.getByLabelText('Find text 1'), { target: { value: 'hello' } });
+    fireEvent.change(screen.getByLabelText('Replace with 1'), { target: { value: 'world' } });
     fireEvent.click(screen.getByRole('button', { name: 'Save preset' }));
 
     const presetButton = await waitFor(() => {
@@ -192,13 +207,13 @@ describe.sequential('Preset management', () => {
     fireEvent.change(screen.getByLabelText('Add command'), { target: { value: 'symbol.remove:###' } });
     fireEvent.click(screen.getByRole('button', { name: 'Add' }));
 
-    expect(screen.getByText('Remove ###')).toBeDefined();
+    expect(screen.getByText('1. Remove ###')).toBeDefined();
     fireEvent.click(screen.getByRole('button', { name: 'Save preset' }));
 
     await waitFor(async () => {
       expect((await database.presets.toArray())[0].data).toEqual({
-        type: 'chain',
-        commands: ['symbol.remove:###'],
+        type: 'sequence',
+        steps: [{ type: 'command', command: 'symbol.remove:###' }],
       });
     });
   });
@@ -209,6 +224,7 @@ describe.sequential('Preset management', () => {
 
     fireEvent.keyDown(document, { key: 'Escape' });
     fireEvent.mouseDown(screen.getByTestId('preset-manager-backdrop'));
+    fireEvent.click(screen.getByTestId('preset-manager-backdrop'));
     expect(onClose).toHaveBeenCalledTimes(2);
   });
 });

@@ -1,7 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
+import { liveQuery } from 'dexie';
 import { Clock, X } from 'lucide-react';
 import { db } from '../../lib/db';
 import type { HistoryRecord } from '../../lib/db';
+import { useDialog } from '../../hooks/useDialog';
+import { notify } from '../../lib/notifications';
 
 interface SlidingDrawerProps {
   isOpen: boolean;
@@ -15,6 +18,13 @@ export const SlidingDrawer = ({
   applyHistoryVersion
 }: SlidingDrawerProps) => {
   const [historyRecords, setHistoryRecords] = useState<HistoryRecord[]>([]);
+  const [query, setQuery] = useState('');
+  const [filter, setFilter] = useState<'all' | 'left' | 'right'>('all');
+  const [loading, setLoading] = useState(true);
+  const visibleRecords = useMemo(() => historyRecords.filter(record =>
+    (filter === 'all' || record.editorId === filter) && record.text.toLocaleLowerCase().includes(query.toLocaleLowerCase())
+  ), [historyRecords, query, filter]);
+  const { dialogRef, backdropProps } = useDialog(onClose, isOpen);
 
   // Close drawer on Esc key
   useEffect(() => {
@@ -30,9 +40,12 @@ export const SlidingDrawer = ({
 
   // Refresh history when drawer opens
   useEffect(() => {
-    if (isOpen) {
-      db.history.orderBy('timestamp').reverse().limit(50).toArray().then(setHistoryRecords);
-    }
+    if (!isOpen) return;
+    const subscription = liveQuery(() => db.history.orderBy('timestamp').reverse().toArray()).subscribe({
+      next: records => { setHistoryRecords(records); setLoading(false); },
+      error: () => { setLoading(false); notify('Failed to load history', true); },
+    });
+    return () => subscription.unsubscribe();
   }, [isOpen]);
 
   return (
@@ -41,13 +54,14 @@ export const SlidingDrawer = ({
       {isOpen && (
         <div
           className="drawer-backdrop"
-          onClick={onClose}
+          {...backdropProps}
           data-testid="drawer-backdrop"
         />
       )}
 
       {/* Sliding Drawer Container */}
       <div
+        ref={dialogRef as React.RefObject<HTMLDivElement>}
         className={`drawer ${isOpen ? 'is-open' : ''}`}
         data-testid="sliding-drawer"
         role="dialog"
@@ -74,10 +88,16 @@ export const SlidingDrawer = ({
           </button>
         </div>
 
-        {/* Content Body */}
+        <div className="history-search">
+          <input className="field-control" aria-label="Search history" placeholder="Search full text" value={query} onChange={event => setQuery(event.target.value)} />
+          <select className="field-control" aria-label="History editor filter" value={filter} onChange={event => setFilter(event.target.value as typeof filter)}>
+            <option value="all">All editors</option><option value="left">Left editor</option><option value="right">Right editor</option>
+          </select>
+          <span role="status">{loading ? 'Loading...' : `${visibleRecords.length} versions`}</span>
+        </div>
         <div className="drawer-body">
           <div className="history-list">
-              {historyRecords.map(record => (
+              {visibleRecords.map(record => (
                 <button
                   type="button"
                   key={record.id}
@@ -89,7 +109,7 @@ export const SlidingDrawer = ({
                   title="Нажмите, чтобы вставить в активный редактор"
                 >
                   <div className="history-meta">
-                    <span className="font-mono">{new Date(record.timestamp).toLocaleTimeString()}</span>
+                    <time className="font-mono" dateTime={new Date(record.timestamp).toISOString()}>{new Date(record.timestamp).toLocaleString()}</time>
                     <span className="history-badge">
                       {record.editorId} editor
                     </span>
@@ -99,9 +119,9 @@ export const SlidingDrawer = ({
                   </div>
                 </button>
               ))}
-              {historyRecords.length === 0 && (
+              {!loading && visibleRecords.length === 0 && (
                 <div className="drawer-empty">
-                  История пока пуста.
+                  {historyRecords.length === 0 ? 'История пока пуста.' : 'No matching versions.'}
                 </div>
               )}
           </div>

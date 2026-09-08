@@ -1,22 +1,34 @@
 import { useEffect, useState } from 'react';
 import { ArrowLeft, ChevronRight, HardDrive, Keyboard, X } from 'lucide-react';
 import type { Preset } from '../../lib/db';
-import { formatShortcut } from '../../lib/hotkeys';
+import { KeysSettings } from './KeysSettings';
 import { DataPanel } from '../Data/DataPanel';
+import { ANDROID_BACK_REQUEST_EVENT } from '../../hooks/useAndroidAppLifecycle';
+import { useDialog } from '../../hooks/useDialog';
 
 type SettingsView = 'home' | 'keys' | 'data';
 
 interface SettingsModalProps {
   presets: Preset[];
   onClose: () => void;
+  initialView?: SettingsView;
 }
 
-export const SettingsModal = ({ presets, onClose }: SettingsModalProps) => {
-  const [view, setView] = useState<SettingsView>('home');
+export const SettingsModal = ({ presets, onClose, initialView = 'home' }: SettingsModalProps) => {
+  const [view, setView] = useState<SettingsView>(initialView);
+  const { dialogRef, backdropProps } = useDialog(onClose);
+  useEffect(() => {
+    const back = (event: Event) => {
+      if (event.defaultPrevented || view === 'home') return;
+      event.preventDefault(); setView('home');
+    };
+    window.addEventListener(ANDROID_BACK_REQUEST_EVENT, back);
+    return () => window.removeEventListener(ANDROID_BACK_REQUEST_EVENT, back);
+  }, [view]);
 
   useEffect(() => {
     const closeOnEscape = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') onClose();
+      if (event.key === 'Escape' && !event.defaultPrevented) onClose();
     };
     document.addEventListener('keydown', closeOnEscape);
     return () => document.removeEventListener('keydown', closeOnEscape);
@@ -32,11 +44,10 @@ export const SettingsModal = ({ presets, onClose }: SettingsModalProps) => {
   return (
     <div
       className="settings-modal-backdrop"
-      onMouseDown={event => {
-        if (event.target === event.currentTarget) onClose();
-      }}
+      {...backdropProps}
     >
       <section
+        ref={dialogRef}
         className="settings-modal"
         role="dialog"
         aria-modal="true"
@@ -93,31 +104,7 @@ export const SettingsModal = ({ presets, onClose }: SettingsModalProps) => {
             </div>
           )}
 
-          {view === 'keys' && (
-            <div className="settings-keys">
-              <dl className="shortcut-list">
-                <div><dt>Switch to Editor 1</dt><dd><kbd>Alt</kbd><span>+</span><kbd>1</kbd></dd></div>
-                <div><dt>Switch to Editor 2</dt><dd><kbd>Alt</kbd><span>+</span><kbd>2</kbd></dd></div>
-                <div><dt>One / two editors</dt><dd><kbd>Ctrl</kbd><span>+</span><kbd>\</kbd></dd></div>
-                <div><dt>Undo</dt><dd><kbd>Ctrl</kbd><span>+</span><kbd>Z</kbd></dd></div>
-                <div><dt>Redo</dt><dd><kbd>Ctrl</kbd><span>+</span><kbd>Y</kbd></dd></div>
-                <div><dt>Close open window</dt><dd><kbd>Esc</kbd></dd></div>
-              </dl>
-              {presets.some(preset => preset.shortcut) && (
-                <>
-                  <h3>Presets</h3>
-                  <dl className="shortcut-list">
-                    {presets.filter(preset => preset.shortcut).map(preset => (
-                      <div key={preset.id ?? preset.name}>
-                        <dt>{preset.name}</dt>
-                        <dd>{formatShortcut(preset.shortcut!)}</dd>
-                      </div>
-                    ))}
-                  </dl>
-                </>
-              )}
-            </div>
-          )}
+          {view === 'keys' && <KeysSettings presets={presets} />}
 
           {view === 'data' && (
             <div className="settings-data">

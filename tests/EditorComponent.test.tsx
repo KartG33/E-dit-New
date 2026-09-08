@@ -50,10 +50,10 @@ describe('Editor Component', () => {
     expect(stats.classList.contains('editor-stats')).toBe(true);
     expect(stats.parentElement?.classList.contains('editor-header')).toBe(true);
     
-    const undoBtn = screen.getByTitle('Undo (Ctrl+Z)');
+    const undoBtn = screen.getByRole('button', { name: 'Undo', exact: true });
     expect((undoBtn as HTMLButtonElement).disabled).toBe(true);
 
-    const redoBtn = screen.getByTitle('Redo (Ctrl+Y)');
+    const redoBtn = screen.getByRole('button', { name: 'Redo', exact: true });
     expect((redoBtn as HTMLButtonElement).disabled).toBe(false);
   });
 
@@ -276,7 +276,7 @@ describe('Editor Component', () => {
     fireEvent.select(textarea, { target: { selectionStart: 1, selectionEnd: 2 } });
     expect(onSelect).toHaveBeenCalledWith(1, 2);
 
-    const undoBtn = screen.getByTitle('Undo (Ctrl+Z)');
+    const undoBtn = screen.getByRole('button', { name: 'Undo', exact: true });
     await userEvent.click(undoBtn);
 
     rerender(

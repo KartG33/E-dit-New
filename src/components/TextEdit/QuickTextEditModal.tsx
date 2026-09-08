@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Plus, Trash2, X } from 'lucide-react';
-import { removeAllExact, replaceAllExact } from '../../lib/textExactEdit';
+import { removeExactWithCount, replaceAllExact } from '../../lib/textExactEdit';
+import { notify } from '../../lib/notifications';
+import { useDialog } from '../../hooks/useDialog';
 
 type EditMode = 'replace' | 'remove';
 
@@ -19,6 +21,7 @@ export const QuickTextEditModal = ({ editorId, value, onApply, onClose }: QuickT
   const [replacement, setReplacement] = useState('');
   const [fragments, setFragments] = useState(['']);
   const [error, setError] = useState('');
+  const { dialogRef, backdropProps } = useDialog(onClose);
 
   useEffect(() => {
     const closeOnEscape = (event: KeyboardEvent) => {
@@ -50,27 +53,28 @@ export const QuickTextEditModal = ({ editorId, value, onApply, onClose }: QuickT
       return;
     }
 
-    const nextValue = mode === 'replace'
-      ? replaceAllExact(value, search, replacement)
-      : removeAllExact(value, fragments);
+    const result = mode === 'replace'
+      ? { text: replaceAllExact(value, search, replacement), count: value.split(search).length - 1 }
+      : removeExactWithCount(value, fragments);
+    const nextValue = result.text;
 
     if (nextValue === value) {
-      setError('No exact matches found.');
+      setError(result.count ? 'Matches found, but the text would stay the same.' : 'No exact matches found.');
       return;
     }
 
     onApply(nextValue);
+    notify(`${mode === 'replace' ? 'Replaced' : 'Removed'} ${result.count} occurrence${result.count === 1 ? '' : 's'}. Undo is available.`);
     onClose();
   };
 
   return (
     <div
       className="quick-edit-backdrop"
-      onMouseDown={event => {
-        if (event.target === event.currentTarget) onClose();
-      }}
+      {...backdropProps}
     >
       <section
+        ref={dialogRef}
         className="quick-edit-modal"
         role="dialog"
         aria-modal="true"

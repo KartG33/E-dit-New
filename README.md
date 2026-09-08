@@ -14,21 +14,37 @@ The Suno section lists every bracketed tag from the active editor in text order.
 
 ## Presets
 
-The Presets command tab contains only quick-apply buttons. Preset creation and maintenance opens from the separate Presets action beside History and Data. The manager supports ordered command sequences, symbol-removal steps, and find/replace presets, including editing, ordering, validation, and confirmed deletion. Changes appear in the quick-apply toolbar immediately.
+The Presets tab applies saved actions. Open **Manage presets** in the header to create or edit them. A preset is an ordered list mixing commands, literal or regular-expression replacements, and removal of several exact fragments. Move steps with the arrows. Applying the entire preset creates one Undo step. **Duplicate preset** makes an independent saved copy with a new name and no assigned shortcut.
 
-On desktop, a preset can also have a physical-key shortcut. Shortcut assignment rejects editor, browser, operating-system, and duplicate combinations; saved bindings are included in Data export/import and run against the active editor as one undoable update.
+Existing command chains and regex presets are migrated automatically without changing their order, identifiers, shortcuts, regex flags, or replacement semantics. Literal replacements treat `$1` as text; regex replacements retain JavaScript capture-group syntax.
 
-## Desktop productivity
+## Navigation and search
 
-Desktop mode can switch between the original two-pane layout and one full-width active editor without unmounting or clearing the hidden editor. Use `Ctrl+\\` to change layout, `Alt+1` / `Alt+2` to activate an editor, or open the Keys panel for the complete shortcut list. The selected layout and active editor are restored on restart. Mobile layout remains a one-editor switcher and ignores the desktop-only layout setting.
+The layout, active editor, and last Text / Suno / Presets tab are restored on restart. Popup windows close with Escape or a click on the backdrop; a drag starting inside the window does not close it. Closing a popup restores the editor selection and scroll position.
 
-## Data files
+The magnifying glass opens literal text search in the active editor. The counter and arrows navigate matches; Enter goes forward, Shift+Enter goes back, and Aa enables case sensitivity. Searching never changes text or creates an Undo entry. **Find and edit** remains a separate tool for replacements and removals.
 
-Data export and import use the browser file workflow in the web version and native open/save dialogs in the Tauri desktop version. On Android, Import opens the system file picker, while Export opens the native save/share sheet using a temporary cache file that is removed afterward. All platforms use the same validated Data v2 format and atomic import logic.
+Each tag in **Suno → Tags** has a separate **Go to tag** button. It selects that exact occurrence and scrolls it into view; on mobile, it returns to the text. Tags also works with the single-editor desktop layout.
+
+**Copy to other editor** copies the complete source text without switching the active editor. Undo in the destination restores its previous text. History searches the full text of all saved versions, can filter by source editor, and shows dates and times. Clicking a version still restores it immediately into the active editor. Storage remains limited to 50 versions per editor.
+
+## Keyboard shortcuts
+
+Open **Settings → Keys** to search actions, record or clear a binding, or reset an action to its default. Text and Suno commands, presets, editor actions, tabs, and navigation can be assigned. Conflicts with another command or preset are rejected and identified by name. Shortcuts appear only in hover tooltips and shortcut settings, with no permanent badges on command buttons.
+
+Defaults include `Alt+1` / `Alt+2` for editor selection, `Ctrl+\` for one/two editors, `Ctrl+F` for search, `Ctrl+Z` for Undo, and `Ctrl+Y` / `Ctrl+Shift+Z` for Redo. Bindings use physical key codes, so letter shortcuts work in either Latin or Cyrillic layouts. Editing a popup field does not run commands against the main text. Shortcut handling is independent of window width and only operates inside the application; Android external-keyboard behavior has not been verified on a device.
+
+## Data and saving
+
+Data export/import uses browser files in the web version and native open/save dialogs in Tauri. Android Import uses the system file picker; Export uses a temporary file and the native share sheet. Exports use **Data v3**, including composite presets and action shortcuts. **Data v2 imports remain supported**. Invalid steps, unsupported settings and conflicting shortcuts are rejected before the database transaction.
+
+Editor changes are journaled immediately while the normal database save remains debounced. The next launch recovers a pending edit. Export flushes current editor changes; import waits for pending writes, applies the validated file atomically, and reloads editors and settings without a page reload. Save failures remain visible with retry. These protections cannot recover data after browser/app storage is cleared.
 
 ## Android app behavior
 
-The Android WebView resizes with the software keyboard. The system Back button hides the keyboard first, returns the mobile preset editor to its list, closes an open auxiliary window, or minimizes the app from the main screen. Pending changes in both editors are flushed before the app moves to the background, and viewport measurements refresh when it returns. Capacitor SystemBars provides safe-area values so portrait and landscape controls stay clear of Android's edge-to-edge system UI.
+The WebView resizes with the software keyboard. Back hides the keyboard first, then returns from a nested Settings/preset/tag view, closes an auxiliary window, or minimizes the main screen. Pending editor changes are flushed when the app enters the background. Safe-area and viewport sizing keep the controls clear of Android system UI.
+
+The current improvement cycle is tested in browser mobile layouts and automated lifecycle tests. Device tests and installation on a smartphone are excluded at the user's request; building an APK does not constitute a device test.
 
 ## App icons
 
@@ -88,3 +104,11 @@ npm test
 npm run lint
 npm run test:phase6:e2e
 ```
+
+On Windows under heavy build load, run tests with one thread worker to avoid process-start timeouts:
+
+```text
+npm.cmd test -- --pool=threads --maxWorkers=1
+```
+
+The implementation and verification record for 2.0.6 is in [improvement_verification.md](improvement_verification.md).

@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react';
 
-const DESKTOP_QUERY = '(min-width: 721px)';
+// Keep the layout decision aligned with the compact landscape rule in index.css.
+const DESKTOP_QUERY = '(min-width: 721px) and (min-height: 521px), (min-width: 921px)';
 
 export const useDesktopLayout = () => {
   const [isDesktop, setIsDesktop] = useState(() =>
     typeof window.matchMedia === 'function'
       ? window.matchMedia(DESKTOP_QUERY).matches
-      : window.innerWidth > 720,
+      : window.innerWidth > 720 && (window.innerHeight > 520 || window.innerWidth > 920),
   );
 
   useEffect(() => {

@@ -65,6 +65,10 @@ describe.sequential('Desktop productivity', () => {
 
     fireEvent.keyDown(leftEditor, { key: 'K', code: 'KeyK', ctrlKey: true, shiftKey: true });
     expect(leftEditor.value).toBe('hello world');
+    const repeatedUndo = new KeyboardEvent('keydown', { key: 'z', code: 'KeyZ', ctrlKey: true, repeat: true, bubbles: true, cancelable: true });
+    fireEvent(leftEditor, repeatedUndo);
+    expect(repeatedUndo.defaultPrevented).toBe(true);
+    expect(leftEditor.value).toBe('hello world');
     fireEvent.click(screen.getAllByRole('button', { name: 'Undo' })[0]);
     expect(leftEditor.value).toBe('hello   world');
   });

@@ -112,7 +112,7 @@ describe('Database & Migrations', () => {
     await expect(currentDb.presets.toArray()).resolves.toMatchObject([
       {
         name: 'Preserved preset',
-        data: { type: 'chain', commands: ['text.spaces'] },
+        data: { type: 'sequence', steps: [{ type: 'command', command: 'text.spaces' }] },
         isFavorite: true,
         createdAt: 400,
         updatedAt: 500,

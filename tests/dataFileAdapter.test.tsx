@@ -22,7 +22,7 @@ describe('DataPanel file adapter boundary', () => {
     await db.settings.clear();
   });
 
-  it('exports the unchanged Data v2 payload through the adapter', async () => {
+  it('exports the Data v3 payload through the adapter', async () => {
     await db.settings.add({ key: 'theme', value: 'dark' });
     const adapter = createMockAdapter();
     render(<DataPanel fileAdapter={adapter} />);
@@ -35,7 +35,7 @@ describe('DataPanel file adapter boundary', () => {
     expect(request.mediaType).toBe('application/json');
     expect(request.fileName).toMatch(/^edit-data-\d{4}-\d{2}-\d{2}\.json$/);
     expect(payload).toMatchObject({
-      version: 2,
+      version: 3,
       presets: [],
       settings: [{ key: 'theme', value: 'dark' }],
     });
@@ -46,7 +46,7 @@ describe('DataPanel file adapter boundary', () => {
     await db.settings.add({ key: 'theme', value: 'light' });
     const adapter = createMockAdapter();
     vi.mocked(adapter.readFile).mockResolvedValue(JSON.stringify({
-      version: 3,
+      version: 99,
       presets: [],
       settings: [],
       timestamp: 1,
@@ -55,7 +55,7 @@ describe('DataPanel file adapter boundary', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Import' }));
 
-    expect(await screen.findByText('Import failed: Unsupported Data version: 3')).toBeDefined();
+    expect(await screen.findByText('Import failed: Unsupported Data version: 99')).toBeDefined();
     expect(adapter.selectFile).toHaveBeenCalledWith({ accept: ['application/json', '.json'] });
     expect(adapter.readFile).toHaveBeenCalledWith(selectedFile);
     await expect(db.settings.toArray()).resolves.toEqual([{ key: 'theme', value: 'light' }]);

@@ -1,7 +1,7 @@
 {
   "name": "e-dit-new",
   "private": true,
-  "version": "2.0.5",
+  "version": "2.0.6",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -11,7 +11,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "bench:phase5": "vitest run --config vitest.performance.config.ts --disableConsoleIntercept",
-    "test:phase6:e2e": "node scripts/run-phase6-e2e.mjs",
+    "test:phase6:e2e": "npm run build && node scripts/run-phase6-e2e.mjs",
     "android:sync": "npm run build && cap sync android",
     "android:open": "cap open android",
     "tauri": "tauri"

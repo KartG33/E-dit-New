@@ -1,5 +1,6 @@
 import Dexie, { type Table } from 'dexie';
 import type { CommandId } from '../commands/registry';
+import { toSequence } from '../presets/model';
 
 const MAX_HISTORY_RECORDS_PER_EDITOR = 50;
 
@@ -22,7 +23,12 @@ export interface RegexPreset {
   replacement: string;
 }
 
-export type PresetData = ChainPreset | RegexPreset;
+export type PresetStep =
+  | { type: 'command'; command: CommandId }
+  | { type: 'replace'; pattern: string; replacement: string; regex: boolean; flags: string }
+  | { type: 'remove'; fragments: string[] };
+export interface SequencePreset { type: 'sequence'; steps: PresetStep[] }
+export type PresetData = ChainPreset | RegexPreset | SequencePreset;
 
 export interface PresetShortcut {
   code: string;
@@ -49,6 +55,8 @@ export interface AppSettings {
   dualMode: boolean;
   activeEditor: 'left' | 'right';
   startupTab: 'Commands' | 'Suno' | 'Presets' | 'Favorites';
+  lastTab: 'standard' | 'suno' | 'presets';
+  actionShortcuts: Record<string, PresetShortcut | null>;
   editorLeftText: string;
   editorRightText: string;
   favoriteCommandIds: string[];
@@ -108,6 +116,11 @@ export class EditDatabase extends Dexie {
     this.version(4).stores({
       notes: null
     });
+    this.version(5).stores({}).upgrade(transaction =>
+      transaction.table('presets').toCollection().modify((preset: Preset) => {
+        preset.data = toSequence(preset.data);
+      }),
+    );
   }
 
   async addHistory(record: Omit<HistoryRecord, 'id'>): Promise<void> {

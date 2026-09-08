@@ -29,7 +29,6 @@ export const PresetsTab = ({ applyCommand, database = db }: PresetsTabProps) => 
           title={preset.shortcut ? `${preset.name} (${formatShortcut(preset.shortcut)})` : preset.name}
         >
           {preset.name}
-          {preset.shortcut && <kbd className="preset-shortcut-badge">{formatShortcut(preset.shortcut)}</kbd>}
         </button>
       ))}
     </div>

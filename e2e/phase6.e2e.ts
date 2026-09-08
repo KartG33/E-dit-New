@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './fixtures';
 
 test('desktop productivity flow and unchanged mobile layout', async ({ browser }) => {
   const desktop = await browser.newPage({ viewport: { width: 1280, height: 800 } });
@@ -17,7 +17,8 @@ test('desktop productivity flow and unchanged mobile layout', async ({ browser }
   await desktop.keyboard.press('Control+\\');
   await expect(desktop.locator('.app-main')).toHaveClass(/is-dual-mode/);
 
-  await desktop.getByRole('button', { name: 'Keyboard shortcuts' }).click();
+  await desktop.getByRole('button', { name: 'Settings', exact: true }).click();
+  await desktop.getByRole('button', { name: 'Keys View keyboard shortcuts' }).click();
   await expect(desktop.getByRole('dialog', { name: 'Keyboard shortcuts' })).toBeVisible();
   await desktop.screenshot({ path: 'test-results/phase6-shortcut-help.png', fullPage: true });
   await desktop.keyboard.press('Escape');

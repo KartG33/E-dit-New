@@ -1,0 +1,9 @@
+{
+  "version": 2,
+  "timestamp": 1,
+  "presets": [
+    {"id": 1, "name": "Legacy chain", "data": {"type": "chain", "commands": ["text.spaces", "text.upper"]}, "isFavorite": false, "createdAt": 1, "updatedAt": 2, "order": 0, "shortcut": {"code": "KeyK", "ctrl": true, "alt": false, "shift": true, "meta": false}},
+    {"id": 2, "name": "Legacy regex", "data": {"type": "regex", "pattern": "(foo)", "flags": "gi", "replacement": "[$1]"}, "isFavorite": true, "createdAt": 2, "updatedAt": 3, "order": 1}
+  ],
+  "settings": [{"key": "editorLeftText", "value": "Original left"}, {"key": "editorRightText", "value": "Original right"}, {"key": "activeEditor", "value": "right"}, {"key": "dualMode", "value": false}]
+}

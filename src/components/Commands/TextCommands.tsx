@@ -20,17 +20,17 @@ interface TextCommandsProps {
 
 export const TextCommands = ({ applyCommand }: TextCommandsProps) => (
   <div className="ui-command-row">
-    <CommandButton label="Trim" onClick={() => applyCommand(sunoTrim)} />
-    <CommandButton label="Spaces" onClick={() => applyCommand(collapseSpaces)} />
-    <CommandButton label="Edges" onClick={() => applyCommand(trimLines)} />
-    <CommandButton label="Upper" onClick={() => applyCommand(toUpperCase)} />
-    <CommandButton label="Lower" onClick={() => applyCommand(lower)} />
-    <CommandButton label="Sentence" onClick={() => applyCommand(sentence)} />
-    <CommandButton label="Line 1" onClick={() => applyCommand(line1)} />
-    <CommandButton label="Line X" onClick={() => applyCommand(lineX)} />
-    <CommandButton label="Inline ," onClick={() => applyCommand(inlineComma)} />
-    <CommandButton label="Inline" onClick={() => applyCommand(inline)} />
-    <CommandButton label="- Space Punct" onClick={() => applyCommand(removeSpaceBeforePunctuation)} />
-    <CommandButton label="+ Space Punct" onClick={() => applyCommand(addSpaceAfterPunctuation)} />
+    <CommandButton label="Trim" actionId="suno.trim" onClick={() => applyCommand(sunoTrim)} />
+    <CommandButton label="Spaces" actionId="text.spaces" onClick={() => applyCommand(collapseSpaces)} />
+    <CommandButton label="Edges" actionId="text.edges" onClick={() => applyCommand(trimLines)} />
+    <CommandButton label="Upper" actionId="text.upper" onClick={() => applyCommand(toUpperCase)} />
+    <CommandButton label="Lower" actionId="text.lower" onClick={() => applyCommand(lower)} />
+    <CommandButton label="Sentence" actionId="text.sentence" onClick={() => applyCommand(sentence)} />
+    <CommandButton label="Line 1" actionId="text.line1" onClick={() => applyCommand(line1)} />
+    <CommandButton label="Line X" actionId="text.lineX" onClick={() => applyCommand(lineX)} />
+    <CommandButton label="Inline ," actionId="text.inlineComma" onClick={() => applyCommand(inlineComma)} />
+    <CommandButton label="Inline" actionId="text.inline" onClick={() => applyCommand(inline)} />
+    <CommandButton label="- Space Punct" actionId="text.removeSpaceBeforePunctuation" onClick={() => applyCommand(removeSpaceBeforePunctuation)} />
+    <CommandButton label="+ Space Punct" actionId="text.addSpaceAfterPunctuation" onClick={() => applyCommand(addSpaceAfterPunctuation)} />
   </div>
 );

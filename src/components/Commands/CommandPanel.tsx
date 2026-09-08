@@ -1,8 +1,12 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Columns2, Settings2, Music, Zap, Clock, PanelTop, SlidersHorizontal } from 'lucide-react';
 import { PresetsCommands } from './PresetsCommands';
 import { SunoCommands } from './SunoCommands';
 import { TextCommands } from './TextCommands';
+import { db } from '../../lib/db';
+import { DATA_IMPORTED } from '../../lib/editorPersistence';
+import { useActions } from '../Shortcuts/ActionContext';
+import { notify } from '../../lib/notifications';
 
 interface CommandPanelProps {
   applyCommand: (cmd: (text: string) => string) => void;
@@ -29,12 +33,37 @@ export const CommandPanel = ({
   onDualModeChange,
   onOpenSettings,
 }: CommandPanelProps) => {
+  const { title } = useActions();
   const [activeTab, setActiveTab] = useState<'standard'|'suno'|'presets'>('standard');
+  useEffect(() => {
+    let mounted = true;
+    let changed = false;
+    const load = () => { void db.getSetting('lastTab').then(tab => {
+      if (mounted && !changed) setActiveTab(tab === 'suno' || tab === 'presets' ? tab : 'standard');
+    }).catch(() => notify('Failed to load the last tab', true)); };
+    const imported = () => { changed = false; load(); };
+    const selected = () => { changed = true; };
+    window.addEventListener(DATA_IMPORTED, imported);
+    window.addEventListener('app-tab-selected', selected);
+    load();
+  return () => { mounted = false; window.removeEventListener(DATA_IMPORTED, imported); window.removeEventListener('app-tab-selected', selected); };
+  }, []);
 
   const selectTab = (tab: 'standard'|'suno'|'presets') => {
     setActiveTab(tab);
+    window.dispatchEvent(new Event('app-tab-selected'));
+    void db.setSetting('lastTab', tab).catch(() => notify('Failed to save the last tab', true));
     if (tab !== 'suno') onTagsOpenChange?.(false);
   };
+
+  useEffect(() => {
+    const select = (event: Event) => {
+      const tab = (event as CustomEvent).detail;
+      if (tab === 'standard' || tab === 'suno' || tab === 'presets') selectTab(tab);
+    };
+    window.addEventListener('app-select-tab', select);
+    return () => window.removeEventListener('app-select-tab', select);
+  });
 
   return (
     <header className="ui-header">
@@ -49,6 +78,7 @@ export const CommandPanel = ({
           <div className="ui-tabs">
             <button
               onClick={() => selectTab('standard')}
+              title={title('tab.standard', 'Text')}
               aria-pressed={activeTab === 'standard'}
               className={`ui-tab ${activeTab === 'standard' ? 'is-active' : ''}`}
             >
@@ -56,6 +86,7 @@ export const CommandPanel = ({
             </button>
             <button
               onClick={() => selectTab('suno')}
+              title={title('tab.suno', 'Suno')}
               aria-pressed={activeTab === 'suno'}
               className={`ui-tab ${activeTab === 'suno' ? 'is-active' : ''}`}
             >
@@ -63,6 +94,7 @@ export const CommandPanel = ({
             </button>
             <button
               onClick={() => selectTab('presets')}
+              title={title('tab.presets', 'Presets')}
               aria-pressed={activeTab === 'presets'}
               className={`ui-tab ${activeTab === 'presets' ? 'is-active' : ''}`}
             >
@@ -76,7 +108,7 @@ export const CommandPanel = ({
             type="button"
             className={activeEditor === 'left' ? 'is-active' : ''}
             aria-pressed={activeEditor === 'left'}
-            onClick={() => onActiveEditorChange?.('left')}
+            onClick={() => onActiveEditorChange?.('left')} title={title('editor.left', 'Editor 1')}
           >
             Editor 1
           </button>
@@ -84,7 +116,7 @@ export const CommandPanel = ({
             type="button"
             className={activeEditor === 'right' ? 'is-active' : ''}
             aria-pressed={activeEditor === 'right'}
-            onClick={() => onActiveEditorChange?.('right')}
+            onClick={() => onActiveEditorChange?.('right')} title={title('editor.right', 'Editor 2')}
           >
             Editor 2
           </button>
@@ -97,7 +129,7 @@ export const CommandPanel = ({
             onClick={() => onDualModeChange?.(!dualMode)}
             className="ui-action ui-icon-action"
             aria-label={dualMode ? 'Use single editor' : 'Use two editors'}
-            title={`${dualMode ? 'Use single editor' : 'Use two editors'} (Ctrl+\\)`}
+            title={title('layout.toggle', dualMode ? 'Use single editor' : 'Use two editors')}
           >
             {dualMode ? <PanelTop size={16} className="icon-accent" /> : <Columns2 size={16} className="icon-accent" />}
           </button>
@@ -106,7 +138,7 @@ export const CommandPanel = ({
             onClick={onOpenHistory}
             className="ui-action ui-icon-action"
             aria-label="History"
-            title="Открыть историю"
+            title={title('open.history', 'History')}
           >
             <Clock size={16} className="icon-accent" />
           </button>
@@ -115,7 +147,7 @@ export const CommandPanel = ({
             onClick={onOpenPresets}
             className="ui-action ui-icon-action"
             aria-label="Manage presets"
-            title="Manage presets"
+            title={title('open.presets', 'Manage presets')}
           >
             <SlidersHorizontal size={16} className="icon-accent" />
           </button>
@@ -124,7 +156,7 @@ export const CommandPanel = ({
             onClick={onOpenSettings}
             className="ui-action ui-icon-action"
             aria-label="Settings"
-            title="Open Settings"
+            title={title('open.settings', 'Open Settings')}
           >
             <Settings2 size={16} />
           </button>

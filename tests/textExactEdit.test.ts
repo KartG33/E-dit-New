@@ -1,9 +1,13 @@
 import { describe, expect, it } from 'vitest';
-import { removeAllExact, replaceAllExact } from '../src/lib/textExactEdit';
+import { removeAllExact, removeExactWithCount, replaceAllExact } from '../src/lib/textExactEdit';
 
 const source = 'The NEW system update (version 4.5.1) was successfully installed today! Please DO NOT turn off the device while the NEW system is configuring files. If you see ERROR [1001], contact support.';
 
 describe('exact whole-text editing', () => {
+  it('counts actual removals without double-counting overlapping or duplicate fragments', () => {
+    expect(removeExactWithCount('### ## # keep', ['#', '##', '###', '###'])).toEqual({ text: '   keep', count: 3 });
+    expect(removeExactWithCount('keep', ['', 'missing'])).toEqual({ text: 'keep', count: 0 });
+  });
   it('replaces every exact occurrence without changing other text', () => {
     expect(replaceAllExact(source, 'NEW', 'OLD')).toBe(
       'The OLD system update (version 4.5.1) was successfully installed today! Please DO NOT turn off the device while the OLD system is configuring files. If you see ERROR [1001], contact support.',

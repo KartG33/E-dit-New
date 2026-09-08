@@ -71,7 +71,7 @@ describe('CapacitorDataFileAdapter', () => {
     });
     expect(Share.share).toHaveBeenCalledWith({
       title: 'E-dit Data export',
-      text: 'E-dit Data v2 backup',
+      text: 'E-dit Data backup',
       files: ['file:///cache/edit-data.json'],
       dialogTitle: 'Save or share E-dit Data',
     });

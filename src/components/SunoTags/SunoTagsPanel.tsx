@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { X } from 'lucide-react';
 import { SunoTagsEditor } from './SunoTagsEditor';
+import type { SunoTagOccurrence } from '../../lib/commands/suno';
 
 interface SunoTagsPanelProps {
   editorKey: 'left' | 'right';
@@ -8,6 +9,7 @@ interface SunoTagsPanelProps {
   onInsert: (tag: string) => void;
   onChangeText: (command: (text: string) => string) => void;
   onClose: () => void;
+  onNavigate?: (occurrence: SunoTagOccurrence) => void;
 }
 
 export const SunoTagsPanel = ({
@@ -16,6 +18,7 @@ export const SunoTagsPanel = ({
   onInsert,
   onChangeText,
   onClose,
+  onNavigate,
 }: SunoTagsPanelProps) => {
   useEffect(() => {
     const closeOnEscape = (event: KeyboardEvent) => {
@@ -53,6 +56,7 @@ export const SunoTagsPanel = ({
         editorText={editorText}
         onInsert={onInsert}
         onChangeText={onChangeText}
+        onNavigate={onNavigate}
       />
     </aside>
   );

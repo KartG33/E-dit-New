@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { db } from '../../lib/db';
-import { DATA_FILE_VERSION, importDataFile } from '../../lib/data/import';
+import { DATA_FILE_VERSION, importDataFile, parseDataFile } from '../../lib/data/import';
+import { flushEditors, importWithEditors } from '../../lib/editorPersistence';
 import {
   type DataFileAdapter,
 } from '../../lib/platform/dataFileAdapter';
@@ -12,11 +13,15 @@ interface DataPanelProps {
 
 export const DataPanel = ({ fileAdapter = defaultDataFileAdapter }: DataPanelProps) => {
   const [msg, setMsg] = useState('');
+  const [busy, setBusy] = useState(false);
 
   const handleExport = async () => {
+    if (busy) return;
+    setBusy(true);
     try {
-      const presets = await db.presets.toArray();
-      const settings = await db.settings.toArray();
+      await flushEditors();
+      const [presets, settings] = await db.transaction('r', db.presets, db.settings,
+        () => Promise.all([db.presets.toArray(), db.settings.toArray()]));
 
       const dataPayload = {
         version: DATA_FILE_VERSION,
@@ -35,21 +40,23 @@ export const DataPanel = ({ fileAdapter = defaultDataFileAdapter }: DataPanelPro
       setTimeout(() => setMsg(''), 3000);
     } catch {
       setMsg('Export failed');
-    }
+    } finally { setBusy(false); }
   };
 
   const handleImport = async () => {
+    if (busy) return;
+    setBusy(true);
     try {
       const file = await fileAdapter.selectFile({ accept: ['application/json', '.json'] });
       if (!file) return;
       const text = await fileAdapter.readFile(file);
-      await importDataFile(text);
+      parseDataFile(text);
+      await importWithEditors(() => importDataFile(text));
 
-      setMsg('Import successful. Reloading...');
-      setTimeout(() => window.location.reload(), 1500);
+      setMsg('Import successful');
     } catch (error) {
       setMsg(`Import failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
-    }
+    } finally { setBusy(false); }
   };
 
   return (
@@ -58,12 +65,14 @@ export const DataPanel = ({ fileAdapter = defaultDataFileAdapter }: DataPanelPro
       <div className="data-actions">
         <button
           onClick={handleExport}
+          disabled={busy}
           className="data-button"
         >
           Export
         </button>
         <button
           onClick={handleImport}
+          disabled={busy}
           className="data-button"
         >
           Import
