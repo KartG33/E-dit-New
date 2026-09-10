@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import App from '../src/App';
-import { db } from '../src/lib/db';
+import App from '../apps/desktop/src/App';
+import { db } from '../apps/desktop/src/lib/db';
 
 describe.sequential('Desktop productivity', () => {
   beforeEach(async () => {

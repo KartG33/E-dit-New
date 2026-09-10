@@ -1,5 +1,5 @@
 ﻿import { describe, it, expect } from 'vitest';
-import { findTextMatches } from '../src/lib/textSearch';
+import { findTextMatches } from '../apps/desktop/src/lib/textSearch';
 describe('literal text search', () => {
   it('finds repeated tags literally, with original Unicode positions', () => {
     expect(findTextMatches('emoji: \u{1f600} [tag] [TAG]', '[tag]')).toEqual([{ start: 10, end: 15 }, { start: 16, end: 21 }]);

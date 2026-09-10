@@ -44,7 +44,7 @@ test('desktop productivity flow and unchanged mobile layout', async ({ browser, 
 
   const mobile = await browser.newPage({ viewport: { width: 393, height: 873 }, isMobile: true });
   consoleCheck(mobile);
-  await mobile.goto('/');
+  await mobile.goto('http://127.0.0.1:4174/');
   await expect(mobile.getByRole('textbox', { name: 'left editor' })).toBeEnabled();
   await expect(mobile.getByRole('button', { name: 'Keyboard shortcuts' })).toBeHidden();
   await expect(mobile.locator('.app-editor-pane.is-mobile-visible')).toHaveCount(1);

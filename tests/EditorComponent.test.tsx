@@ -1,8 +1,8 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
 import { render, screen, cleanup, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { Editor } from '../src/components/Editor/Editor';
-import { EditorState } from '../src/hooks/useEditor';
+import { Editor } from '../apps/android/src/components/Editor/Editor';
+import { EditorState } from '../apps/android/src/hooks/useEditor';
 import { Clipboard } from '@capacitor/clipboard';
 import { useState } from 'react';
 

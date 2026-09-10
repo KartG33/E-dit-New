@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { removeAllExact, removeExactWithCount, replaceAllExact } from '../src/lib/textExactEdit';
+import { removeAllExact, removeExactWithCount, replaceAllExact } from '@core/textExactEdit';
 
 const source = 'The NEW system update (version 4.5.1) was successfully installed today! Please DO NOT turn off the device while the NEW system is configuring files. If you see ERROR [1001], contact support.';
 

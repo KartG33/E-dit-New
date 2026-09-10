@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen } from '@testing-library/react';
-import { QuickTextEditModal } from '../src/components/TextEdit/QuickTextEditModal';
+import { QuickTextEditModal } from '../apps/desktop/src/components/TextEdit/QuickTextEditModal';
 
 const source = 'The NEW system was successfully installed today! The NEW system is ready.';
 

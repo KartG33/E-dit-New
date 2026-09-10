@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { EditDatabase } from '../src/lib/db';
-import { DataImportError, importDataFile, parseDataFile } from '../src/lib/data/import';
+import { EditDatabase } from '../apps/desktop/src/lib/db';
+import { DataImportError, importDataFile, parseDataFile } from '../apps/desktop/src/lib/data/import';
 
 const validData = () => ({
   version: 2,

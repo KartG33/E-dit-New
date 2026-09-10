@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
-import * as textCmds from '../src/lib/commands/text';
-import * as sunoCmds from '../src/lib/commands/suno';
-import { COMMAND_REGISTRY } from '../src/lib/commands/registry';
+import * as textCmds from '@core/commands/text';
+import * as sunoCmds from '@core/commands/suno';
+import { COMMAND_REGISTRY } from '@core/commands/registry';
 
 describe('Text Commands', () => {
   it('keeps stable command IDs mapped to the unambiguous internal names', () => {

@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
-import { db, type RegexPreset, type ChainPreset } from '../src/lib/db';
-import { applyRegexPreset, applyChainPreset } from '../src/lib/presets/execute';
-import { PRESET_SYMBOLS, removePresetSymbol } from '../src/lib/commands/symbols';
+import { db, type RegexPreset, type ChainPreset } from '../apps/desktop/src/lib/db';
+import { applyRegexPreset, applyChainPreset } from '@core/presets/execute';
+import { PRESET_SYMBOLS, removePresetSymbol } from '@core/commands/symbols';
 
 describe('Regex Presets', () => {
   it('applies a valid regex preset', () => {

@@ -1,8 +1,8 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook, act, render, screen, fireEvent } from '@testing-library/react';
-import { analyzeSymbols, removeTokenFromText } from '../src/lib/analyzer';
-import { useSymbolAnalyzer } from '../src/hooks/useSymbolAnalyzer';
-import { Editor } from '../src/components/Editor/Editor';
+import { analyzeSymbols, removeTokenFromText } from '@core/analyzer';
+import { useSymbolAnalyzer } from '../apps/desktop/src/hooks/useSymbolAnalyzer';
+import { Editor } from '../apps/desktop/src/components/Editor/Editor';
 
 describe('Symbol Analyzer', () => {
   beforeEach(() => {

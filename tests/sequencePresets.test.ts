@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import Dexie from 'dexie';
 import legacy from './fixtures/data-v2.json';
-import { EditDatabase, type PresetData } from '../src/lib/db';
-import { applyPreset } from '../src/lib/presets/execute';
-import { importDataFile, parseDataFile } from '../src/lib/data/import';
+import { EditDatabase, type PresetData } from '../apps/desktop/src/lib/db';
+import { applyPreset } from '@core/presets/execute';
+import { importDataFile, parseDataFile } from '../apps/desktop/src/lib/data/import';
 
 describe('sequence presets and compatible data', () => {
   it('processes a 100,000-character input without losing its tail', () => {

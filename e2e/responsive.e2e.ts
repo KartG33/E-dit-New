@@ -41,7 +41,8 @@ test('long text navigation and compact controls remain usable', async ({ page })
   await expect(page.getByRole('button', { name: 'Assign shortcut: Switch to Editor 1' })).toBeEnabled();
   await page.screenshot({ path: 'test-results/qa-mobile-keys.png' });
   await page.getByRole('button', { name: 'Close Settings' }).click();
-  await page.getByRole('button', { name: 'Manage presets' }).click();
+  await page.getByRole('button', { name: 'Settings', exact: true }).click();
+  await page.getByRole('button', { name: 'Presets Manage presets', exact: true }).click();
   await page.getByRole('button', { name: 'New preset', exact: true }).click();
   await page.getByRole('button', { name: 'Add replacement', exact: false }).click();
   await page.screenshot({ path: 'test-results/qa-mobile-preset.png' });

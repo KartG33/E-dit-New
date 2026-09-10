@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
-import App from '../src/App';
-import { db } from '../src/lib/db';
+import App from '../apps/android/src/App';
+import { db } from '../apps/android/src/lib/db';
 
 describe('Mobile editor layout state', () => {
   beforeEach(async () => {
@@ -49,7 +49,8 @@ describe('Mobile editor layout state', () => {
       expect((screen.getByRole('textbox', { name: 'left editor' }) as HTMLTextAreaElement).disabled).toBe(false);
     });
 
-    fireEvent.click(screen.getByRole('button', { name: 'Manage presets' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Settings' }));
+    fireEvent.click(screen.getByRole('button', { name: /Presets\s*Manage presets/ }));
     expect(screen.getByRole('dialog', { name: 'Presets' })).toBeDefined();
 
     fireEvent.click(screen.getByRole('button', { name: 'Suno' }));
@@ -61,46 +62,42 @@ describe('Mobile editor layout state', () => {
     expect(screen.queryByRole('dialog', { name: 'Suno Tags' })).toBeNull();
     expect(screen.getByTestId('sliding-drawer').classList.contains('is-open')).toBe(true);
 
-    fireEvent.click(screen.getByRole('button', { name: 'Manage presets' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Settings' }));
+    fireEvent.click(screen.getByRole('button', { name: /Presets\s*Manage presets/ }));
     expect(screen.getByTestId('sliding-drawer').classList.contains('is-open')).toBe(false);
     expect(screen.getByRole('dialog', { name: 'Presets' })).toBeDefined();
   });
 
-  it('tracks the visual viewport while the software keyboard changes its height', async () => {
-    const originalDescriptor = Object.getOwnPropertyDescriptor(window, 'visualViewport');
-    const listeners = new Map<string, EventListener>();
-    let viewportHeight = 480;
-    const visualViewport = {
-      get height() { return viewportHeight; },
-      get offsetTop() { return 12; },
-      addEventListener: (type: string, listener: EventListenerOrEventListenerObject) => {
-        listeners.set(type, listener as EventListener);
-      },
-      removeEventListener: (type: string) => {
-        listeners.delete(type);
-      },
-    } as unknown as VisualViewport;
-
-    Object.defineProperty(window, 'visualViewport', {
-      configurable: true,
-      value: visualViewport,
-    });
-
+  it('uses the resized window and ignores transient visual viewport collapse', async () => {
+    const root = document.documentElement;
+    const heightDescriptor = Object.getOwnPropertyDescriptor(root, 'clientHeight');
+    const viewportDescriptor = Object.getOwnPropertyDescriptor(window, 'visualViewport');
+    let windowHeight = 844;
+    const viewport = new EventTarget();
+    Object.assign(viewport, { height: 844, offsetTop: 0 });
+    Object.defineProperty(root, 'clientHeight', { configurable: true, get: () => windowHeight });
+    Object.defineProperty(window, 'visualViewport', { configurable: true, value: viewport });
     const { unmount } = render(<App />);
-    await waitFor(() => {
-      expect(document.documentElement.style.getPropertyValue('--app-viewport-height')).toBe('480px');
-      expect(document.documentElement.style.getPropertyValue('--app-viewport-offset-top')).toBe('12px');
-    });
-
-    viewportHeight = 320;
-    act(() => listeners.get('resize')?.(new Event('resize')));
-    expect(document.documentElement.style.getPropertyValue('--app-viewport-height')).toBe('320px');
-
-    unmount();
-    if (originalDescriptor) {
-      Object.defineProperty(window, 'visualViewport', originalDescriptor);
-    } else {
-      Reflect.deleteProperty(window, 'visualViewport');
+    try {
+      expect(root.style.getPropertyValue('--app-viewport-height')).toBe('844px');
+      // The WebView has resized once; a transitional visual viewport subtracts the IME again.
+      windowHeight = 533;
+      Object.assign(viewport, { height: 202, offsetTop: 12 });
+      act(() => { viewport.dispatchEvent(new Event('resize')); window.dispatchEvent(new Event('resize')); });
+      await waitFor(() => expect(root.style.getPropertyValue('--app-viewport-height')).toBe('533px'));
+      expect(root.style.getPropertyValue('--app-viewport-offset-top')).toBe('0px');
+      Object.assign(viewport, { height: 533, offsetTop: 0 });
+      act(() => viewport.dispatchEvent(new Event('resize')));
+      expect(root.style.getPropertyValue('--app-viewport-height')).toBe('533px');
+      windowHeight = 844;
+      act(() => window.dispatchEvent(new Event('resize')));
+      await waitFor(() => expect(root.style.getPropertyValue('--app-viewport-height')).toBe('844px'));
+    } finally {
+      unmount();
+      if (heightDescriptor) Object.defineProperty(root, 'clientHeight', heightDescriptor);
+      else Reflect.deleteProperty(root, 'clientHeight');
+      if (viewportDescriptor) Object.defineProperty(window, 'visualViewport', viewportDescriptor);
+      else Reflect.deleteProperty(window, 'visualViewport');
     }
   });
 });

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import * as sunoCmds from '../src/lib/commands/suno';
+import * as sunoCmds from '@core/commands/suno';
 
 describe('Suno Commands', () => {
   it('finds every tag in its text order without grouping repetitions', () => {

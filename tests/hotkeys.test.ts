@@ -6,7 +6,7 @@ import {
   shortcutFromEvent,
   shortcutId,
   validatePresetShortcut,
-} from '../src/lib/hotkeys';
+} from '../apps/desktop/src/lib/hotkeys';
 
 describe('desktop shortcuts', () => {
   const shortcut = { code: 'KeyK', ctrl: true, shift: true, alt: false, meta: false };

@@ -2,17 +2,17 @@ import 'fake-indexeddb/auto';
 import { act, render, renderHook, waitFor } from '@testing-library/react';
 import { createElement } from 'react';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
-import { analyzeSymbols, removeTokenFromText } from '../src/lib/analyzer';
-import { COMMAND_REGISTRY } from '../src/lib/commands/registry';
+import { analyzeSymbols, removeTokenFromText } from '@core/analyzer';
+import { COMMAND_REGISTRY } from '@core/commands/registry';
 import {
   findSunoTags,
   insertSunoTag,
   removeSunoTag,
   replaceSunoTag,
-} from '../src/lib/commands/suno';
-import { useEditor } from '../src/hooks/useEditor';
-import { db } from '../src/lib/db';
-import { Editor, type EditorProps } from '../src/components/Editor/Editor';
+} from '@core/commands/suno';
+import { useEditor } from '../apps/desktop/src/hooks/useEditor';
+import { db } from '../apps/desktop/src/lib/db';
+import { Editor, type EditorProps } from '../apps/desktop/src/components/Editor/Editor';
 
 const SIZES = [10_000, 50_000, 100_000] as const;
 const ITERATIONS = 12;

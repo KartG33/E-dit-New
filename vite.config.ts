@@ -1,23 +1,38 @@
-import { defineConfig } from 'vitest/config'
-import react from '@vitejs/plugin-react'
-import tailwindcss from '@tailwindcss/vite'
+import { fileURLToPath } from 'node:url';
+import path from 'node:path';
+import { defineConfig } from 'vitest/config';
+import react from '@vitejs/plugin-react';
+import tailwindcss from '@tailwindcss/vite';
 
-// https://vite.dev/config/
-export default defineConfig({
-  clearScreen: false,
-  plugins: [
-    react(),
-    tailwindcss(),
-  ],
-  server: {
-    strictPort: true,
-    watch: {
-      ignored: ['**/src-tauri/**'],
+const repository = fileURLToPath(new URL('.', import.meta.url));
+export default defineConfig(({ mode, command }) => {
+  const android = mode.startsWith('android');
+  const platform = android ? 'android' : 'desktop';
+  const preview = mode.endsWith('-preview');
+  return {
+    root: path.join(repository, 'apps', platform),
+    publicDir: path.join(repository, 'public'),
+    clearScreen: false,
+    define: mode === 'test' ? {} : { __APP_PREVIEW__: JSON.stringify(command === 'serve' || preview) },
+    plugins: [react(), tailwindcss()],
+    resolve: { alias: {
+      '@core': path.join(repository, 'packages/core'),
+      '@app': path.join(repository, 'apps', platform, 'src'),
+    } },
+    build: {
+      outDir: path.join(repository, 'dist', platform + (preview ? '-preview' : '')),
+      emptyOutDir: true,
+      target: 'es2022',
     },
-  },
-  test: {
-    include: ['tests/**/*.test.{ts,tsx}'],
-    environment: 'jsdom',
-    setupFiles: ['./tests/setup.ts'],
-  }
-})
+    server: {
+      port: android ? 5174 : 5173, strictPort: true,
+      watch: { ignored: ['**/src-tauri/**', '**/android/app/**', '**/android/build/**', '**/android/.gradle/**'] },
+    },
+    test: {
+      root: repository,
+      include: ['tests/**/*.test.{ts,tsx}'],
+      environment: 'jsdom',
+      setupFiles: [path.join(repository, 'tests/setup.ts')],
+    },
+  };
+});

@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { open, save } from '@tauri-apps/plugin-dialog';
 import { readTextFile, writeTextFile } from '@tauri-apps/plugin-fs';
-import { TauriDataFileAdapter } from '../src/lib/platform/tauriDataFileAdapter';
+import { TauriDataFileAdapter } from '../apps/desktop/src/lib/platform/tauriDataFileAdapter';
 
 vi.mock('@tauri-apps/plugin-dialog', () => ({
   open: vi.fn(),

@@ -1,25 +1,30 @@
-import { describe, expect, it } from 'vitest';
-import { capacitorDataFileAdapter } from '../src/lib/platform/capacitorDataFileAdapter';
-import { browserDataFileAdapter } from '../src/lib/platform/dataFileAdapter';
-import {
-  selectDataFileAdapterForPlatform,
-} from '../src/lib/platform/defaultDataFileAdapter';
-import { tauriDataFileAdapter } from '../src/lib/platform/tauriDataFileAdapter';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
-describe('selectDataFileAdapterForPlatform', () => {
-  it('keeps the Tauri adapter for the Windows desktop shell', () => {
-    expect(selectDataFileAdapterForPlatform(true, false)).toBe(tauriDataFileAdapter);
+afterEach(() => { vi.stubGlobal('__APP_PREVIEW__', true); vi.resetModules(); });
+
+describe('independent application file adapters', () => {
+  it('uses only Tauri for a production Desktop build', async () => {
+    vi.stubGlobal('__APP_PREVIEW__', false);
+    const { defaultDataFileAdapter } = await import('../apps/desktop/src/lib/platform/defaultDataFileAdapter');
+    const { tauriDataFileAdapter } = await import('../apps/desktop/src/lib/platform/tauriDataFileAdapter');
+    expect(defaultDataFileAdapter).toBe(tauriDataFileAdapter);
   });
-
-  it('uses the Capacitor adapter on a native mobile platform', () => {
-    expect(selectDataFileAdapterForPlatform(false, true)).toBe(capacitorDataFileAdapter);
+  it('uses only Capacitor for a production Android build', async () => {
+    vi.stubGlobal('__APP_PREVIEW__', false);
+    const { defaultDataFileAdapter } = await import('../apps/android/src/lib/platform/defaultDataFileAdapter');
+    const { capacitorDataFileAdapter } = await import('../apps/android/src/lib/platform/capacitorDataFileAdapter');
+    expect(defaultDataFileAdapter).toBe(capacitorDataFileAdapter);
   });
-
-  it('keeps the browser adapter for the web version', () => {
-    expect(selectDataFileAdapterForPlatform(false, false)).toBe(browserDataFileAdapter);
+  it('uses the browser adapter only in an explicit Desktop preview', async () => {
+    vi.stubGlobal('__APP_PREVIEW__', true);
+    const { defaultDataFileAdapter } = await import('../apps/desktop/src/lib/platform/defaultDataFileAdapter');
+    const { browserDataFileAdapter } = await import('../apps/desktop/src/lib/platform/dataFileAdapter');
+    expect(defaultDataFileAdapter).toBe(browserDataFileAdapter);
   });
-
-  it('gives Tauri precedence if both platform signals are present', () => {
-    expect(selectDataFileAdapterForPlatform(true, true)).toBe(tauriDataFileAdapter);
+  it('uses the browser adapter only in an explicit Android preview', async () => {
+    vi.stubGlobal('__APP_PREVIEW__', true);
+    const { defaultDataFileAdapter } = await import('../apps/android/src/lib/platform/defaultDataFileAdapter');
+    const { browserDataFileAdapter } = await import('../apps/android/src/lib/platform/dataFileAdapter');
+    expect(defaultDataFileAdapter).toBe(browserDataFileAdapter);
   });
 });

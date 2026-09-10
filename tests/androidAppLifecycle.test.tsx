@@ -4,7 +4,7 @@ import {
   ANDROID_BACK_REQUEST_EVENT,
   type AndroidAppBindings,
   useAndroidAppLifecycle,
-} from '../src/hooks/useAndroidAppLifecycle';
+} from '../apps/android/src/hooks/useAndroidAppLifecycle';
 
 interface NativeListeners {
   backButton?: (event: { canGoBack: boolean }) => void;

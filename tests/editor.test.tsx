@@ -1,8 +1,8 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
-import { useEditor } from '../src/hooks/useEditor';
+import { useEditor } from '../apps/desktop/src/hooks/useEditor';
 import 'fake-indexeddb/auto';
-import { db } from '../src/lib/db';
+import { db } from '../apps/desktop/src/lib/db';
 import { StrictMode } from 'react';
 
 describe('useEditor Hook Autosave & Hydration', () => {

@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen } from '@testing-library/react';
-import { SettingsModal } from '../src/components/Settings/SettingsModal';
-import { ANDROID_BACK_REQUEST_EVENT } from '../src/hooks/useAndroidAppLifecycle';
+import { SettingsModal } from '../apps/android/src/components/Settings/SettingsModal';
+import { ANDROID_BACK_REQUEST_EVENT } from '../apps/android/src/hooks/useAndroidAppLifecycle';
 
 describe('SettingsModal', () => {
   it('returns from Data to Settings on Android Back, then leaves closing to the app', () => {

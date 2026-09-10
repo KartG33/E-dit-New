@@ -1,12 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { DataPanel } from '../src/components/Data/DataPanel';
-import { db } from '../src/lib/db';
+import { DataPanel } from '../apps/desktop/src/components/Data/DataPanel';
+import { db } from '../apps/desktop/src/lib/db';
 import {
   BrowserDataFileAdapter,
   type DataFileAdapter,
   type SelectedDataFile,
-} from '../src/lib/platform/dataFileAdapter';
+} from '../apps/desktop/src/lib/platform/dataFileAdapter';
 
 const selectedFile: SelectedDataFile = { name: 'data.json', handle: {} };
 

@@ -1,6 +1,6 @@
 import 'fake-indexeddb/auto';
 import { describe, it, expect, beforeEach } from 'vitest';
-import { db, EditDatabase } from '../src/lib/db';
+import { db, EditDatabase } from '../apps/desktop/src/lib/db';
 import Dexie from 'dexie';
 
 describe('Database & Migrations', () => {

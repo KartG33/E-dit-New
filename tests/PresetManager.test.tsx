@@ -1,9 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { PresetManager } from '../src/components/Presets/PresetManager';
-import { ANDROID_BACK_REQUEST_EVENT } from '../src/hooks/useAndroidAppLifecycle';
-import { PresetsTab } from '../src/components/Commands/PresetsTab';
-import { EditDatabase } from '../src/lib/db';
+import { PresetManager } from '../apps/android/src/components/Presets/PresetManager';
+import { ANDROID_BACK_REQUEST_EVENT } from '../apps/android/src/hooks/useAndroidAppLifecycle';
+import { PresetsTab } from '../apps/android/src/components/Commands/PresetsTab';
+import { EditDatabase } from '../apps/android/src/lib/db';
 
 describe.sequential('Preset management', () => {
   let database: EditDatabase;
@@ -15,6 +15,66 @@ describe.sequential('Preset management', () => {
 
   afterEach(async () => {
     await database.delete();
+  });
+
+  it('restores independent drafts after closing without changing saved presets', async () => {
+    const ids = await database.presets.bulkAdd([
+      { name: 'First', data: { type: 'chain', commands: ['text.spaces'] }, isFavorite: false, createdAt: 1, updatedAt: 1 },
+      { name: 'Second', data: { type: 'chain', commands: ['text.upper'] }, isFavorite: false, createdAt: 2, updatedAt: 2 },
+    ], { allKeys: true });
+    const view = render(<PresetManager onClose={vi.fn()} database={database} />);
+    fireEvent.click(await screen.findByRole('button', { name: /First/ }));
+    fireEvent.change(screen.getByLabelText('Name'), { target: { value: 'First draft' } });
+    fireEvent.click(screen.getByRole('button', { name: /Second/ }));
+    fireEvent.change(screen.getByLabelText('Name'), { target: { value: 'Second draft' } });
+    view.unmount();
+    render(<PresetManager onClose={vi.fn()} database={database} />);
+    await waitFor(() => expect((screen.getByLabelText('Name') as HTMLInputElement).value).toBe('Second draft'));
+    fireEvent.click(screen.getByRole('button', { name: /First/ }));
+    expect((screen.getByLabelText('Name') as HTMLInputElement).value).toBe('First draft');
+    expect((await database.presets.get(ids[0]))?.name).toBe('First');
+    fireEvent.click(screen.getByRole('button', { name: 'Discard changes' }));
+    expect((screen.getByLabelText('Name') as HTMLInputElement).value).toBe('First');
+    fireEvent.click(screen.getByRole('button', { name: /Second/ }));
+    fireEvent.click(screen.getByRole('button', { name: 'Save preset' }));
+    await screen.findByText('Saved.');
+    expect((await database.presets.get(ids[1]))?.name).toBe('Second draft');
+    expect(localStorage.getItem(`edit.preset-draft.${database.name}.${ids[1]}`)).toBeNull();
+  });
+
+  it('restores unfinished new steps and clears their draft only after saving', async () => {
+    const view = render(<PresetManager onClose={vi.fn()} database={database} />);
+    fireEvent.click(await screen.findByRole('button', { name: 'New preset' }));
+    fireEvent.change(screen.getByLabelText('Name'), { target: { value: 'Unfinished' } });
+    fireEvent.click(screen.getByRole('button', { name: /Add replacement/ }));
+    view.unmount();
+    render(<PresetManager onClose={vi.fn()} database={database} />);
+    await waitFor(() => expect((screen.getByLabelText('Name') as HTMLInputElement).value).toBe('Unfinished'));
+    expect((screen.getByLabelText('Find text 1') as HTMLInputElement).value).toBe('');
+    expect(await database.presets.count()).toBe(0);
+    fireEvent.change(screen.getByLabelText('Find text 1'), { target: { value: 'old' } });
+    fireEvent.change(screen.getByLabelText('Replace with 1'), { target: { value: 'new' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Save preset' }));
+    await screen.findByText('Saved.');
+    expect(await database.presets.count()).toBe(1);
+    expect(localStorage.getItem(`edit.preset-draft.${database.name}.new`)).toBeNull();
+  });
+
+  it('removes a deleted preset draft and returns through the Android navigation levels', async () => {
+    const id = await database.presets.add({ name: 'Delete me', data: { type: 'chain', commands: ['text.spaces'] }, isFavorite: false, createdAt: 1, updatedAt: 1 });
+    const back = vi.fn();
+    render(<PresetManager onClose={vi.fn()} onBack={back} database={database} />);
+    fireEvent.click(await screen.findByRole('button', { name: /Delete me/ }));
+    fireEvent.change(screen.getByLabelText('Name'), { target: { value: 'Draft' } });
+    fireEvent(window, new Event(ANDROID_BACK_REQUEST_EVENT, { cancelable: true }));
+    expect(back).not.toHaveBeenCalled();
+    fireEvent(window, new Event(ANDROID_BACK_REQUEST_EVENT, { cancelable: true }));
+    expect(back).toHaveBeenCalledOnce();
+    fireEvent.click(screen.getByRole('button', { name: /Delete me/ }));
+    fireEvent.click(screen.getByRole('button', { name: 'Delete', exact: true }));
+    fireEvent.click(screen.getByRole('button', { name: 'Confirm delete' }));
+    await waitFor(async () => expect(await database.presets.count()).toBe(0));
+    await waitFor(() => expect(localStorage.getItem(`edit.preset-draft.${database.name}.${id}`)).toBeNull());
   });
 
   it('duplicates a preset with independent steps and no conflicting shortcut', async () => {

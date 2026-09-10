@@ -1,7 +1,7 @@
 ﻿import { describe, it, expect, beforeEach } from 'vitest';
-import { db } from '../src/lib/db';
-import { getActionShortcut, saveActionShortcut } from '../src/lib/actionShortcuts';
-import { parseDataFile } from '../src/lib/data/import';
+import { db } from '../apps/desktop/src/lib/db';
+import { getActionShortcut, saveActionShortcut } from '../apps/desktop/src/lib/actionShortcuts';
+import { parseDataFile } from '../apps/desktop/src/lib/data/import';
 
 const custom = { code: 'KeyK', ctrl: true, alt: false, shift: true, meta: false };
 beforeEach(async () => { await db.settings.clear(); await db.presets.clear(); });

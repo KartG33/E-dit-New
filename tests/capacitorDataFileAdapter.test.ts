@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { Directory, Encoding, Filesystem } from '@capacitor/filesystem';
 import { Share } from '@capacitor/share';
-import { CapacitorDataFileAdapter } from '../src/lib/platform/capacitorDataFileAdapter';
-import type { DataFileAdapter, SelectedDataFile } from '../src/lib/platform/dataFileAdapter';
+import { CapacitorDataFileAdapter } from '../apps/android/src/lib/platform/capacitorDataFileAdapter';
+import type { DataFileAdapter, SelectedDataFile } from '../apps/android/src/lib/platform/dataFileAdapter';
 
 vi.mock('@capacitor/filesystem', () => ({
   Directory: { Cache: 'CACHE' },

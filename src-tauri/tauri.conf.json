@@ -4,10 +4,10 @@
   "version": "2.0.6",
   "identifier": "com.kartg33.edit.v2",
   "build": {
-    "frontendDist": "../dist",
+    "frontendDist": "../dist/desktop",
     "devUrl": "http://localhost:5173",
-    "beforeDevCommand": "npm run dev",
-    "beforeBuildCommand": "npm run build"
+    "beforeDevCommand": "npm run dev:desktop",
+    "beforeBuildCommand": "npm run build:desktop"
   },
   "app": {
     "windows": [

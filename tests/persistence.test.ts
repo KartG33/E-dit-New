@@ -1,7 +1,7 @@
 import { beforeEach, afterEach, describe, expect, it, vi } from 'vitest';
-import { db } from '../src/lib/db';
-import { EditorPersistence, importWithEditors } from '../src/lib/editorPersistence';
-import { importDataFile, parseDataFile } from '../src/lib/data/import';
+import { db } from '../apps/desktop/src/lib/db';
+import { EditorPersistence, importWithEditors } from '../apps/desktop/src/lib/editorPersistence';
+import { importDataFile, parseDataFile } from '../apps/desktop/src/lib/data/import';
 
 describe('editor persistence coordination', () => {
   beforeEach(async () => { localStorage.clear(); await db.settings.clear(); await db.history.clear(); });

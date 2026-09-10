@@ -1,9 +1,11 @@
+import { CommandPanel as AndroidCommandPanel } from '../apps/android/src/components/Commands/CommandPanel';
+import { SunoTagsPanel as AndroidSunoTagsPanel } from '../apps/android/src/components/SunoTags/SunoTagsPanel';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen } from '@testing-library/react';
-import { CommandPanel } from '../src/components/Commands/CommandPanel';
-import { SunoTagsPanel } from '../src/components/SunoTags/SunoTagsPanel';
-import { collapseSpaces } from '../src/lib/commands/text';
-import { db } from '../src/lib/db';
+import { CommandPanel } from '../apps/desktop/src/components/Commands/CommandPanel';
+import { SunoTagsPanel } from '../apps/desktop/src/components/SunoTags/SunoTagsPanel';
+import { collapseSpaces } from '@core/commands/text';
+import { db } from '../apps/desktop/src/lib/db';
 
 describe('CommandPanel', () => {
   beforeEach(async () => {
@@ -25,7 +27,7 @@ describe('CommandPanel', () => {
   it('switches the active editor from the mobile control', () => {
     const onActiveEditorChange = vi.fn();
     render(
-      <CommandPanel
+      <AndroidCommandPanel
         applyCommand={vi.fn()}
         activeEditor="right"
         onActiveEditorChange={onActiveEditorChange}
@@ -153,7 +155,7 @@ describe('CommandPanel', () => {
 
   it('switches between the mobile Suno tag views', () => {
     render(
-      <SunoTagsPanel
+      <AndroidSunoTagsPanel
         editorKey="left"
         editorText="[Verse]"
         onInsert={vi.fn()}

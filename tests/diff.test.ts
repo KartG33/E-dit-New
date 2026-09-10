@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { compareLines } from '../src/lib/diff';
+import { compareLines } from '@core/diff';
 
 describe('Line Diff', () => {
   it('identifies identical text', () => {

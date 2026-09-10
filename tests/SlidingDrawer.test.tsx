@@ -1,8 +1,8 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, cleanup, fireEvent, waitFor } from '@testing-library/react';
-import { SlidingDrawer } from '../src/components/Drawer/SlidingDrawer';
+import { SlidingDrawer } from '../apps/desktop/src/components/Drawer/SlidingDrawer';
 import 'fake-indexeddb/auto';
-import { db } from '../src/lib/db';
+import { db } from '../apps/desktop/src/lib/db';
 
 describe('SlidingDrawer Component', () => {
   beforeEach(async () => {
